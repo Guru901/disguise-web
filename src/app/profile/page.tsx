@@ -1,15 +1,16 @@
-import { authClient } from "@/lib/auth-client";
-import SignIn from "./components/sign-in";
+import SignIn from "@/app/components/sign-in";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export default async function Home() {
-  const { data: session } = await authClient.getSession();
+  const session = await auth.api.getSession({ headers: await headers() });
   console.log(session);
   return (
     <main>
       {session ? (
         <>
-          <p>Hello {session.user.name}</p>
+          <p>Hello {session.user.email}</p>
           <Button>Logout</Button>
         </>
       ) : (
