@@ -5,6 +5,7 @@ import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { ThemeProvider } from "./components/theme-provider";
+import BottomNavbar from "./components/bottom-nav";
 
 export const metadata: Metadata = {
   title: "Social Media again",
@@ -28,7 +29,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TRPCReactProvider>{children}</TRPCReactProvider>
+          <TRPCReactProvider>
+            <div className="mb-20">{children}</div>
+          </TRPCReactProvider>
+
+          <BottomNavbar />
         </ThemeProvider>
       </body>
     </html>
