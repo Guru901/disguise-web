@@ -1,20 +1,11 @@
-import { authClient } from "@/lib/auth-client";
-import SignIn from "./components/sign-in";
-import { Button } from "@/components/ui/button";
+import SignUp from "./components/sign-up";
 
 export default async function Home() {
-  const { data: session } = await authClient.getSession();
-  console.log(session);
   return (
-    <main>
-      {session ? (
-        <>
-          <p>Hello {session.user.name}</p>
-          <Button>Logout</Button>
-        </>
-      ) : (
-        <SignIn />
-      )}
+    <main className="flex min-h-screen w-screen items-center justify-center">
+      <div className="flex w-[50vw] justify-center">
+        <SignUp />
+      </div>
     </main>
   );
 }
