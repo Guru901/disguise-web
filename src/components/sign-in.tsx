@@ -35,7 +35,7 @@ export default function SignIn() {
     const response = await loginUserMutation.mutateAsync(data);
 
     if (response.success) {
-      router.push("/profile");
+      router.push("/me");
     } else {
       setError("root", { message: response.message });
     }

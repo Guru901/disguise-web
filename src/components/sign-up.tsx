@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -17,6 +17,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { api } from "@/trpc/react";
 import { signUpSchema, type TSignUpSchema } from "@/lib/schemas";
+import { UploadButton } from "@/lib/uploadthing";
+import { toast } from "sonner";
 
 export default function SignUp() {
   const registerUserMutation = api.userRouter.registerUser.useMutation();
@@ -26,6 +28,7 @@ export default function SignUp() {
     control,
     handleSubmit,
     formState: { isSubmitting, errors },
+    setValue,
     setError,
   } = useForm<TSignUpSchema>({
     resolver: zodResolver(signUpSchema),
@@ -35,14 +38,14 @@ export default function SignUp() {
     const response = await registerUserMutation.mutateAsync(data);
 
     if (response.success) {
-      router.push("/profile");
+      router.push("/me");
     } else {
       setError("root", { message: response.message });
     }
   }
 
   return (
-    <Card className="z-50 w-md rounded-md rounded-t-none">
+    <Card className="z-50 w-md rounded-md rounded-t-none py-6">
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
         <CardDescription className="text-xs md:text-sm">
@@ -103,6 +106,32 @@ export default function SignUp() {
               <p className="text-xs text-red-500">
                 {errors.passwordConfirmation.message}
               </p>
+            )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="avatar">Avatar (optional)</Label>
+
+            <UploadButton
+              endpoint="imageUploader"
+              onClientUploadComplete={(res) => {
+                setValue("avatar", res[0]?.ufsUrl);
+                toast("Avatar uploaded successfully");
+              }}
+              onUploadError={(error: Error) => {
+                alert(`ERROR! ${error.message}`);
+              }}
+              appearance={{
+                button: {
+                  padding: "1rem",
+                  width: "100%",
+                  color: "black",
+                  border: "1px solid #8A79AB",
+                },
+              }}
+            />
+
+            {errors && errors.avatar && (
+              <p className="text-xs text-red-500">{errors.avatar.message}</p>
             )}
           </div>
           <div className="grid gap-2">
