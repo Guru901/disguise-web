@@ -107,7 +107,7 @@ export default function SignUp() {
           </div>
           <div className="grid gap-2">
             <p className="text-xs">
-              Already have an account? <Link href="/sign-in">Sign in</Link>
+              Already have an account? <Link href="/login">Sign in</Link>
             </p>
           </div>
           {errors && errors.root && (

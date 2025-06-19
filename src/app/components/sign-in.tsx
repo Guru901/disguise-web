@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Route } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { signInSchema, type TSignInSchema } from "@/lib/schemas";
@@ -50,7 +50,7 @@ export default function SignIn() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-2">
             <Label htmlFor="username">Username</Label>
             <Controller
@@ -90,18 +90,14 @@ export default function SignIn() {
             <p className="text-xs text-red-500">{errors.root.message}</p>
           )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <Button type="submit" className="w-full">
             {isSubmitting ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
               "Login"
             )}
           </Button>
-        </div>
+        </form>
       </CardContent>
     </Card>
   );

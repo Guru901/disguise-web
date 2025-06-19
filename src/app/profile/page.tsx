@@ -7,23 +7,55 @@ import { Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "@/trpc/react";
+import { useUserStore } from "@/lib/userStore";
 
-export default function Home() {
+export default function Profile() {
   const [selectedOption, setSelectedOption] = useState("public");
+  const { data, isLoading, isError } = api.userRouter.getUserData.useQuery();
+  const { data: userPosts, isLoading: isPostsLoading } =
+    api.postRouter.getUserPosts.useQuery();
 
-  const avatar = "";
-  const username = "guru";
+  const user = data?.[0];
+  const username = user?.username ?? "User";
+  const avatar = user?.avatar ?? undefined;
+  const posts = user?.posts ?? [];
+  const friends = user?.friends ?? [];
+  const createdAt = user?.createdAt.toLocaleDateString() ?? "";
+  const id = user?.id ?? "";
+
   const isProfile = true;
   const isFriend = false;
-  const posts: { _id: string; title: string; image: string }[] = [
-    { _id: "1", title: "Post 1", image: "" },
-    { _id: "2", title: "Post 2", image: "" },
-    { _id: "3", title: "Post 3", image: "" },
-    { _id: "4", title: "Post 4", image: "" },
-  ];
-  const isPostsLoading = false;
-  const friends = ["1", "2", "3"];
+
+  const { setUser } = useUserStore();
+
+  useEffect(() => {
+    setUser({
+      avatar: avatar,
+      username: username,
+      posts: posts,
+      friends: friends,
+      createdAt: createdAt,
+      id: id,
+    });
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="animate-spin" size={32} />
+      </div>
+    );
+  }
+
+  if (isError || !user) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <p>Failed to load profile.</p>
+      </div>
+    );
+  }
 
   return (
     <main>
@@ -31,7 +63,7 @@ export default function Home() {
         <div className="bg-muted/40 border-r p-6 lg:p-8">
           <div className="flex flex-col items-center gap-4">
             <Avatar className="h-44 w-44">
-              <AvatarImage src={`${avatar}`} alt="@shadcn" />
+              <AvatarImage src={avatar} alt={username} />
               <AvatarFallback className="text-xl font-bold">
                 {username.slice(0, 2).toUpperCase()}
               </AvatarFallback>
@@ -41,11 +73,11 @@ export default function Home() {
             </div>
             <div className="bg-background flex w-full items-center justify-around rounded-lg p-4 text-sm font-medium">
               <div className="flex flex-col items-center">
-                <span className="text-xl font-bold">{posts?.length}</span>
+                <span className="text-xl font-bold">{posts.length}</span>
                 <span className="text-muted-foreground">Posts</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-xl font-bold">{friends?.length}</span>
+                <span className="text-xl font-bold">{friends.length}</span>
                 <span className="text-muted-foreground">Friends</span>
               </div>
             </div>
@@ -98,21 +130,28 @@ export default function Home() {
                 <Loader2 className="animate-spin" size={20} />
               </div>
             ) : (
-              posts
+              userPosts
                 ?.slice()
                 .reverse()
                 .map((post) => (
-                  <Card key={post._id} className="overflow-hidden">
-                    <Link href={`/p/${post._id}`}>
+                  <Card key={post.id} className="overflow-hidden">
+                    <Link href={`/p/${post.id}`}>
                       <CardContent className="p-0">
                         {post.image ? (
-                          <Image
-                            src={post.image}
-                            alt="Post"
-                            width={500}
-                            height={500}
-                            className="aspect-square object-cover"
-                          />
+                          <div className="relative">
+                            <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
+                              <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
+                                <h1>{post.title}</h1>
+                              </div>
+                            </div>
+                            <Image
+                              src={post.image}
+                              alt="Post"
+                              width={500}
+                              height={300}
+                              className="h-full w-full rounded-xl object-cover"
+                            />
+                          </div>
                         ) : (
                           <div className="flex h-[500px] w-full items-center justify-center rounded-lg bg-zinc-900 text-xl text-white">
                             <h1>{post.title}</h1>
