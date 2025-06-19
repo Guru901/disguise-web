@@ -18,8 +18,15 @@ export default function useGetUser() {
   );
 
   useEffect(() => {
-    if (data?.user) {
-      setUser(data.user);
+    if (data?.user?.[0]) {
+      setUser({
+        avatar: data.user[0]?.avatar ?? "",
+        username: data.user[0]?.username,
+        id: data.user[0]?.id,
+        posts: data.user[0]?.posts ?? [],
+        friends: data.user[0]?.friends ?? [],
+        createdAt: data.user[0]?.createdAt.toLocaleDateString(),
+      });
     } else if (data && data.success === false) {
       router.replace("/login");
     }
