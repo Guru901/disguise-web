@@ -1,3 +1,4 @@
+import { uploadPostSchema } from "@/lib/schemas";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { postSchema, userSchema } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -43,5 +44,36 @@ export const postRouter = createTRPCRouter({
         ...post,
         createdBy: user,
       };
+    }),
+
+  createPost: publicProcedure
+    .input(uploadPostSchema)
+    .mutation(async ({ input, ctx }) => {
+      const post = await ctx.db
+        .insert(postSchema)
+        .values({
+          title: input.title,
+          content: input.content ?? null,
+          image: input.image ?? null,
+          isPublic: input.isPublic,
+          topic: input.topic ?? "",
+          createdBy: input.author,
+          likes: [],
+          disLikes: [],
+        })
+        .returning({ id: postSchema.id });
+
+      if (Array.isArray(post) && post.length > 0 && post[0]?.id) {
+        return {
+          success: true,
+          message: "Post created successfully",
+          postId: post[0].id,
+        };
+      } else {
+        return {
+          success: false,
+          message: "Failed to create post",
+        };
+      }
     }),
 });
