@@ -32,9 +32,9 @@ export default function RootLayout({
         >
           <TRPCReactProvider>
             <div className="mb-20">{children}</div>
+            <BottomNavbar />
           </TRPCReactProvider>
 
-          <BottomNavbar />
           <Toaster />
         </ThemeProvider>
       </body>
