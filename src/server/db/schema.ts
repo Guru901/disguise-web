@@ -23,7 +23,7 @@ export const postSchema = pgTable("posts", {
   content: text("content"),
   commentsCount: integer("comments_count").notNull().default(0),
   image: text("image"),
-  topic: text("topic").notNull(),
+  topic: text("topic").notNull().default("General"),
   isPublic: boolean("is_public").notNull().default(true),
   likes: text("likes").notNull().array(),
   disLikes: text("dislikes").notNull().array(),

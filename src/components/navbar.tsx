@@ -17,8 +17,6 @@ export default function Navbar() {
 
   const { user, loading } = useGetUser();
 
-  if (loading) return;
-
   return (
     <nav className="bg-background w-screen border-b">
       <div className="flex h-16 items-center px-4">

@@ -122,6 +122,14 @@ export function PostUploadForm() {
           onUploadError={(error: Error) => {
             alert(`ERROR! ${error.message}`);
           }}
+          appearance={{
+            button: {
+              padding: "1rem",
+              width: "100%",
+              color: "black",
+              border: "1px solid #8A79AB",
+            },
+          }}
         />
         {imageUrl && (
           <div className="mt-2 flex justify-center">
