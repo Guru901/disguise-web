@@ -21,4 +21,16 @@ export const userRouter = createTRPCRouter({
       .from(userSchema)
       .where(eq(userSchema.username, "Admin"));
   }),
+
+  getLoggedInUser: publicProcedure.query(async ({ ctx }) => {
+    const user = ctx.db
+      .select()
+      .from(userSchema)
+      .where(eq(userSchema.username, "Admin"));
+
+    return {
+      user: user,
+      success: true,
+    };
+  }),
 });
