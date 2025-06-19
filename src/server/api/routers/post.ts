@@ -35,7 +35,7 @@ export const postRouter = createTRPCRouter({
       const userResults = await ctx.db
         .select()
         .from(userSchema)
-        .where(eq(userSchema.id, post.createdBy));
+        .where(eq(userSchema.id, post.createdBy!));
 
       const user = userResults[0] ?? null;
 
