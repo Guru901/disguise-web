@@ -13,7 +13,7 @@ export default function Feed() {
   const [selectedOption, setSelectedOption] = useState("general");
 
   const { data: posts, isLoading: isPostsLoading } =
-    api.postRouter.getUserPosts.useQuery();
+    api.postRouter.getFeed.useQuery();
 
   if (isPostsLoading) return <Loader />;
 

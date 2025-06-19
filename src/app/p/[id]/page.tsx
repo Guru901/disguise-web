@@ -23,7 +23,7 @@ export default function Feed() {
       <Navbar />
       <div className="flex w-screen items-start justify-center pb-12">
         {isPostLoading ? (
-          <div className="1items-center flex h-screen w-screen justify-center">
+          <div className="flex h-screen w-screen items-center justify-center">
             <Loader2 className="animate-spin" />
           </div>
         ) : post ? (

@@ -117,7 +117,7 @@ export function PostCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-4">
+      <CardContent className="px-4">
         <div className="space-y-2">
           <p>{title}</p>
           {image && (
