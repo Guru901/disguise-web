@@ -26,7 +26,7 @@ export const signInSchema = z.object({
 export type TSignInSchema = z.infer<typeof signInSchema>;
 
 export const uploadPostSchema = z.object({
-  title: z.string().min(3).max(20).trim(),
+  title: z.string().min(3).max(30).trim(),
   content: z.string().trim().optional(),
   image: z.string().optional(),
   isPublic: z.boolean(),

@@ -12,6 +12,10 @@ const config = {
         protocol: "https",
         hostname: "avatars.githubusercontent.com",
       },
+      {
+        protocol: "https",
+        hostname: "xn9ny0e4g6.ufs.sh",
+      },
     ],
   },
 };
