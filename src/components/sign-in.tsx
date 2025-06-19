@@ -71,7 +71,13 @@ export default function SignIn() {
               name="password"
               control={control}
               render={({ field }) => (
-                <Input {...field} id="password" type="password" required />
+                <Input
+                  {...field}
+                  id="password"
+                  type="password"
+                  required
+                  placeholder="Password"
+                />
               )}
             />
             {errors && errors.password && (
@@ -81,8 +87,10 @@ export default function SignIn() {
 
           <div className="flex items-center gap-2">
             <p className="text-xs">
-              {"Don't have an account? "}
-              <Link href="/">Sign up</Link>
+              <Link href="/">
+                {"Don't have an account? "}
+                Sign up
+              </Link>
             </p>
           </div>
 
