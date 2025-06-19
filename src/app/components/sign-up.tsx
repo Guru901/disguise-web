@@ -12,54 +12,33 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
 import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { api } from "@/trpc/react";
+import { signUpSchema, type TSignUpSchema } from "@/lib/schemas";
 
 export default function SignUp() {
+  const registerUserMutation = api.userRouter.registerUser.useMutation();
   const router = useRouter();
-
-  const signUpSchema = z
-    .object({
-      username: z.string().min(3).max(20).trim(),
-      email: z.string().email().trim(),
-      password: z.string().min(8).max(20).trim(),
-      passwordConfirmation: z.string().min(8).max(20).trim(),
-    })
-    .refine(
-      (data) => {
-        return data.password === data.passwordConfirmation;
-      },
-      {
-        message: "Passwords don't match",
-      },
-    );
 
   const {
     control,
     handleSubmit,
     formState: { isSubmitting, errors },
-  } = useForm<z.infer<typeof signUpSchema>>({
+    setError,
+  } = useForm<TSignUpSchema>({
     resolver: zodResolver(signUpSchema),
   });
 
-  async function onSubmit(data: z.infer<typeof signUpSchema>) {
-    await authClient.signUp.email({
-      email: data.email,
-      password: data.password,
-      name: data.username,
-      callbackURL: "/profile",
-      fetchOptions: {
-        onError: (ctx) => {
-          console.log(ctx.error.message);
-        },
-        onSuccess: async () => {
-          router.push("/profile");
-        },
-      },
-    });
+  async function onSubmit(data: TSignUpSchema) {
+    const response = await registerUserMutation.mutateAsync(data);
+
+    if (response.success) {
+      router.push("/profile");
+    } else {
+      setError("root", { message: response.message });
+    }
   }
 
   return (
@@ -81,22 +60,9 @@ export default function SignUp() {
               )}
               control={control}
             />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Controller
-              name="email"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              )}
-              control={control}
-            />
+            {errors && errors.username && (
+              <p className="text-xs text-red-500">{errors.username.message}</p>
+            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
@@ -113,6 +79,10 @@ export default function SignUp() {
               )}
               control={control}
             />
+
+            {errors && errors.password && (
+              <p className="text-xs text-red-500">{errors.password.message}</p>
+            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Confirm Password</Label>
@@ -129,12 +99,20 @@ export default function SignUp() {
               )}
               control={control}
             />
+            {errors && errors.passwordConfirmation && (
+              <p className="text-xs text-red-500">
+                {errors.passwordConfirmation.message}
+              </p>
+            )}
           </div>
           <div className="grid gap-2">
             <p className="text-xs">
               Already have an account? <Link href="/sign-in">Sign in</Link>
             </p>
           </div>
+          {errors && errors.root && (
+            <p className="text-xs text-red-500">{errors.root.message}</p>
+          )}
           <Button
             type="submit"
             className="w-full"
