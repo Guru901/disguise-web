@@ -1,9 +1,38 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  return NextResponse.next();
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get("token")?.value ?? "";
+
+  const path = request.nextUrl.pathname;
+
+  if (!token) {
+    if (path !== "/login" && path !== "/") {
+      return NextResponse.redirect(new URL("/login", request.nextUrl));
+    }
+  } else {
+    if (path === "/login" || path === "/") {
+      return NextResponse.redirect(new URL("/me", request.nextUrl));
+    }
+  }
 }
 
 export const config = {
-  matcher: ["/me"],
+  matcher: [
+    "/feed",
+    "/p/:id",
+    "/post/",
+    "/profile",
+    "/login",
+    "/register",
+    "/chat",
+    "/search",
+    "/change__password",
+    "/notifications",
+    "/topic",
+    "/createTopic",
+    "/friends",
+    "/settings",
+    "/admin/dashboard",
+    "/user/:id",
+  ],
 };
