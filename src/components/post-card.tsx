@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import { Share2 } from "lucide-react";
+import { toast } from "sonner";
 import { useState } from "react";
 
 export function PostCard({
@@ -43,18 +44,14 @@ export function PostCard({
     disLikes.includes(userId),
   );
 
-  //   async function copyUrlToClipboard() {
-  //     try {
-  //       await navigator.clipboard.writeText(window.location.href);
-  //       toast({
-  //         title: "Copied to clipboard",
-  //         description: "The URL has been copied to your clipboard.",
-  //         variant: "default",
-  //       });
-  //     } catch (err) {
-  //       console.error("Failed to copy: ", err);
-  //     }
-  //   }
+  async function copyUrlToClipboard() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast("Copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  }
 
   //   async function likePost() {
   //     const newLikeCount = hasLiked ? optimisticLikes - 1 : optimisticLikes + 1;
@@ -103,7 +100,7 @@ export function PostCard({
   //   }
 
   return (
-    <Card className="w-full max-w-lg">
+    <Card className="mx-auto w-full max-w-lg py-6">
       <CardHeader className="flex items-center gap-4 px-4 py-2">
         <Avatar className="h-14 w-14">
           <AvatarImage
@@ -165,7 +162,7 @@ export function PostCard({
               className="flex gap-1"
               variant={"ghost"}
               size={"icon"}
-              //   onClick={copyUrlToClipboard}
+              onClick={copyUrlToClipboard}
             >
               <Share2 />
             </Button>
