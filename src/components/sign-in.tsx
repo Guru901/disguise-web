@@ -42,7 +42,7 @@ export default function SignIn() {
   }
 
   return (
-    <Card className="w-md">
+    <Card className="w-md py-6">
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
         <CardDescription className="text-xs md:text-sm">
