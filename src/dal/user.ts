@@ -3,6 +3,9 @@ import { db } from "@/server/db";
 import { userSchema } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { hash, compare } from "bcrypt";
+import * as jwt from "jsonwebtoken";
+import { env } from "@/env";
+import { cookies } from "next/headers";
 
 export async function registerUser(userData: TSignUpSchema) {
   try {
@@ -22,18 +25,33 @@ export async function registerUser(userData: TSignUpSchema) {
 
     const hashedPassword = await hash(userData.password, 10);
 
-    await db.insert(userSchema).values({
-      password: hashedPassword,
-      username: userData.username,
-      avatar: userData.avatar,
-    });
+    const insertedUsers = await db
+      .insert(userSchema)
+      .values({
+        password: hashedPassword,
+        username: userData.username,
+        avatar: userData.avatar,
+      })
+      .returning({ id: userSchema.id });
 
-    return {
-      message: "User created",
-      success: true,
-      status: 201,
-      error: null,
-    };
+    const newUser = insertedUsers[0];
+
+    if (newUser?.id) {
+      return {
+        message: "User created",
+        success: true,
+        status: 201,
+        error: null,
+        data: newUser.id,
+      };
+    } else {
+      return {
+        message: "Error creating user",
+        status: 500,
+        success: false,
+        error: null,
+      };
+    }
   } catch (error) {
     console.log(error);
     return {
@@ -63,6 +81,7 @@ export async function loginUser(userData: TSignInSchema) {
           message: "User logged in",
           success: true,
           status: 200,
+          data: userFromDb[0].id,
           error: null,
         };
       } else {

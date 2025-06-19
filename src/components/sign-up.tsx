@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -21,7 +21,6 @@ import { UploadButton } from "@/lib/uploadthing";
 import { toast } from "sonner";
 
 export default function SignUp() {
-  const registerUserMutation = api.userRouter.registerUser.useMutation();
   const router = useRouter();
 
   const {
@@ -34,13 +33,24 @@ export default function SignUp() {
     resolver: zodResolver(signUpSchema),
   });
 
-  async function onSubmit(data: TSignUpSchema) {
-    const response = await registerUserMutation.mutateAsync(data);
+  type RegisterResponse = { success: boolean; message?: string };
 
-    if (response.success) {
-      router.push("/me");
-    } else {
-      setError("root", { message: response.message });
+  async function onSubmit(data: TSignUpSchema) {
+    try {
+      const res: Response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      const result = (await res.json()) as RegisterResponse;
+      if (result.success) {
+        router.push("/me");
+      } else {
+        setError("root", { message: result.message ?? "Registration failed" });
+      }
+    } catch (error) {
+      setError("root", { message: "Something went wrong. Please try again." });
     }
   }
 
@@ -53,7 +63,7 @@ export default function SignUp() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-2">
             <Label htmlFor="username">First name</Label>
             <Controller
@@ -142,19 +152,14 @@ export default function SignUp() {
           {errors && errors.root && (
             <p className="text-xs text-red-500">{errors.root.message}</p>
           )}
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
-            onClick={handleSubmit(onSubmit)}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
               "Create an account"
             )}
           </Button>
-        </div>
+        </form>
       </CardContent>
     </Card>
   );

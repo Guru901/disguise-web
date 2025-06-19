@@ -18,6 +18,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 
+type LoginResponse = { success: boolean; message?: string };
+
 export default function SignIn() {
   const router = useRouter();
   const loginUserMutation = api.userRouter.loginUser.useMutation();
@@ -32,12 +34,21 @@ export default function SignIn() {
   });
 
   async function onSubmit(data: TSignInSchema) {
-    const response = await loginUserMutation.mutateAsync(data);
-
-    if (response.success) {
-      router.push("/me");
-    } else {
-      setError("root", { message: response.message });
+    try {
+      const res: Response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      const result = (await res.json()) as LoginResponse;
+      if (result.success) {
+        router.push("/me");
+      } else {
+        setError("root", { message: result.message ?? "Login failed" });
+      }
+    } catch (error) {
+      setError("root", { message: "Something went wrong. Please try again." });
     }
   }
 

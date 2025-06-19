@@ -12,7 +12,15 @@ export const userRouter = createTRPCRouter({
     }),
 
   loginUser: publicProcedure.input(signInSchema).mutation(async ({ input }) => {
-    return await loginUser(input);
+    const data = await loginUser(input);
+
+    return {
+      success: data.success,
+      message: data.message,
+      status: data.status,
+      error: data.error,
+      data: data.data,
+    };
   }),
 
   getUserData: publicProcedure.query(async ({ ctx }) => {
