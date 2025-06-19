@@ -66,7 +66,7 @@ export function PostUploadForm() {
   }
 
   return (
-    <form className="grid gap-4" onSubmit={handleSubmit(submitForm)}>
+    <form className="grid gap-4 px-4" onSubmit={handleSubmit(submitForm)}>
       <div className="grid gap-2">
         <Label htmlFor="title" className="text-lg">
           Title

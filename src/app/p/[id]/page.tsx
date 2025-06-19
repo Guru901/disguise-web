@@ -21,7 +21,7 @@ export default function Feed() {
   return (
     <div className="relative h-screen w-full overflow-x-hidden">
       <Navbar />
-      <div className="flex w-screen items-start justify-center pb-12">
+      <div className="w-[calc(100vw - 2rem)] mx-1 mt-3 flex items-start justify-center pb-12">
         {isPostLoading ? (
           <div className="flex h-screen w-screen items-center justify-center">
             <Loader2 className="animate-spin" />

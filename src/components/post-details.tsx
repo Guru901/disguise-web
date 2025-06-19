@@ -148,11 +148,11 @@ export function PostDetails({
   // }
 
   return (
-    <Card className="flex h-[calc(100vh+15rem)] w-full items-start px-0 py-0 pb-12">
-      <div className="bg-background text-foreground flex w-full items-center justify-center">
+    <Card className="flex h-[calc(100vh+15rem)] w-full items-start py-0 pb-12">
+      <div className="text-foreground flex w-full items-center justify-center">
         <div className="h-screen w-screen max-w-7xl px-2 py-3 sm:px-6 lg:px-8">
           <div className="bg-card overflow-hidden rounded-lg shadow-lg">
-            <div className="flex flex-col sm:flex-row">
+            <div className="flex flex-col px-[6px] pb-[6px] sm:flex-row">
               <div className="p-6 sm:w-1/2">
                 <div className="flex items-start">
                   <div className="mr-4">
@@ -231,18 +231,20 @@ export function PostDetails({
                 </div>
               </div>
               <div className={`bg-muted w-full rounded-lg px-4 py-6`}>
-                <h2 className="mb-4 text-lg font-semibold">Comments</h2>
+                <h2 className="text-secondary-foreground mb-4 text-lg font-semibold">
+                  Comments
+                </h2>
                 <div className="space-y-4">
                   <div className="flex w-full items-center gap-1">
                     <Input
                       type="text"
-                      className="w-full rounded-md bg-black py-5 text-white"
+                      className="w-full rounded-md py-5 text-white"
                       placeholder="Add a comment..."
                       onChange={(e) => setNewComment(e.target.value)}
                       value={newComment}
                     />
                     <Button
-                      className="w-[30%] py-4"
+                      className="w-[30%] py-5"
                       // onClick={addComment}
                       disabled={commentLoading}
                     >
