@@ -10,14 +10,17 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { api } from "@/trpc/react";
 import { useUserStore } from "@/lib/userStore";
+import { useRouter } from "next/navigation";
 
 export default function Profile() {
   const [selectedOption, setSelectedOption] = useState("public");
+  const router = useRouter();
+
   const { data, isLoading, isError } = api.userRouter.getUserData.useQuery();
   const { data: userPosts, isLoading: isPostsLoading } =
     api.postRouter.getUserPosts.useQuery();
 
-  const user = data?.[0];
+  const user = data?.user![0];
   const username = user?.username ?? "User";
   const avatar = user?.avatar ?? undefined;
   const posts = user?.posts ?? [];

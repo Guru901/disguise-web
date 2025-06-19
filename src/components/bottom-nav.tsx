@@ -8,12 +8,21 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ChevronUp, PlusIcon, SearchIcon, UserRound } from "lucide-react";
+import {
+  ChevronUp,
+  LogOutIcon,
+  PlusIcon,
+  SearchIcon,
+  UserRound,
+} from "lucide-react";
 import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
+import { api } from "@/trpc/react";
 
 function BottomNavigation() {
+  const logOutMutation = api.userRouter.logOutUser.useMutation();
+
   return (
     <Drawer>
       <DrawerTrigger asChild>
@@ -75,6 +84,19 @@ function BottomNavigation() {
               <SearchIcon size={19} />
               Seach
             </Link>
+          </DrawerClose>
+          <DrawerClose asChild>
+            <Button
+              variant={"ghost"}
+              onClick={async () => {
+                await fetch("/api/logout");
+                location.href = "/login";
+              }}
+              className="hover:bg-muted hover:text-foreground flex w-full items-center justify-start gap-2 rounded-md px-3 py-2 pl-[1rem] text-sm font-medium transition-colors"
+            >
+              <LogOutIcon size={19} />
+              Logout
+            </Button>
           </DrawerClose>
         </nav>
       </DrawerContent>
