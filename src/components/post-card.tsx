@@ -30,7 +30,7 @@ export function PostCard({
   title: string;
   image: string | null;
   createdAt: Date;
-  content: string;
+  content: string | null;
   id: string;
   likes: string[];
   disLikes: string[];
