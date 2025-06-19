@@ -148,7 +148,7 @@ export function PostDetails({
   // }
 
   return (
-    <Card className="flex h-[calc(100vh+15rem)] w-full items-start justify-center px-0 pb-12">
+    <Card className="flex h-[calc(100vh+15rem)] w-full items-start px-0 py-0 pb-12">
       <div className="bg-background text-foreground flex w-full items-center justify-center">
         <div className="h-screen w-screen max-w-7xl px-2 py-3 sm:px-6 lg:px-8">
           <div className="bg-card overflow-hidden rounded-lg shadow-lg">
