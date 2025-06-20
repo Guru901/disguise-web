@@ -322,3 +322,24 @@ export async function getLoggedInUserPrivatePosts(userId: string) {
     return [];
   }
 }
+
+export async function deleteComment(commentId: string, userId: string) {
+  try {
+    await db
+      .delete(commentSchema)
+      .where(
+        and(eq(commentSchema.id, commentId), eq(commentSchema.author, userId)),
+      );
+
+    return {
+      success: true,
+      message: "Comment deleted successfully",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Failed to delete comment",
+    };
+  }
+}

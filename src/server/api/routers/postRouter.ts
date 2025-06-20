@@ -82,4 +82,9 @@ export const postRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       return await postDal.addComment(input, ctx.userId);
     }),
+  deleteComment: protectedProcedure
+    .input(z.object({ commentId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.deleteComment(input.commentId, ctx.userId);
+    }),
 });
