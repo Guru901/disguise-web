@@ -36,3 +36,14 @@ export const topicSchema = pgTable("topics", {
   name: text("name").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const commentSchema = pgTable("comments", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  content: text("content").notNull(),
+  post: uuid("post").references(() => postSchema.id),
+  image: text("image"),
+  isAReply: boolean("is_a_reply").notNull().default(false),
+  replies: text("replies").notNull().array(),
+  author: uuid("author").references(() => userSchema.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

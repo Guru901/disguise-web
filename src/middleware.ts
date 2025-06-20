@@ -21,7 +21,7 @@ export const config = {
     "/feed",
     "/p/:id",
     "/post/",
-    "/profile",
+    "/me",
     "/login",
     "/register",
     "/chat",
