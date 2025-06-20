@@ -4,12 +4,18 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { formatTimeAgo } from "@/lib/format-time-ago";
-import { Loader2, Share2 } from "lucide-react";
-import { useState } from "react";
+import { EllipsisVerticalIcon, Loader2, Share2 } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "./ui/dropdown-menu";
 
 export function PostDetails({
   author,
@@ -21,6 +27,7 @@ export function PostDetails({
   disLikes = [],
   topic = "General",
   postID,
+  commentsCount,
 }: {
   author: {
     id: string;
@@ -35,12 +42,15 @@ export function PostDetails({
   disLikes: string[];
   topic: string;
   postID: string;
+  commentsCount: number;
 }) {
   const { user } = useGetUser();
 
   const [newComment, setNewComment] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
   const [hasLiked, setHasLiked] = useState(() => likes.includes(user.id));
+  const [replyTo, setReplyTo] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
   const [hasDisliked, setHasDisliked] = useState(() =>
     disLikes.includes(user.id),
   );
@@ -70,20 +80,69 @@ export function PostDetails({
       postId: postID,
     },
     {
-      refetchInterval: 1000,
+      // refetchInterval: 1000,
     },
   );
+
+  // Fixed useEffect for handling reply focus
+  useEffect(() => {
+    if (replyTo && inputRef.current) {
+      // Use setTimeout to ensure DOM is updated before focusing
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          // Optional: scroll input into view
+          inputRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+      }, 100);
+    }
+  }, [replyTo]);
+
+  // Function to handle reply button click
+  const handleReply = (commentId: string, username: string) => {
+    setReplyTo(commentId);
+    // Pre-fill the comment with @username
+    setNewComment(`@${username} `);
+
+    // Focus the input after a short delay to ensure state is updated
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        // Set cursor position at the end
+        inputRef.current.setSelectionRange(
+          inputRef.current.value.length,
+          inputRef.current.value.length,
+        );
+      }
+    }, 100);
+  };
 
   async function addComment() {
     try {
       setCommentLoading(true);
-      const data = await commentAddMutation.mutateAsync({
-        content: newComment,
-        postId: postID,
-      });
+      let data;
+      if (replyTo) {
+        data = await commentAddMutation.mutateAsync({
+          content: newComment,
+          postId: postID,
+          isAReply: true,
+          replyTo: replyTo,
+        });
+      } else {
+        data = await commentAddMutation.mutateAsync({
+          content: newComment,
+          postId: postID,
+          isAReply: false,
+          replyTo: replyTo,
+        });
+      }
 
       if (data.success) {
         setNewComment("");
+        setReplyTo(""); // Clear the reply state
         toast("Comment added");
         void (await refetchComments());
 
@@ -185,12 +244,12 @@ export function PostDetails({
   }
 
   return (
-    <Card className="flex h-[calc(100vh+15rem)] w-full items-start py-0 pb-12">
+    <Card className="flex h-[calc(100vh+15rem)] w-full items-start py-0 pb-12 md:h-fit md:w-fit md:pb-0">
       <div className="text-foreground flex w-full items-center justify-center">
-        <div className="h-screen w-screen max-w-7xl px-2 py-3 sm:px-6 lg:px-8">
+        <div className="h-auto w-auto max-w-7xl px-2 py-3 sm:px-6 lg:p-2">
           <div className="bg-card overflow-hidden rounded-lg">
-            <div className="flex flex-col px-[6px] pb-[6px] sm:flex-row md:py-[6px]">
-              <div className="py-6 sm:w-1/2 sm:p-6">
+            <div className="flex flex-col px-[6px] pb-[6px] sm:flex-row md:min-w-[60vw] md:py-[6px]">
+              <div className="py-6 sm:w-3/4 sm:p-6">
                 <div className="flex items-start">
                   <div className="mr-4">
                     <Avatar className="h-14 w-14">
@@ -267,7 +326,7 @@ export function PostDetails({
                   </div>
                   <div className="text-muted-foreground text-sm">
                     {optimisticLikes} Likes • {optimisticDislikes} Dislikes •{" "}
-                    {comments?.length ?? 0} Comments
+                    {commentsCount} Comments
                   </div>
                 </div>
               </div>
@@ -280,68 +339,150 @@ export function PostDetails({
                     <Input
                       type="text"
                       className="w-full rounded-md py-5"
-                      placeholder="Add a comment..."
+                      placeholder={
+                        replyTo ? "Write your reply..." : "Add a comment..."
+                      }
                       onChange={(e) => setNewComment(e.target.value)}
                       value={newComment}
+                      ref={inputRef}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          void (async () => {
+                            await addComment();
+                          })();
+                        }
+                        if (e.key === "Escape") {
+                          setReplyTo("");
+                          setNewComment("");
+                        }
+                      }}
                     />
                     <Button
                       className="w-[30%] py-5"
                       onClick={addComment}
-                      disabled={commentLoading}
+                      disabled={commentLoading || !newComment.trim()}
                     >
-                      {commentLoading ? "Please Wait" : "Submit"}
+                      {commentLoading
+                        ? "Please Wait"
+                        : replyTo
+                          ? "Reply"
+                          : "Submit"}
                     </Button>
                   </div>
+
+                  {/* Show reply indicator */}
+                  {replyTo && (
+                    <div className="flex items-center justify-between rounded-md bg-blue-50 p-2 dark:bg-blue-900/20">
+                      <span className="text-sm text-blue-600 dark:text-blue-400">
+                        Replying to comment
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setReplyTo("");
+                          setNewComment("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
+
                   {isCommentsLoading || isCommentsPending ? (
                     <div className="flex min-h-[300px] w-full items-center justify-center">
                       <Loader2 className="animate-spin" />
                     </div>
                   ) : (
-                    comments?.reverse().map((comment) => (
-                      <div
-                        className="flex items-center"
-                        key={comment.comments.id}
-                      >
-                        <div className="mr-4">
-                          <Avatar className="h-14 w-14">
-                            <AvatarImage
-                              src={comment.users?.avatar ?? ""}
-                              alt="Avatar"
-                              width={56}
-                              height={56}
-                              className="rounded-full"
-                            />
-                            <AvatarFallback>
-                              <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-1">
-                                <span className="text-foreground">
-                                  {comment.users?.username.slice(0, 1)}
-                                </span>
+                    comments
+                      ?.filter((comment) => !comment.comments.isAReply)
+                      .map((comment) => (
+                        <div
+                          className="flex items-center"
+                          key={comment.comments.id}
+                        >
+                          <div className="mr-4">
+                            <Avatar className="h-14 w-14">
+                              <AvatarImage
+                                src={comment.users?.avatar ?? ""}
+                                alt="Avatar"
+                                width={56}
+                                height={56}
+                                className="rounded-full"
+                              />
+                              <AvatarFallback>
+                                <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-1">
+                                  <span className="text-foreground">
+                                    {comment.users?.username.slice(0, 1)}
+                                  </span>
+                                </div>
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <div className="flex w-full justify-between">
+                            <div>
+                              <div className="text-md font-semibold text-[#949BA8]">
+                                <Link href={`/u/${comment.users?.id}`}>
+                                  <span className="underline">
+                                    {comment.users?.username ?? "User"}
+                                  </span>
+                                  {" • "}
+                                  <span className="text-xs font-light">
+                                    {formatTimeAgo(comment.comments.createdAt)}
+                                  </span>
+                                </Link>
                               </div>
-                            </AvatarFallback>
-                          </Avatar>
-                        </div>
-                        <div>
-                          <div className="text-md font-semibold text-[#949BA8]">
-                            <Link
-                              href={`/u/${comment.users?.id}`}
-                              className="underline"
-                            >
-                              {comment.users?.username ?? "User"} •
-                              <span
-                                className="text-xs font-light"
-                                style={{ textDecoration: "none !important" }}
-                              >
-                                {" "}
-                                {formatTimeAgo(comment.comments.createdAt)}
-                              </span>
-                            </Link>
+                              <div className="text-accent-foreground font-medium">
+                                {!comment.comments.content.includes("@") ? (
+                                  <p>{comment.comments.content}</p>
+                                ) : (
+                                  <p>
+                                    {comment.comments.content
+                                      .split(" ")
+                                      .map((x: string, index: number) =>
+                                        x.startsWith("@") ? (
+                                          <Link
+                                            key={index}
+                                            className="text-primary underline"
+                                            href={`/u/${x.slice(1)}`}
+                                          >
+                                            {x + " "}
+                                          </Link>
+                                        ) : (
+                                          <span key={index}>{x + " "}</span>
+                                        ),
+                                      )}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <EllipsisVerticalIcon />
+                                </Button>
+                              </DropdownMenuTrigger>
+
+                              <DropdownMenuContent align="start">
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleReply(
+                                      comment.comments.id,
+                                      comment.users?.username ?? "User",
+                                    )
+                                  }
+                                >
+                                  Reply
+                                </DropdownMenuItem>
+                                {user.id === comment.users?.id && (
+                                  <DropdownMenuItem>Delete</DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                          <div className="text-accent-foreground font-medium">
-                            {comment.comments.content}
-                          </div>
                         </div>
-                      </div>
-                    ))
+                      ))
                   )}
                 </div>
               </div>

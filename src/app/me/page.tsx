@@ -10,9 +10,8 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { api } from "@/trpc/react";
 import { useUserStore } from "@/lib/userStore";
-import { useRouter } from "next/navigation";
 
-export default function Profile() {
+export default function Me() {
   const [selectedOption, setSelectedOption] = useState("public");
 
   const { data, isLoading, isError } = api.userRouter.getUserData.useQuery();
@@ -127,7 +126,7 @@ export default function Profile() {
           </div>
         </div>
         <div className="p-6 lg:p-8">
-          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
             {isPostsLoading ? (
               <div className="flex h-full w-full items-center justify-center">
                 <Loader2 className="animate-spin" size={20} />

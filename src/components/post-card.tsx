@@ -141,7 +141,7 @@ export function PostCard({
   }
 
   return (
-    <Card className="mx-auto w-full max-w-lg py-6">
+    <Card className="h-max py-6">
       <CardHeader className="flex items-center gap-4 px-4 py-2">
         <Avatar className="h-14 w-14">
           <AvatarImage
@@ -167,7 +167,7 @@ export function PostCard({
               alt={title}
               width="600"
               height="200"
-              className="h-52 rounded-md object-cover"
+              className="h-52 w-full rounded-md object-cover"
               priority={true}
             />
           )}

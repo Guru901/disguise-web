@@ -7,6 +7,13 @@ import { useState } from "react";
 import Navbar from "@/components/navbar";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
+import Masonry from "react-masonry-css";
+
+const breakpointColumnsObj = {
+  default: 2,
+  1100: 2,
+  700: 1,
+};
 
 export default function Feed() {
   const { user } = useGetUser();
@@ -26,21 +33,27 @@ export default function Feed() {
           setSelectedOption={setSelectedOption}
         />
       </div>
-      {posts?.map((post) => (
-        <PostCard
-          avatar={post.createdBy?.avatar ?? ""}
-          username={post.createdBy?.username ?? "User"}
-          title={post.title}
-          image={post.image}
-          createdAt={post.createdAt}
-          content={post.content}
-          id={post.id}
-          key={post.id}
-          likes={post.likes ?? []}
-          disLikes={post.disLikes ?? []}
-          userId={user.id}
-        />
-      ))}
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="my-masonry-grid"
+        columnClassName="my-masonry-grid_column"
+      >
+        {posts?.map((post) => (
+          <PostCard
+            avatar={post.createdBy?.avatar ?? ""}
+            username={post.createdBy?.username ?? "User"}
+            title={post.title}
+            image={post.image}
+            createdAt={post.createdAt}
+            content={post.content}
+            id={post.id}
+            likes={post.likes ?? []}
+            disLikes={post.disLikes ?? []}
+            userId={user.id}
+            key={post.id}
+          />
+        ))}
+      </Masonry>
     </div>
   );
 }

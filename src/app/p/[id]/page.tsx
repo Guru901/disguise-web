@@ -33,6 +33,7 @@ export default function Feed() {
               username: post.createdBy?.username ?? "User",
               id: post.createdBy?.id ?? "",
             }}
+            commentsCount={post.commentsCount ?? 0}
             title={post.title}
             content={post.content ?? ""}
             image={post.image ?? ""}
