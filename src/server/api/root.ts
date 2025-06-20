@@ -1,7 +1,7 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
-import { userRouter } from "./routers/user";
-import { postRouter } from "./routers/post";
-import { topicRouter } from "./routers/topic";
+import { userRouter } from "./routers/userRouter";
+import { postRouter } from "./routers/postRouter";
+import { topicRouter } from "./routers/topicRouter";
 
 export const appRouter = createTRPCRouter({
   userRouter,
