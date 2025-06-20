@@ -72,6 +72,7 @@ export function PostCard({
       try {
         await unlikePostMutation.mutateAsync({ post: id });
       } catch (error) {
+        console.error(error);
         setOptimisticLikes((prev) => prev + 1);
         setHasLiked(true);
       }
@@ -92,6 +93,7 @@ export function PostCard({
           await likePostMutation.mutateAsync({ post: id });
         }
       } catch (error) {
+        console.error(error);
         setOptimisticLikes((prev) => prev - 1);
         setHasLiked(false);
         if (wasDisliked) {
@@ -110,6 +112,7 @@ export function PostCard({
       try {
         await undislikePostMutation.mutateAsync({ post: id });
       } catch (error) {
+        console.error(error);
         setOptimisticDislikes((prev) => prev + 1);
         setHasDisliked(true);
       }
@@ -130,6 +133,7 @@ export function PostCard({
           await dislikePostMutation.mutateAsync({ post: id });
         }
       } catch (error) {
+        console.error(error);
         setOptimisticDislikes((prev) => prev - 1);
         setHasDisliked(false);
         if (wasLiked) {

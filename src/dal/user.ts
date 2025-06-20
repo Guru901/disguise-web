@@ -3,9 +3,6 @@ import { db } from "@/server/db";
 import { userSchema } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { hash, compare } from "bcrypt";
-import * as jwt from "jsonwebtoken";
-import { env } from "@/env";
-import { cookies } from "next/headers";
 
 export async function registerUser(userData: TSignUpSchema) {
   try {

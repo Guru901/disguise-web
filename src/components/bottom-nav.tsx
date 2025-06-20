@@ -18,11 +18,8 @@ import {
 import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
-import { api } from "@/trpc/react";
 
 function BottomNavigation() {
-  const logOutMutation = api.userRouter.logOutUser.useMutation();
-
   return (
     <Drawer>
       <DrawerTrigger asChild>
