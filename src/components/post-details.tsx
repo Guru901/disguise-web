@@ -4,10 +4,12 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { formatTimeAgo } from "@/lib/format-time-ago";
-import { Share2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Loader2, Share2 } from "lucide-react";
 import { useState } from "react";
 import useGetUser from "@/lib/use-get-user";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
+import Link from "next/link";
 
 export function PostDetails({
   author,
@@ -18,6 +20,7 @@ export function PostDetails({
   likes = [],
   disLikes = [],
   topic = "General",
+  postID,
 }: {
   author: {
     id: string;
@@ -45,115 +48,149 @@ export function PostDetails({
   const [optimisticLikes, setOptimisticLikes] = useState(likes.length);
   const [optimisticDislikes, setOptimisticDislikes] = useState(disLikes.length);
 
-  // const {
-  //   data: comments,
-  //   isLoading: isCommentsLoading,
-  //   isPending,
-  //   refetch: refetchComments,
-  // } = useQuery({
-  //   queryKey: ["get-comments", postID],
-  //   queryFn: async () => {
-  //     const { data } = await axios.get(`/api/post/get-comments?id=${postID}`);
+  const likePostMutation = api.postRouter.likePost.useMutation();
+  const unlikePostMutation = api.postRouter.unlikePost.useMutation();
+  const likeAndUndislikePostMutation =
+    api.postRouter.likeAndUndislikePost.useMutation();
 
-  //     if (data.success) {
-  //       return data.data;
-  //     }
-  //   },
-  // });
+  const dislikePostMutation = api.postRouter.dislikePost.useMutation();
+  const undislikePostMutation = api.postRouter.undislikePost.useMutation();
+  const dislikeAndUnlikePostMutation =
+    api.postRouter.dislikeAndUnlikePost.useMutation();
 
-  // async function addComment() {
-  //   try {
-  //     setCommentLoading(true);
-  //     const { data } = await axios.post("/api/post/add-comment", {
-  //       content: newComment,
-  //       post: postID,
-  //       author: author._id,
-  //     });
+  const commentAddMutation = api.postRouter.addComments.useMutation();
 
-  //     if (data.success) {
-  //       setNewComment("");
-  //       toast({
-  //         title: "Comment added",
-  //         description: "Your comment has been added.",
-  //         variant: "default",
-  //       });
-  //       refetchComments();
+  const {
+    data: comments,
+    isLoading: isCommentsLoading,
+    isPending: isCommentsPending,
+    refetch: refetchComments,
+  } = api.postRouter.getCommentsByPostId.useQuery(
+    {
+      postId: postID,
+    },
+    {
+      refetchInterval: 1000,
+    },
+  );
 
-  //       setCommentLoading(false);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
+  async function addComment() {
+    try {
+      setCommentLoading(true);
+      const data = await commentAddMutation.mutateAsync({
+        content: newComment,
+        postId: postID,
+      });
 
-  //     setCommentLoading(false);
-  //   }
-  // }
+      if (data.success) {
+        setNewComment("");
+        toast("Comment added");
+        void (await refetchComments());
 
-  // async function copyUrlToClipboard() {
-  //   try {
-  //     await navigator.clipboard.writeText(window.location.href);
-  //     toast({
-  //       title: "Copied to clipboard",
-  //       description: "The URL has been copied to your clipboard.",
-  //       variant: "default",
-  //     });
-  //   } catch (err) {
-  //     console.error("Failed to copy: ", err);
-  //   }
-  // }
+        setCommentLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
 
-  // async function likePost() {
-  //   const newLikeCount = hasLiked ? optimisticLikes - 1 : optimisticLikes + 1;
+      setCommentLoading(false);
+    }
+  }
 
-  //   try {
-  //     setOptimisticLikes(newLikeCount);
-  //     setHasLiked(!hasLiked);
+  async function copyUrlToClipboard() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast("Copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  }
 
-  //     const endpoint = hasLiked
-  //       ? "/api/post/unlike-post"
-  //       : "/api/post/like-post";
-  //     await axios.post(endpoint, {
-  //       post: postID,
-  //       user: user._id,
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //     setOptimisticLikes(hasLiked ? optimisticLikes + 1 : optimisticLikes - 1);
-  //     setHasLiked(hasLiked);
-  //   }
-  // }
+  async function likePost() {
+    if (hasLiked) {
+      setOptimisticLikes((prev) => prev - 1);
+      setHasLiked(false);
+      try {
+        await unlikePostMutation.mutateAsync({ post: postID });
+      } catch (error) {
+        console.error(error);
+        setOptimisticLikes((prev) => prev + 1);
+        setHasLiked(true);
+      }
+    } else {
+      // We are liking the post
+      const wasDisliked = hasDisliked;
+      setOptimisticLikes((prev) => prev + 1);
+      setHasLiked(true);
+      if (wasDisliked) {
+        setOptimisticDislikes((prev) => prev - 1);
+        setHasDisliked(false);
+      }
 
-  // async function dislikePost() {
-  //   const newDislikeCount = hasDisliked
-  //     ? optimisticDislikes - 1
-  //     : optimisticDislikes + 1;
+      try {
+        if (wasDisliked) {
+          await likeAndUndislikePostMutation.mutateAsync({ post: postID });
+        } else {
+          await likePostMutation.mutateAsync({ post: postID });
+        }
+      } catch (error) {
+        console.error(error);
+        setOptimisticLikes((prev) => prev - 1);
+        setHasLiked(false);
+        if (wasDisliked) {
+          setOptimisticDislikes((prev) => prev + 1);
+          setHasDisliked(true);
+        }
+      }
+    }
+  }
 
-  //   try {
-  //     setOptimisticDislikes(newDislikeCount);
-  //     setHasDisliked(!hasDisliked);
+  async function dislikePost() {
+    if (hasDisliked) {
+      // We are undisliking the post
+      setOptimisticDislikes((prev) => prev - 1);
+      setHasDisliked(false);
+      try {
+        await undislikePostMutation.mutateAsync({ post: postID });
+      } catch (error) {
+        console.error(error);
+        setOptimisticDislikes((prev) => prev + 1);
+        setHasDisliked(true);
+      }
+    } else {
+      // We are disliking the post
+      const wasLiked = hasLiked;
+      setOptimisticDislikes((prev) => prev + 1);
+      setHasDisliked(true);
+      if (wasLiked) {
+        setOptimisticLikes((prev) => prev - 1);
+        setHasLiked(false);
+      }
 
-  //     const endpoint = hasDisliked
-  //       ? "/api/post/undislike-post"
-  //       : "/api/post/dislike-post";
-  //     await axios.post(endpoint, {
-  //       post: postID,
-  //       user: user._id,
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //     setOptimisticDislikes(
-  //       hasDisliked ? optimisticDislikes + 1 : optimisticDislikes - 1,
-  //     );
-  //     setHasDisliked(hasDisliked);
-  //   }
-  // }
+      try {
+        if (wasLiked) {
+          await dislikeAndUnlikePostMutation.mutateAsync({ post: postID });
+        } else {
+          await dislikePostMutation.mutateAsync({ post: postID });
+        }
+      } catch (error) {
+        console.error(error);
+        setOptimisticDislikes((prev) => prev - 1);
+        setHasDisliked(false);
+        if (wasLiked) {
+          setOptimisticLikes((prev) => prev + 1);
+          setHasLiked(true);
+        }
+      }
+    }
+  }
 
   return (
     <Card className="flex h-[calc(100vh+15rem)] w-full items-start py-0 pb-12">
       <div className="text-foreground flex w-full items-center justify-center">
         <div className="h-screen w-screen max-w-7xl px-2 py-3 sm:px-6 lg:px-8">
-          <div className="bg-card overflow-hidden rounded-lg shadow-lg">
-            <div className="flex flex-col px-[6px] pb-[6px] sm:flex-row">
-              <div className="p-6 sm:w-1/2">
+          <div className="bg-card overflow-hidden rounded-lg">
+            <div className="flex flex-col px-[6px] pb-[6px] sm:flex-row md:py-[6px]">
+              <div className="py-6 sm:w-1/2 sm:p-6">
                 <div className="flex items-start">
                   <div className="mr-4">
                     <Avatar className="h-14 w-14">
@@ -164,7 +201,11 @@ export function PostDetails({
                     </Avatar>
                   </div>
                   <div>
-                    <div className="text-lg font-bold">{author.username}</div>
+                    <div className="text-lg font-semibold">
+                      <Link href={`/u/${author.id}`} className="underline">
+                        {author.username}
+                      </Link>
+                    </div>
                     <div className="text-muted-foreground text-xs font-semibold">
                       {formatTimeAgo(createdAt)}
                     </div>
@@ -203,13 +244,11 @@ export function PostDetails({
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon">
-                      {/* onClick={likePost} */}
+                    <Button variant="ghost" size="icon" onClick={likePost}>
                       {hasLiked ? <HeartIconFilled /> : <HeartIcon />}
                       <span className="sr-only">Like</span>
                     </Button>
-                    <Button variant="ghost" size="icon">
-                      {/* onClick={dislikePost} */}
+                    <Button variant="ghost" size="icon" onClick={dislikePost}>
                       {hasDisliked ? (
                         <ThumbsDownIconFilled />
                       ) : (
@@ -217,16 +256,18 @@ export function PostDetails({
                       )}
                       <span className="sr-only">Dislike</span>
                     </Button>
-                    <Button variant="ghost" size="icon">
-                      {/* onClick={copyUrlToClipboard} */}
-
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={copyUrlToClipboard}
+                    >
                       <Share2 />
                       <span className="sr-only">Share</span>
                     </Button>
                   </div>
                   <div className="text-muted-foreground text-sm">
                     {optimisticLikes} Likes • {optimisticDislikes} Dislikes •{" "}
-                    {/* {comments?.length ?? 0} Comments */}0 Comments
+                    {comments?.length ?? 0} Comments
                   </div>
                 </div>
               </div>
@@ -238,52 +279,70 @@ export function PostDetails({
                   <div className="flex w-full items-center gap-1">
                     <Input
                       type="text"
-                      className="w-full rounded-md py-5 text-white"
+                      className="w-full rounded-md py-5"
                       placeholder="Add a comment..."
                       onChange={(e) => setNewComment(e.target.value)}
                       value={newComment}
                     />
                     <Button
                       className="w-[30%] py-5"
-                      // onClick={addComment}
+                      onClick={addComment}
                       disabled={commentLoading}
                     >
                       {commentLoading ? "Please Wait" : "Submit"}
                     </Button>
                   </div>
-                  {/* {isCommentsLoading || isPending ? (
-                    <h1>Loading...</h1>
+                  {isCommentsLoading || isCommentsPending ? (
+                    <div className="flex min-h-[300px] w-full items-center justify-center">
+                      <Loader2 className="animate-spin" />
+                    </div>
                   ) : (
-                    comments
-                      .reverse()
-                      .map(
-                        (comment: {
-                          _id: string;
-                          author: { avatar: string; username: string };
-                          content: string;
-                        }) => (
-                          <div className="flex items-center" key={comment._id}>
-                            <div className="mr-4">
-                              <Image
-                                src={comment.author.avatar}
-                                alt="Avatar"
-                                width={56}
-                                height={56}
-                                className="rounded-full"
-                              />
-                            </div>
-                            <div>
-                              <div className="text-lg font-extrabold">
-                                {comment.author.username}
+                    comments?.reverse().map((comment) => (
+                      <div
+                        className="flex items-center"
+                        key={comment.comments.id}
+                      >
+                        <div className="mr-4">
+                          <Avatar className="h-14 w-14">
+                            <AvatarImage
+                              src={comment.users?.avatar ?? ""}
+                              alt="Avatar"
+                              width={56}
+                              height={56}
+                              className="rounded-full"
+                            />
+                            <AvatarFallback>
+                              <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-1">
+                                <span className="text-foreground">
+                                  {comment.users?.username.slice(0, 1)}
+                                </span>
                               </div>
-                              <div className="font-medium text-[#949BA8]">
-                                {comment.content}
-                              </div>
-                            </div>
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <div>
+                          <div className="text-md font-semibold text-[#949BA8]">
+                            <Link
+                              href={`/u/${comment.users?.id}`}
+                              className="underline"
+                            >
+                              {comment.users?.username ?? "User"} •
+                              <span
+                                className="text-xs font-light"
+                                style={{ textDecoration: "none !important" }}
+                              >
+                                {" "}
+                                {formatTimeAgo(comment.comments.createdAt)}
+                              </span>
+                            </Link>
                           </div>
-                        ),
-                      )
-                  )} */}
+                          <div className="text-accent-foreground font-medium">
+                            {comment.comments.content}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>

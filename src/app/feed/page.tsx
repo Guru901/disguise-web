@@ -38,7 +38,7 @@ export default function Feed() {
           key={post.id}
           likes={post.likes ?? []}
           disLikes={post.disLikes ?? []}
-          userId={""}
+          userId={user.id}
         />
       ))}
     </div>
