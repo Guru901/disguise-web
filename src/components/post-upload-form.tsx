@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
-import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
+import { UploadButton } from "@/lib/uploadthing";
 import { toast } from "sonner";
 
 export function PostUploadForm() {

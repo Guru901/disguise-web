@@ -14,18 +14,18 @@ import { useRouter } from "next/navigation";
 
 export default function Profile() {
   const [selectedOption, setSelectedOption] = useState("public");
-  const router = useRouter();
 
   const { data, isLoading, isError } = api.userRouter.getUserData.useQuery();
+
   const { data: userPosts, isLoading: isPostsLoading } =
     api.postRouter.getUserPosts.useQuery();
 
-  const user = data?.user![0];
+  const user = data?.user;
   const username = user?.username ?? "User";
   const avatar = user?.avatar ?? undefined;
-  const posts = user?.posts ?? [];
+  const posts = data?.user?.posts ?? [];
   const friends = user?.friends ?? [];
-  const createdAt = user?.createdAt.toLocaleDateString() ?? "";
+  const createdAt = user?.createdAt!.toLocaleDateString() ?? "";
   const id = user?.id ?? "";
 
   const isProfile = true;
@@ -138,10 +138,10 @@ export default function Profile() {
                 .reverse()
                 .map((post) => (
                   <Card key={post.id} className="overflow-hidden">
-                    <Link href={`/p/${post.id}`}>
-                      <CardContent className="p-0">
+                    <Link href={`/p/${post.id}`} className="h-full">
+                      <CardContent className="h-full p-0">
                         {post.image ? (
-                          <div className="relative">
+                          <div className="relative h-full">
                             <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
                               <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
                                 <h1>{post.title}</h1>
@@ -156,7 +156,7 @@ export default function Profile() {
                             />
                           </div>
                         ) : (
-                          <div className="flex h-[500px] w-full items-center justify-center rounded-lg bg-zinc-900 text-xl text-white">
+                          <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
                             <h1>{post.title}</h1>
                           </div>
                         )}

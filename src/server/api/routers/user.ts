@@ -53,7 +53,8 @@ export const userRouter = createTRPCRouter({
     const user = await ctx.db
       .select()
       .from(userSchema)
-      .where(eq(userSchema.id, decoded.id));
+      .where(eq(userSchema.id, decoded.id))
+      .then((rows) => rows[0]); // Because you only want one user
 
     return {
       user: user,

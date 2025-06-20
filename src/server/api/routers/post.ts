@@ -1,23 +1,13 @@
 import { uploadPostSchema } from "@/lib/schemas";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { postSchema, userSchema } from "@/server/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { z } from "zod";
+import jwt from "jsonwebtoken";
+import { env } from "@/env";
 
 export const postRouter = createTRPCRouter({
-  getUserPosts: publicProcedure.query(async ({ ctx }) => {
-    const results = await ctx.db
-      .select()
-      .from(postSchema)
-      .where(eq(postSchema.createdBy, "4f972bc7-9347-474b-bb09-90458c9cf46f"))
-      .leftJoin(userSchema, eq(userSchema.id, postSchema.createdBy));
-
-    return results.map((row) => ({
-      ...row.posts,
-      createdBy: row.users,
-    }));
-  }),
-
   getFeed: publicProcedure.query(async ({ ctx }) => {
     const results = await ctx.db
       .select()
@@ -30,6 +20,23 @@ export const postRouter = createTRPCRouter({
       ...row.posts,
       createdBy: row.users,
     }));
+  }),
+
+  getUserPosts: publicProcedure.query(async ({ ctx }) => {
+    const cookie = await cookies();
+    const token = cookie.get("token")?.value;
+
+    const decoded = jwt.verify(token!, env.JWT_SECRET) as {
+      id: string;
+    };
+
+    const results = await ctx.db
+      .select()
+      .from(postSchema)
+      .where(eq(postSchema.createdBy, decoded.id))
+      .orderBy(desc(postSchema.createdAt));
+
+    return results;
   }),
 
   getPostById: publicProcedure
@@ -76,6 +83,13 @@ export const postRouter = createTRPCRouter({
           disLikes: [],
         })
         .returning({ id: postSchema.id });
+
+      await ctx.db
+        .update(userSchema)
+        .set({
+          posts: sql`array_append(${userSchema.posts}, ${post[0]!.id})`,
+        })
+        .where(eq(userSchema.id, input.author));
 
       if (Array.isArray(post) && post.length > 0 && post[0]?.id) {
         return {
