@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { api } from "@/trpc/react";
 import { signUpSchema, type TSignUpSchema } from "@/lib/schemas";
 import { UploadButton } from "@/lib/uploadthing";
 import { toast } from "sonner";
@@ -50,6 +49,7 @@ export default function SignUp() {
         setError("root", { message: result.message ?? "Registration failed" });
       }
     } catch (error) {
+      console.error(error);
       setError("root", { message: "Something went wrong. Please try again." });
     }
   }

@@ -26,7 +26,7 @@ function BottomNavigation() {
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Button variant="outline" size="icon" className="lg:hidden">
+        <Button variant="outline" size="icon">
           <ChevronUp className="h-6 w-6" />
           <span className="sr-only">Toggle sidebar</span>
         </Button>

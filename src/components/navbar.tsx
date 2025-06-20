@@ -27,7 +27,7 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <Link href="/notifications" prefetch={true}>
               <Button variant="ghost" size="icon" className="relative">
-                <Bell size={20} />
+                <Bell size={20} className="h-4" />
                 {/* <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" /> */}
               </Button>
             </Link>
