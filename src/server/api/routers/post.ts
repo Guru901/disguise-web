@@ -1,11 +1,12 @@
 import { uploadPostSchema } from "@/lib/schemas";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { postSchema, userSchema } from "@/server/db/schema";
 import { desc, eq, sql } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { z } from "zod";
-import jwt from "jsonwebtoken";
-import { env } from "@/env";
 
 export const postRouter = createTRPCRouter({
   getFeed: publicProcedure.query(async ({ ctx }) => {
@@ -22,18 +23,11 @@ export const postRouter = createTRPCRouter({
     }));
   }),
 
-  getUserPosts: publicProcedure.query(async ({ ctx }) => {
-    const cookie = await cookies();
-    const token = cookie.get("token")?.value;
-
-    const decoded = jwt.verify(token!, env.JWT_SECRET) as {
-      id: string;
-    };
-
+  getUserPosts: protectedProcedure.query(async ({ ctx }) => {
     const results = await ctx.db
       .select()
       .from(postSchema)
-      .where(eq(postSchema.createdBy, decoded.id))
+      .where(eq(postSchema.createdBy, ctx.userId))
       .orderBy(desc(postSchema.createdAt));
 
     return results;
@@ -67,7 +61,7 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
-  createPost: publicProcedure
+  createPost: protectedProcedure
     .input(uploadPostSchema)
     .mutation(async ({ input, ctx }) => {
       const post = await ctx.db

@@ -1,59 +1,18 @@
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { loginUser, registerUser } from "@/dal/user";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { userSchema } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { signInSchema, signUpSchema } from "@/lib/schemas";
-import jwt from "jsonwebtoken";
-import { env } from "@/env";
 
 export const userRouter = createTRPCRouter({
-  registerUser: publicProcedure
-    .input(signUpSchema)
-    .mutation(async ({ input }) => {
-      return await registerUser(input);
-    }),
-
-  loginUser: publicProcedure.input(signInSchema).mutation(async ({ input }) => {
-    const data = await loginUser(input);
-
-    return {
-      success: data.success,
-      message: data.message,
-      status: data.status,
-      error: data.error,
-      data: data.data,
-    };
-  }),
-
-  getUserData: publicProcedure.query(async ({ ctx }) => {
-    const cookie = await cookies();
-    const token = cookie.get("token")?.value;
-
-    if (!token) {
-      return {
-        user: null,
-        success: false,
-        message: "No token found",
-      };
-    }
-
-    const decoded = jwt.verify(token, env.JWT_SECRET) as {
-      id: string;
-    };
-
-    if (!decoded) {
-      return {
-        user: null,
-        success: false,
-        message: "Invalid token",
-      };
-    }
-
+  getUserData: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.db
       .select()
       .from(userSchema)
-      .where(eq(userSchema.id, decoded.id))
+      .where(eq(userSchema.id, ctx.userId))
       .then((rows) => rows[0]); // Because you only want one user
 
     return {
@@ -62,11 +21,11 @@ export const userRouter = createTRPCRouter({
     };
   }),
 
-  getLoggedInUser: publicProcedure.query(async ({ ctx }) => {
+  getLoggedInUser: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.db
       .select()
       .from(userSchema)
-      .where(eq(userSchema.username, "Admin"));
+      .where(eq(userSchema.id, ctx.userId));
 
     return {
       user: user,
@@ -74,7 +33,7 @@ export const userRouter = createTRPCRouter({
     };
   }),
 
-  logOutUser: publicProcedure.mutation(async ({ ctx }) => {
+  logOutUser: publicProcedure.mutation(async ({}) => {
     const cookie = await cookies();
     cookie.set("token", "", {
       httpOnly: true,
