@@ -1,7 +1,7 @@
 import type { TCommentAddSchema, TUploadPostSchema } from "@/lib/schemas";
 import { db } from "@/server/db";
 import { commentSchema, postSchema, userSchema } from "@/server/db/schema";
-import { ConsoleLogWriter, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 export async function getFeed() {
   try {
@@ -288,4 +288,35 @@ export async function addComment(input: TCommentAddSchema, userId: string) {
     message: "Comment added successfully",
     commentId: comment[0]!.id,
   };
+}
+
+export async function getLoggedInUserLikedPosts(userId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(postSchema)
+      .where(sql`${userId} = ANY(${postSchema.likes})`)
+      .orderBy(desc(postSchema.createdAt));
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function getLoggedInUserPrivatePosts(userId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(postSchema)
+      .where(
+        and(eq(postSchema.createdBy, userId), eq(postSchema.isPublic, false)),
+      );
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }

@@ -19,6 +19,12 @@ export default function Me() {
   const { data: userPosts, isLoading: isPostsLoading } =
     api.postRouter.getUserPosts.useQuery();
 
+  const { data: userLikedPosts, isLoading: isLikedPostsLoading } =
+    api.postRouter.getLoggedInUserLikedPosts.useQuery();
+
+  const { data: userPrivatePosts, isLoading: isPrivatePostsLoading } =
+    api.postRouter.getLoggedInUserPrivatePosts.useQuery();
+
   const user = data?.user;
   const username = user?.username ?? "User";
   const avatar = user?.avatar ?? undefined;
@@ -107,19 +113,20 @@ export default function Me() {
                     value={"public"}
                     className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
                   >
-                    Public Posts
+                    Public Posts ({userPosts?.length})
                   </TabsTrigger>
                   <TabsTrigger
                     value={"liked"}
                     className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
                   >
-                    Liked Posts
+                    Liked Posts ({userLikedPosts?.length})
                   </TabsTrigger>
-                  {isFriend && (
-                    <TabsTrigger value={"private"} className="w-1/3">
-                      Private Posts
-                    </TabsTrigger>
-                  )}
+                  {isFriend ||
+                    (isProfile && (
+                      <TabsTrigger value={"private"} className="w-1/3">
+                        Private Posts ({userPrivatePosts?.length})
+                      </TabsTrigger>
+                    ))}
                 </TabsList>
               </Tabs>
             </div>
@@ -127,15 +134,13 @@ export default function Me() {
         </div>
         <div className="p-6 lg:p-8">
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {isPostsLoading ? (
-              <div className="flex h-full w-full items-center justify-center">
-                <Loader2 className="animate-spin" size={20} />
-              </div>
-            ) : (
-              userPosts
-                ?.slice()
-                .reverse()
-                .map((post) => (
+            {selectedOption === "public" ? (
+              isPostsLoading ? (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Loader2 className="animate-spin" size={20} />
+                </div>
+              ) : (
+                userPosts?.slice().map((post) => (
                   <Card key={post.id} className="overflow-hidden">
                     <Link href={`/p/${post.id}`} className="h-full">
                       <CardContent className="h-full p-0">
@@ -163,7 +168,78 @@ export default function Me() {
                     </Link>
                   </Card>
                 ))
-            )}
+              )
+            ) : selectedOption === "liked" ? (
+              isLikedPostsLoading ? (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Loader2 className="animate-spin" size={20} />
+                </div>
+              ) : (
+                userLikedPosts?.slice().map((post) => (
+                  <Card key={post.id} className="overflow-hidden">
+                    <Link href={`/p/${post.id}`} className="h-full">
+                      <CardContent className="h-full p-0">
+                        {post.image ? (
+                          <div className="relative h-full">
+                            <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
+                              <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
+                                <h1>{post.title}</h1>
+                              </div>
+                            </div>
+                            <Image
+                              src={post.image}
+                              alt="Post"
+                              width={500}
+                              height={300}
+                              className="h-full w-full rounded-xl object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
+                            <h1>{post.title}</h1>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Link>
+                  </Card>
+                ))
+              )
+            ) : selectedOption === "private" ? (
+              isPrivatePostsLoading ? (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Loader2 className="animate-spin" size={20} />
+                </div>
+              ) : (
+                userPrivatePosts?.slice().map((post) => (
+                  <Card key={post.id} className="overflow-hidden">
+                    <Link href={`/p/${post.id}`} className="h-full">
+                      <CardContent className="h-full p-0">
+                        {post.image ? (
+                          <div className="relative h-full">
+                            <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
+                              <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
+                                <h1>{post.title}</h1>
+                              </div>
+                            </div>
+                            <Image
+                              src={post.image}
+                              alt="Post"
+                              width={500}
+                              height={300}
+                              className="h-full w-full rounded-xl object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
+                            <h1>{post.title}</h1>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Link>
+                  </Card>
+                ))
+              )
+            ) : null}
           </div>
         </div>
       </div>
