@@ -5,14 +5,12 @@ import { PostDetails } from "@/components/post-details";
 import { api } from "@/trpc/react";
 import { Loader2 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 export default function Feed() {
   const pathName = usePathname();
 
   const id = pathName.split("/")[2];
 
-  const [selectedOption, setSelectedOption] = useState("general");
   const { data: post, isLoading: isPostLoading } =
     api.postRouter.getPostById.useQuery({
       postId: id ?? "",

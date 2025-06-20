@@ -15,7 +15,7 @@ import useGetUser from "@/lib/use-get-user";
 export default function Navbar() {
   const { setTheme } = useTheme();
 
-  const { user, loading } = useGetUser();
+  const { user } = useGetUser();
 
   return (
     <nav className="bg-background w-screen border-b">
