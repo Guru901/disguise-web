@@ -4,11 +4,12 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { formatTimeAgo } from "@/lib/format-time-ago";
-import { Share2 } from "lucide-react";
+import { Loader2, Share2 } from "lucide-react";
 import { useState } from "react";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export function PostDetails({
   author,
@@ -57,48 +58,43 @@ export function PostDetails({
   const dislikeAndUnlikePostMutation =
     api.postRouter.dislikeAndUnlikePost.useMutation();
 
-  // const {
-  //   data: comments,
-  //   isLoading: isCommentsLoading,
-  //   isPending,
-  //   refetch: refetchComments,
-  // } = useQuery({
-  //   queryKey: ["get-comments", postID],
-  //   queryFn: async () => {
-  //     const { data } = await axios.get(`/api/post/get-comments?id=${postID}`);
+  const commentAddMutation = api.postRouter.addComments.useMutation();
 
-  //     if (data.success) {
-  //       return data.data;
-  //     }
-  //   },
-  // });
+  const {
+    data: comments,
+    isLoading: isCommentsLoading,
+    isPending: isCommentsPending,
+    refetch: refetchComments,
+  } = api.postRouter.getCommentsByPostId.useQuery(
+    {
+      postId: postID,
+    },
+    {
+      refetchInterval: 1000,
+    },
+  );
 
-  // async function addComment() {
-  //   try {
-  //     setCommentLoading(true);
-  //     const { data } = await axios.post("/api/post/add-comment", {
-  //       content: newComment,
-  //       post: postID,
-  //       author: author._id,
-  //     });
+  async function addComment() {
+    try {
+      setCommentLoading(true);
+      const data = await commentAddMutation.mutateAsync({
+        content: newComment,
+        postId: postID,
+      });
 
-  //     if (data.success) {
-  //       setNewComment("");
-  //       toast({
-  //         title: "Comment added",
-  //         description: "Your comment has been added.",
-  //         variant: "default",
-  //       });
-  //       refetchComments();
+      if (data.success) {
+        setNewComment("");
+        toast("Comment added");
+        void (await refetchComments());
 
-  //       setCommentLoading(false);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
+        setCommentLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
 
-  //     setCommentLoading(false);
-  //   }
-  // }
+      setCommentLoading(false);
+    }
+  }
 
   async function copyUrlToClipboard() {
     try {
@@ -194,7 +190,7 @@ export function PostDetails({
         <div className="h-screen w-screen max-w-7xl px-2 py-3 sm:px-6 lg:px-8">
           <div className="bg-card overflow-hidden rounded-lg">
             <div className="flex flex-col px-[6px] pb-[6px] sm:flex-row md:py-[6px]">
-              <div className="p-6 sm:w-1/2">
+              <div className="py-6 sm:w-1/2 sm:p-6">
                 <div className="flex items-start">
                   <div className="mr-4">
                     <Avatar className="h-14 w-14">
@@ -205,7 +201,11 @@ export function PostDetails({
                     </Avatar>
                   </div>
                   <div>
-                    <div className="text-lg font-bold">{author.username}</div>
+                    <div className="text-lg font-semibold">
+                      <Link href={`/u/${author.id}`} className="underline">
+                        {author.username}
+                      </Link>
+                    </div>
                     <div className="text-muted-foreground text-xs font-semibold">
                       {formatTimeAgo(createdAt)}
                     </div>
@@ -267,7 +267,7 @@ export function PostDetails({
                   </div>
                   <div className="text-muted-foreground text-sm">
                     {optimisticLikes} Likes • {optimisticDislikes} Dislikes •{" "}
-                    {/* {comments?.length ?? 0} Comments */}0 Comments
+                    {comments?.length ?? 0} Comments
                   </div>
                 </div>
               </div>
@@ -279,52 +279,70 @@ export function PostDetails({
                   <div className="flex w-full items-center gap-1">
                     <Input
                       type="text"
-                      className="w-full rounded-md py-5 text-white"
+                      className="w-full rounded-md py-5"
                       placeholder="Add a comment..."
                       onChange={(e) => setNewComment(e.target.value)}
                       value={newComment}
                     />
                     <Button
                       className="w-[30%] py-5"
-                      // onClick={addComment}
+                      onClick={addComment}
                       disabled={commentLoading}
                     >
                       {commentLoading ? "Please Wait" : "Submit"}
                     </Button>
                   </div>
-                  {/* {isCommentsLoading || isPending ? (
-                    <h1>Loading...</h1>
+                  {isCommentsLoading || isCommentsPending ? (
+                    <div className="flex min-h-[300px] w-full items-center justify-center">
+                      <Loader2 className="animate-spin" />
+                    </div>
                   ) : (
-                    comments
-                      .reverse()
-                      .map(
-                        (comment: {
-                          _id: string;
-                          author: { avatar: string; username: string };
-                          content: string;
-                        }) => (
-                          <div className="flex items-center" key={comment._id}>
-                            <div className="mr-4">
-                              <Image
-                                src={comment.author.avatar}
-                                alt="Avatar"
-                                width={56}
-                                height={56}
-                                className="rounded-full"
-                              />
-                            </div>
-                            <div>
-                              <div className="text-lg font-extrabold">
-                                {comment.author.username}
+                    comments?.reverse().map((comment) => (
+                      <div
+                        className="flex items-center"
+                        key={comment.comments.id}
+                      >
+                        <div className="mr-4">
+                          <Avatar className="h-14 w-14">
+                            <AvatarImage
+                              src={comment.users?.avatar ?? ""}
+                              alt="Avatar"
+                              width={56}
+                              height={56}
+                              className="rounded-full"
+                            />
+                            <AvatarFallback>
+                              <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-1">
+                                <span className="text-foreground">
+                                  {comment.users?.username.slice(0, 1)}
+                                </span>
                               </div>
-                              <div className="font-medium text-[#949BA8]">
-                                {comment.content}
-                              </div>
-                            </div>
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <div>
+                          <div className="text-md font-semibold text-[#949BA8]">
+                            <Link
+                              href={`/u/${comment.users?.id}`}
+                              className="underline"
+                            >
+                              {comment.users?.username ?? "User"} •
+                              <span
+                                className="text-xs font-light"
+                                style={{ textDecoration: "none !important" }}
+                              >
+                                {" "}
+                                {formatTimeAgo(comment.comments.createdAt)}
+                              </span>
+                            </Link>
                           </div>
-                        ),
-                      )
-                  )} */}
+                          <div className="text-accent-foreground font-medium">
+                            {comment.comments.content}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
