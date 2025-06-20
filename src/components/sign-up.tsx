@@ -18,9 +18,11 @@ import Link from "next/link";
 import { signUpSchema, type TSignUpSchema } from "@/lib/schemas";
 import { UploadButton } from "@/lib/uploadthing";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 export default function SignUp() {
   const router = useRouter();
+  const { theme } = useTheme();
 
   const {
     control,
@@ -134,7 +136,7 @@ export default function SignUp() {
                 button: {
                   padding: "1rem",
                   width: "100%",
-                  color: "black",
+                  color: theme === "dark" ? "white" : "black",
                   border: "1px solid #8A79AB",
                 },
               }}
