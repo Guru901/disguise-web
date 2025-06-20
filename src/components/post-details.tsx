@@ -63,6 +63,8 @@ export function PostDetails({
   const likeAndUndislikePostMutation =
     api.postRouter.likeAndUndislikePost.useMutation();
 
+  const deleteCommentMutation = api.postRouter.deleteComment.useMutation();
+
   const dislikePostMutation = api.postRouter.dislikePost.useMutation();
   const undislikePostMutation = api.postRouter.undislikePost.useMutation();
   const dislikeAndUnlikePostMutation =
@@ -80,7 +82,7 @@ export function PostDetails({
       postId: postID,
     },
     {
-      // refetchInterval: 1000,
+      refetchInterval: 1000,
     },
   );
 
@@ -121,6 +123,7 @@ export function PostDetails({
   };
 
   async function addComment() {
+    if (newComment.trim() === "") return;
     try {
       setCommentLoading(true);
       let data;
@@ -476,7 +479,17 @@ export function PostDetails({
                                   Reply
                                 </DropdownMenuItem>
                                 {user.id === comment.users?.id && (
-                                  <DropdownMenuItem>Delete</DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={async () => {
+                                      void (await deleteCommentMutation.mutateAsync(
+                                        {
+                                          commentId: comment.comments.id,
+                                        },
+                                      ));
+                                    }}
+                                  >
+                                    Delete
+                                  </DropdownMenuItem>
                                 )}
                               </DropdownMenuContent>
                             </DropdownMenu>
