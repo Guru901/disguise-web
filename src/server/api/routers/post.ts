@@ -206,16 +206,44 @@ export const postRouter = createTRPCRouter({
     }),
 
   addComments: protectedProcedure
-    .input(z.object({ content: z.string(), postId: z.string() }))
+    .input(
+      z.object({
+        content: z.string(),
+        postId: z.string(),
+        replyTo: z.string(),
+        isAReply: z.boolean().default(false),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
-      const comment = await ctx.db
-        .insert(commentSchema)
-        .values({
-          content: input.content,
-          post: input.postId,
-          author: ctx.userId,
-        })
-        .returning({ id: commentSchema.id });
+      let comment;
+
+      if (input.isAReply) {
+        comment = await ctx.db
+          .insert(commentSchema)
+          .values({
+            content: input.content,
+            post: input.postId,
+            author: ctx.userId,
+            isAReply: input.isAReply,
+          })
+          .returning({ id: commentSchema.id });
+
+        await ctx.db
+          .update(commentSchema)
+          .set({
+            replies: sql`array_append(${commentSchema.replies}, ${ctx.userId})`,
+          })
+          .where(eq(commentSchema.id, input.replyTo));
+      } else {
+        comment = await ctx.db
+          .insert(commentSchema)
+          .values({
+            content: input.content,
+            post: input.postId,
+            author: ctx.userId,
+          })
+          .returning({ id: commentSchema.id });
+      }
 
       await ctx.db
         .update(postSchema)
