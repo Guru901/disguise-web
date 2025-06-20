@@ -5,9 +5,10 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import { Share2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import useGetUser from "@/lib/use-get-user";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 export function PostDetails({
   author,
@@ -18,6 +19,7 @@ export function PostDetails({
   likes = [],
   disLikes = [],
   topic = "General",
+  postID,
 }: {
   author: {
     id: string;
@@ -44,6 +46,16 @@ export function PostDetails({
 
   const [optimisticLikes, setOptimisticLikes] = useState(likes.length);
   const [optimisticDislikes, setOptimisticDislikes] = useState(disLikes.length);
+
+  const likePostMutation = api.postRouter.likePost.useMutation();
+  const unlikePostMutation = api.postRouter.unlikePost.useMutation();
+  const likeAndUndislikePostMutation =
+    api.postRouter.likeAndUndislikePost.useMutation();
+
+  const dislikePostMutation = api.postRouter.dislikePost.useMutation();
+  const undislikePostMutation = api.postRouter.undislikePost.useMutation();
+  const dislikeAndUnlikePostMutation =
+    api.postRouter.dislikeAndUnlikePost.useMutation();
 
   // const {
   //   data: comments,
@@ -88,71 +100,100 @@ export function PostDetails({
   //   }
   // }
 
-  // async function copyUrlToClipboard() {
-  //   try {
-  //     await navigator.clipboard.writeText(window.location.href);
-  //     toast({
-  //       title: "Copied to clipboard",
-  //       description: "The URL has been copied to your clipboard.",
-  //       variant: "default",
-  //     });
-  //   } catch (err) {
-  //     console.error("Failed to copy: ", err);
-  //   }
-  // }
+  async function copyUrlToClipboard() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast("Copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  }
 
-  // async function likePost() {
-  //   const newLikeCount = hasLiked ? optimisticLikes - 1 : optimisticLikes + 1;
+  async function likePost() {
+    if (hasLiked) {
+      setOptimisticLikes((prev) => prev - 1);
+      setHasLiked(false);
+      try {
+        await unlikePostMutation.mutateAsync({ post: postID });
+      } catch (error) {
+        console.error(error);
+        setOptimisticLikes((prev) => prev + 1);
+        setHasLiked(true);
+      }
+    } else {
+      // We are liking the post
+      const wasDisliked = hasDisliked;
+      setOptimisticLikes((prev) => prev + 1);
+      setHasLiked(true);
+      if (wasDisliked) {
+        setOptimisticDislikes((prev) => prev - 1);
+        setHasDisliked(false);
+      }
 
-  //   try {
-  //     setOptimisticLikes(newLikeCount);
-  //     setHasLiked(!hasLiked);
+      try {
+        if (wasDisliked) {
+          await likeAndUndislikePostMutation.mutateAsync({ post: postID });
+        } else {
+          await likePostMutation.mutateAsync({ post: postID });
+        }
+      } catch (error) {
+        console.error(error);
+        setOptimisticLikes((prev) => prev - 1);
+        setHasLiked(false);
+        if (wasDisliked) {
+          setOptimisticDislikes((prev) => prev + 1);
+          setHasDisliked(true);
+        }
+      }
+    }
+  }
 
-  //     const endpoint = hasLiked
-  //       ? "/api/post/unlike-post"
-  //       : "/api/post/like-post";
-  //     await axios.post(endpoint, {
-  //       post: postID,
-  //       user: user._id,
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //     setOptimisticLikes(hasLiked ? optimisticLikes + 1 : optimisticLikes - 1);
-  //     setHasLiked(hasLiked);
-  //   }
-  // }
+  async function dislikePost() {
+    if (hasDisliked) {
+      // We are undisliking the post
+      setOptimisticDislikes((prev) => prev - 1);
+      setHasDisliked(false);
+      try {
+        await undislikePostMutation.mutateAsync({ post: postID });
+      } catch (error) {
+        console.error(error);
+        setOptimisticDislikes((prev) => prev + 1);
+        setHasDisliked(true);
+      }
+    } else {
+      // We are disliking the post
+      const wasLiked = hasLiked;
+      setOptimisticDislikes((prev) => prev + 1);
+      setHasDisliked(true);
+      if (wasLiked) {
+        setOptimisticLikes((prev) => prev - 1);
+        setHasLiked(false);
+      }
 
-  // async function dislikePost() {
-  //   const newDislikeCount = hasDisliked
-  //     ? optimisticDislikes - 1
-  //     : optimisticDislikes + 1;
-
-  //   try {
-  //     setOptimisticDislikes(newDislikeCount);
-  //     setHasDisliked(!hasDisliked);
-
-  //     const endpoint = hasDisliked
-  //       ? "/api/post/undislike-post"
-  //       : "/api/post/dislike-post";
-  //     await axios.post(endpoint, {
-  //       post: postID,
-  //       user: user._id,
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //     setOptimisticDislikes(
-  //       hasDisliked ? optimisticDislikes + 1 : optimisticDislikes - 1,
-  //     );
-  //     setHasDisliked(hasDisliked);
-  //   }
-  // }
+      try {
+        if (wasLiked) {
+          await dislikeAndUnlikePostMutation.mutateAsync({ post: postID });
+        } else {
+          await dislikePostMutation.mutateAsync({ post: postID });
+        }
+      } catch (error) {
+        console.error(error);
+        setOptimisticDislikes((prev) => prev - 1);
+        setHasDisliked(false);
+        if (wasLiked) {
+          setOptimisticLikes((prev) => prev + 1);
+          setHasLiked(true);
+        }
+      }
+    }
+  }
 
   return (
     <Card className="flex h-[calc(100vh+15rem)] w-full items-start py-0 pb-12">
       <div className="text-foreground flex w-full items-center justify-center">
         <div className="h-screen w-screen max-w-7xl px-2 py-3 sm:px-6 lg:px-8">
-          <div className="bg-card overflow-hidden rounded-lg shadow-lg">
-            <div className="flex flex-col px-[6px] pb-[6px] sm:flex-row">
+          <div className="bg-card overflow-hidden rounded-lg">
+            <div className="flex flex-col px-[6px] pb-[6px] sm:flex-row md:py-[6px]">
               <div className="p-6 sm:w-1/2">
                 <div className="flex items-start">
                   <div className="mr-4">
@@ -203,13 +244,11 @@ export function PostDetails({
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon">
-                      {/* onClick={likePost} */}
+                    <Button variant="ghost" size="icon" onClick={likePost}>
                       {hasLiked ? <HeartIconFilled /> : <HeartIcon />}
                       <span className="sr-only">Like</span>
                     </Button>
-                    <Button variant="ghost" size="icon">
-                      {/* onClick={dislikePost} */}
+                    <Button variant="ghost" size="icon" onClick={dislikePost}>
                       {hasDisliked ? (
                         <ThumbsDownIconFilled />
                       ) : (
@@ -217,9 +256,11 @@ export function PostDetails({
                       )}
                       <span className="sr-only">Dislike</span>
                     </Button>
-                    <Button variant="ghost" size="icon">
-                      {/* onClick={copyUrlToClipboard} */}
-
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={copyUrlToClipboard}
+                    >
                       <Share2 />
                       <span className="sr-only">Share</span>
                     </Button>

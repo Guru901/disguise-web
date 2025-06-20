@@ -98,4 +98,97 @@ export const postRouter = createTRPCRouter({
         };
       }
     }),
+
+  likePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.db
+        .update(postSchema)
+        .set({
+          likes: sql`array_append(${postSchema.likes}, ${ctx.userId})`,
+        })
+        .where(eq(postSchema.id, input.post));
+
+      return {
+        success: true,
+        message: "Post Liked successfully",
+      };
+    }),
+  unlikePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.db
+        .update(postSchema)
+        .set({
+          likes: sql`array_remove(${postSchema.likes}, ${ctx.userId})`,
+        })
+        .where(eq(postSchema.id, input.post));
+
+      return {
+        success: true,
+        message: "Post Unliked successfully",
+      };
+    }),
+  likeAndUndislikePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.db
+        .update(postSchema)
+        .set({
+          likes: sql`array_append(${postSchema.likes}, ${ctx.userId})`,
+          disLikes: sql`array_remove(${postSchema.disLikes}, ${ctx.userId})`,
+        })
+        .where(eq(postSchema.id, input.post));
+
+      return {
+        success: true,
+        message: "Post liked and undisliked successfully",
+      };
+    }),
+  dislikePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.db
+        .update(postSchema)
+        .set({
+          disLikes: sql`array_append(${postSchema.disLikes}, ${ctx.userId})`,
+        })
+        .where(eq(postSchema.id, input.post));
+
+      return {
+        success: true,
+        message: "Post Disliked successfully",
+      };
+    }),
+  undislikePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.db
+        .update(postSchema)
+        .set({
+          disLikes: sql`array_remove(${postSchema.disLikes}, ${ctx.userId})`,
+        })
+        .where(eq(postSchema.id, input.post));
+
+      return {
+        success: true,
+        message: "Post Undisliked successfully",
+      };
+    }),
+  dislikeAndUnlikePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.db
+        .update(postSchema)
+        .set({
+          disLikes: sql`array_append(${postSchema.disLikes}, ${ctx.userId})`,
+          likes: sql`array_remove(${postSchema.likes}, ${ctx.userId})`,
+        })
+        .where(eq(postSchema.id, input.post));
+
+      return {
+        success: true,
+        message: "Post disliked and unliked successfully",
+      };
+    }),
 });

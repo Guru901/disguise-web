@@ -12,6 +12,7 @@ import { formatTimeAgo } from "@/lib/format-time-ago";
 import { Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { api } from "@/trpc/react";
 
 export function PostCard({
   avatar,
@@ -44,6 +45,16 @@ export function PostCard({
     disLikes.includes(userId),
   );
 
+  const likePostMutation = api.postRouter.likePost.useMutation();
+  const unlikePostMutation = api.postRouter.unlikePost.useMutation();
+  const likeAndUndislikePostMutation =
+    api.postRouter.likeAndUndislikePost.useMutation();
+
+  const dislikePostMutation = api.postRouter.dislikePost.useMutation();
+  const undislikePostMutation = api.postRouter.undislikePost.useMutation();
+  const dislikeAndUnlikePostMutation =
+    api.postRouter.dislikeAndUnlikePost.useMutation();
+
   async function copyUrlToClipboard() {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -53,51 +64,81 @@ export function PostCard({
     }
   }
 
-  //   async function likePost() {
-  //     const newLikeCount = hasLiked ? optimisticLikes - 1 : optimisticLikes + 1;
+  async function likePost() {
+    if (hasLiked) {
+      // We are unliking the post
+      setOptimisticLikes((prev) => prev - 1);
+      setHasLiked(false);
+      try {
+        await unlikePostMutation.mutateAsync({ post: id });
+      } catch (error) {
+        setOptimisticLikes((prev) => prev + 1);
+        setHasLiked(true);
+      }
+    } else {
+      // We are liking the post
+      const wasDisliked = hasDisliked;
+      setOptimisticLikes((prev) => prev + 1);
+      setHasLiked(true);
+      if (wasDisliked) {
+        setOptimisticDislikes((prev) => prev - 1);
+        setHasDisliked(false);
+      }
 
-  //     try {
-  //       setOptimisticLikes(newLikeCount);
-  //       setHasLiked(!hasLiked);
+      try {
+        if (wasDisliked) {
+          await likeAndUndislikePostMutation.mutateAsync({ post: id });
+        } else {
+          await likePostMutation.mutateAsync({ post: id });
+        }
+      } catch (error) {
+        setOptimisticLikes((prev) => prev - 1);
+        setHasLiked(false);
+        if (wasDisliked) {
+          setOptimisticDislikes((prev) => prev + 1);
+          setHasDisliked(true);
+        }
+      }
+    }
+  }
 
-  //       const endpoint = hasLiked
-  //         ? "/api/post/unlike-post"
-  //         : "/api/post/like-post";
-  //       await axios.post(endpoint, {
-  //         post: id,
-  //         user: userId,
-  //       });
-  //     } catch (error) {
-  //       console.error(error);
-  //       setOptimisticLikes(hasLiked ? optimisticLikes + 1 : optimisticLikes - 1);
-  //       setHasLiked(hasLiked);
-  //     }
-  //   }
+  async function dislikePost() {
+    if (hasDisliked) {
+      // We are undisliking the post
+      setOptimisticDislikes((prev) => prev - 1);
+      setHasDisliked(false);
+      try {
+        await undislikePostMutation.mutateAsync({ post: id });
+      } catch (error) {
+        setOptimisticDislikes((prev) => prev + 1);
+        setHasDisliked(true);
+      }
+    } else {
+      // We are disliking the post
+      const wasLiked = hasLiked;
+      setOptimisticDislikes((prev) => prev + 1);
+      setHasDisliked(true);
+      if (wasLiked) {
+        setOptimisticLikes((prev) => prev - 1);
+        setHasLiked(false);
+      }
 
-  //   async function dislikePost() {
-  //     const newDislikeCount = hasDisliked
-  //       ? optimisticDislikes - 1
-  //       : optimisticDislikes + 1;
-
-  //     try {
-  //       setOptimisticDislikes(newDislikeCount);
-  //       setHasDisliked(!hasDisliked);
-
-  //       const endpoint = hasDisliked
-  //         ? "/api/post/undislike-post"
-  //         : "/api/post/dislike-post";
-  //       await axios.post(endpoint, {
-  //         post: id,
-  //         user: userId,
-  //       });
-  //     } catch (error) {
-  //       console.error(error);
-  //       setOptimisticDislikes(
-  //         hasDisliked ? optimisticDislikes + 1 : optimisticDislikes - 1,
-  //       );
-  //       setHasDisliked(hasDisliked);
-  //     }
-  //   }
+      try {
+        if (wasLiked) {
+          await dislikeAndUnlikePostMutation.mutateAsync({ post: id });
+        } else {
+          await dislikePostMutation.mutateAsync({ post: id });
+        }
+      } catch (error) {
+        setOptimisticDislikes((prev) => prev - 1);
+        setHasDisliked(false);
+        if (wasLiked) {
+          setOptimisticLikes((prev) => prev + 1);
+          setHasLiked(true);
+        }
+      }
+    }
+  }
 
   return (
     <Card className="mx-auto w-full max-w-lg py-6">
@@ -140,7 +181,7 @@ export function PostCard({
               className="flex gap-1"
               variant={"ghost"}
               size={"icon"}
-              //   onClick={likePost}
+              onClick={likePost}
             >
               {hasLiked ? <HeartIconFilled /> : <HeartIcon />}
               <span>{optimisticLikes}</span>
@@ -151,7 +192,7 @@ export function PostCard({
               className="flex gap-1"
               variant={"ghost"}
               size={"icon"}
-              //   onClick={dislikePost}
+              onClick={dislikePost}
             >
               {hasDisliked ? <ThumbsDownIconFilled /> : <ThumbsDownIcon />}
               <span>{optimisticDislikes}</span>
