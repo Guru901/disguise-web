@@ -21,6 +21,7 @@ export function PostDetails({
   disLikes = [],
   topic = "General",
   postID,
+  commentsCount,
 }: {
   author: {
     id: string;
@@ -35,6 +36,7 @@ export function PostDetails({
   disLikes: string[];
   topic: string;
   postID: string;
+  commentsCount: number;
 }) {
   const { user } = useGetUser();
 
@@ -185,12 +187,12 @@ export function PostDetails({
   }
 
   return (
-    <Card className="flex h-[calc(100vh+15rem)] w-full items-start py-0 pb-12">
+    <Card className="flex h-[calc(100vh+15rem)] w-full items-start py-0 pb-12 md:h-fit md:w-fit md:pb-0">
       <div className="text-foreground flex w-full items-center justify-center">
-        <div className="h-screen w-screen max-w-7xl px-2 py-3 sm:px-6 lg:px-8">
+        <div className="h-auto w-auto max-w-7xl px-2 py-3 sm:px-6 lg:p-2">
           <div className="bg-card overflow-hidden rounded-lg">
-            <div className="flex flex-col px-[6px] pb-[6px] sm:flex-row md:py-[6px]">
-              <div className="py-6 sm:w-1/2 sm:p-6">
+            <div className="flex flex-col px-[6px] pb-[6px] sm:flex-row md:min-w-[60vw] md:py-[6px]">
+              <div className="py-6 sm:w-3/4 sm:p-6">
                 <div className="flex items-start">
                   <div className="mr-4">
                     <Avatar className="h-14 w-14">
@@ -267,7 +269,7 @@ export function PostDetails({
                   </div>
                   <div className="text-muted-foreground text-sm">
                     {optimisticLikes} Likes • {optimisticDislikes} Dislikes •{" "}
-                    {comments?.length ?? 0} Comments
+                    {commentsCount} Comments
                   </div>
                 </div>
               </div>
@@ -322,16 +324,12 @@ export function PostDetails({
                         </div>
                         <div>
                           <div className="text-md font-semibold text-[#949BA8]">
-                            <Link
-                              href={`/u/${comment.users?.id}`}
-                              className="underline"
-                            >
-                              {comment.users?.username ?? "User"} •
-                              <span
-                                className="text-xs font-light"
-                                style={{ textDecoration: "none !important" }}
-                              >
-                                {" "}
+                            <Link href={`/u/${comment.users?.id}`}>
+                              <span className="underline">
+                                {comment.users?.username ?? "User"}
+                              </span>
+                              {" • "}
+                              <span className="text-xs font-light">
                                 {formatTimeAgo(comment.comments.createdAt)}
                               </span>
                             </Link>
