@@ -335,7 +335,27 @@ export function PostDetails({
                             </Link>
                           </div>
                           <div className="text-accent-foreground font-medium">
-                            {comment.comments.content}
+                            {!comment.comments.content.includes("@") ? (
+                              <p>{comment.comments.content}</p>
+                            ) : (
+                              <p>
+                                {comment.comments.content
+                                  .split(" ")
+                                  .map((x: string, index: number) =>
+                                    x.startsWith("@") ? (
+                                      <Link
+                                        key={index}
+                                        className="text-primary underline"
+                                        href={`/u/${x.slice(1)}`}
+                                      >
+                                        {x + " "}
+                                      </Link>
+                                    ) : (
+                                      <span key={index}>{x + " "}</span>
+                                    ),
+                                  )}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
