@@ -20,10 +20,12 @@ import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { UploadButton } from "@/lib/uploadthing";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 export function PostUploadForm() {
   const router = useRouter();
   const { user } = useGetUser();
+  const { theme } = useTheme();
   const uploadPostMutation = api.postRouter.createPost.useMutation();
   const {
     handleSubmit,
@@ -126,7 +128,7 @@ export function PostUploadForm() {
             button: {
               padding: "1rem",
               width: "100%",
-              color: "black",
+              color: theme === "dark" ? "white" : "black",
               border: "1px solid #8A79AB",
             },
           }}

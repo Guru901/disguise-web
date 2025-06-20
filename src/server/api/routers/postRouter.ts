@@ -1,0 +1,77 @@
+import * as postDal from "@/dal/post";
+import { commentAddSchema, uploadPostSchema } from "@/lib/schemas";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
+import { z } from "zod";
+
+export const postRouter = createTRPCRouter({
+  getFeed: protectedProcedure.query(async () => {
+    return await postDal.getFeed();
+  }),
+
+  getUserPosts: protectedProcedure.query(async ({ ctx }) => {
+    return await postDal.getLoggedInUserPost(ctx.userId);
+  }),
+
+  getPostById: publicProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await postDal.getPostById(input.postId);
+    }),
+
+  createPost: protectedProcedure
+    .input(uploadPostSchema)
+    .mutation(async ({ input }) => {
+      return await postDal.createPost(input);
+    }),
+
+  likePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.likePost(ctx.userId, input.post);
+    }),
+  unlikePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.unlikePost(ctx.userId, input.post);
+    }),
+  likeAndUndislikePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.likeAndUndislikePost(ctx.userId, input.post);
+    }),
+  dislikePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.dislikePost(ctx.userId, input.post);
+    }),
+  undislikePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.undislikePost(ctx.userId, input.post);
+    }),
+  dislikeAndUnlikePost: protectedProcedure
+    .input(z.object({ post: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.dislikeAndUnlikePost(ctx.userId, input.post);
+    }),
+
+  getCommentsByPostId: protectedProcedure
+    .input(z.object({ postId: z.string() }))
+    .query(async ({ input }) => {
+      return await postDal.getCommentsByPostId(input.postId);
+    }),
+
+  addComments: protectedProcedure
+    .input(commentAddSchema)
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.addComment(input, ctx.userId);
+    }),
+});

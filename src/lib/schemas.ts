@@ -35,3 +35,12 @@ export const uploadPostSchema = z.object({
 });
 
 export type TUploadPostSchema = z.infer<typeof uploadPostSchema>;
+
+export const commentAddSchema = z.object({
+  content: z.string(),
+  postId: z.string(),
+  replyTo: z.string(),
+  isAReply: z.boolean().default(false),
+});
+
+export type TCommentAddSchema = z.infer<typeof commentAddSchema>;

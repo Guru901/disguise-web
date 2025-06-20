@@ -9,7 +9,7 @@ export default function useGetUser() {
   const { user, setUser } = useUserStore();
   const router = useRouter();
 
-  const { data, isLoading, error } = api.userRouter.getLoggedInUser.useQuery(
+  const { data, isLoading, error } = api.userRouter.getUserData.useQuery(
     undefined,
     {
       enabled: !user?.id,
@@ -18,14 +18,14 @@ export default function useGetUser() {
   );
 
   useEffect(() => {
-    if (data?.user?.[0]) {
+    if (data?.user) {
       setUser({
-        avatar: data.user[0]?.avatar ?? "",
-        username: data.user[0]?.username,
-        id: data.user[0]?.id,
-        posts: data.user[0]?.posts ?? [],
-        friends: data.user[0]?.friends ?? [],
-        createdAt: data.user[0]?.createdAt.toLocaleDateString(),
+        avatar: data.user.avatar ?? "",
+        username: data.user?.username,
+        id: data.user.id,
+        posts: data.user.posts ?? [],
+        friends: data.user.friends ?? [],
+        createdAt: data.user.createdAt.toLocaleDateString(),
       });
     } else if (data && data.success === false) {
       router.replace("/login");
