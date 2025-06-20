@@ -106,3 +106,33 @@ export async function loginUser(userData: TSignInSchema) {
     };
   }
 }
+
+export async function getUserData(userId: string) {
+  try {
+    const user = await db
+      .select()
+      .from(userSchema)
+      .where(eq(userSchema.id, userId))
+      .limit(1)
+      .then((res) => res[0]);
+
+    user!.password = "";
+
+    return {
+      user: user,
+      message: "User data retrieved",
+      success: true,
+      status: 200,
+      error: null,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      message: "Error getting user data",
+      user: null,
+      success: false,
+      status: 500,
+      error,
+    };
+  }
+}
