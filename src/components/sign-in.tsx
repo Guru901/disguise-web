@@ -15,14 +15,12 @@ import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { signInSchema, type TSignInSchema } from "@/lib/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 
 type LoginResponse = { success: boolean; message?: string };
 
 export default function SignIn() {
   const router = useRouter();
-  const loginUserMutation = api.userRouter.loginUser.useMutation();
 
   const {
     control,
@@ -48,6 +46,7 @@ export default function SignIn() {
         setError("root", { message: result.message ?? "Login failed" });
       }
     } catch (error) {
+      console.error(error);
       setError("root", { message: "Something went wrong. Please try again." });
     }
   }
