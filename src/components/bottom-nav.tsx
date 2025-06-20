@@ -89,9 +89,9 @@ function BottomNavigation() {
                 await fetch("/api/logout");
                 location.href = "/login";
               }}
-              className="hover:bg-muted hover:text-foreground flex w-full items-center justify-start gap-2 rounded-md px-3 py-2 pl-[1rem] text-sm font-medium transition-colors"
+              className="hover:bg-muted hover:text-foreground flex w-full items-center justify-start gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
             >
-              <LogOutIcon size={19} />
+              <LogOutIcon size={19} className="ml-[.3rem]" />
               Logout
             </Button>
           </DrawerClose>
