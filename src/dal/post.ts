@@ -258,6 +258,7 @@ export async function addComment(input: TCommentAddSchema, userId: string) {
         post: input.postId,
         author: userId,
         isAReply: input.isAReply,
+        replyTo: input.replyTo,
       })
       .returning({ id: commentSchema.id });
 
