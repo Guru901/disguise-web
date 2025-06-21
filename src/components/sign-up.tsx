@@ -124,7 +124,7 @@ export default function SignUp() {
             <Label htmlFor="avatar">Avatar (optional)</Label>
 
             <UploadButton
-              endpoint="imageUploader"
+              endpoint="avatarUploader"
               onClientUploadComplete={(res) => {
                 setValue("avatar", res[0]?.ufsUrl);
                 toast("Avatar uploaded successfully");
@@ -136,7 +136,7 @@ export default function SignUp() {
                 button: {
                   padding: "1rem",
                   width: "100%",
-                  color: theme === "dark" ? "white" : "black",
+                  color: "#03A9F4",
                   border: "1px solid #8A79AB",
                 },
               }}
