@@ -12,6 +12,7 @@ import { api } from "@/trpc/react";
 import { useUserStore } from "@/lib/userStore";
 import Navbar from "@/components/navbar";
 import { formatTimeAgo } from "@/lib/format-time-ago";
+import MediaPlayer from "@/components/media-player";
 
 export default function Me() {
   const [selectedOption, setSelectedOption] = useState("public");
@@ -157,12 +158,19 @@ export default function Me() {
                                 <h1>{post.title}</h1>
                               </div>
                             </div>
-                            <Image
-                              src={post.image}
-                              alt="Post"
-                              width={500}
-                              height={300}
-                              className="h-full w-full rounded-xl object-cover"
+                            <MediaPlayer
+                              url={post.image}
+                              imageProps={{
+                                alt: "Post",
+                                width: 500,
+                                height: 300,
+                                className:
+                                  "h-full w-full rounded-xl object-cover",
+                              }}
+                              videoProps={{
+                                className:
+                                  "h-full w-full rounded-xl object-cover",
+                              }}
                             />
                           </div>
                         ) : (
