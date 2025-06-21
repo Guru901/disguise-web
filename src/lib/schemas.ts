@@ -38,6 +38,7 @@ export type TUploadPostSchema = z.infer<typeof uploadPostSchema>;
 
 export const commentAddSchema = z.object({
   content: z.string(),
+  image: z.string().optional(),
   postId: z.string(),
   replyTo: z.string(),
   isAReply: z.boolean().default(false),

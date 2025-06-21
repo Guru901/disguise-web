@@ -261,6 +261,7 @@ export async function addComment(input: TCommentAddSchema, userId: string) {
         author: userId,
         isAReply: input.isAReply,
         replyTo: input.replyTo,
+        image: input.image,
       })
       .returning({ id: commentSchema.id });
 
@@ -277,6 +278,7 @@ export async function addComment(input: TCommentAddSchema, userId: string) {
         content: input.content,
         post: input.postId,
         author: userId,
+        image: input.image,
       })
       .returning({ id: commentSchema.id });
   }
