@@ -349,7 +349,7 @@ export function PostDetails({
                   </div>
                 </div>
               </div>
-              <div className={`bg-muted w-[50vw] rounded-lg px-4 py-6`}>
+              <div className={`bg-muted rounded-lg px-4 py-6 md:w-[50vw]`}>
                 <h2 className="text-secondary-foreground mb-4 text-lg font-semibold">
                   Comments
                 </h2>
