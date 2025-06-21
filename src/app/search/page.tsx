@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Search as SearchIcon, Users } from "lucide-react";
 import { api } from "@/trpc/react";
 import Navbar from "@/components/navbar";

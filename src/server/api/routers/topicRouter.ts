@@ -5,7 +5,7 @@ import {
 } from "@/server/api/trpc";
 import { topicSchema, userSchema } from "@/server/db/schema";
 import { topicSchema as zodTopicSchema } from "@/lib/schemas";
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export const topicRouter = createTRPCRouter({
   getAllTopics: publicProcedure.query(async ({ ctx }) => {
