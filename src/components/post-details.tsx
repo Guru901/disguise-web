@@ -57,6 +57,9 @@ export function PostDetails({
 
   const [optimisticLikes, setOptimisticLikes] = useState(likes.length);
   const [optimisticDislikes, setOptimisticDislikes] = useState(disLikes.length);
+  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(
+    new Set(),
+  );
 
   const likePostMutation = api.postRouter.likePost.useMutation();
   const unlikePostMutation = api.postRouter.unlikePost.useMutation();
@@ -120,6 +123,19 @@ export function PostDetails({
         );
       }
     }, 100);
+  };
+
+  // Function to toggle reply visibility
+  const toggleReplies = (commentId: string) => {
+    setExpandedReplies((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
   };
 
   async function addComment() {
@@ -333,7 +349,7 @@ export function PostDetails({
                   </div>
                 </div>
               </div>
-              <div className={`bg-muted w-full rounded-lg px-4 py-6`}>
+              <div className={`bg-muted w-[50vw] rounded-lg px-4 py-6`}>
                 <h2 className="text-secondary-foreground mb-4 text-lg font-semibold">
                   Comments
                 </h2>
@@ -400,102 +416,255 @@ export function PostDetails({
                   ) : (
                     comments
                       ?.filter((comment) => !comment.comments.isAReply)
-                      .map((comment) => (
-                        <div
-                          className="flex items-center"
-                          key={comment.comments.id}
-                        >
-                          <div className="mr-4">
-                            <Avatar className="h-14 w-14">
-                              <AvatarImage
-                                src={comment.users?.avatar ?? ""}
-                                alt="Avatar"
-                                width={56}
-                                height={56}
-                                className="rounded-full"
-                              />
-                              <AvatarFallback>
-                                <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-1">
-                                  <span className="text-foreground">
-                                    {comment.users?.username.slice(0, 1)}
-                                  </span>
-                                </div>
-                              </AvatarFallback>
-                            </Avatar>
-                          </div>
-                          <div className="flex w-full justify-between">
-                            <div>
-                              <div className="text-md font-semibold text-[#949BA8]">
-                                <Link href={`/u/${comment.users?.id}`}>
-                                  <span className="underline">
-                                    {comment.users?.username ?? "User"}
-                                  </span>
-                                  {" • "}
-                                  <span className="text-xs font-light">
-                                    {formatTimeAgo(comment.comments.createdAt)}
-                                  </span>
-                                </Link>
+                      .map((comment) => {
+                        // Get replies for this comment
+                        const replies =
+                          comments?.filter(
+                            (reply) =>
+                              reply.comments.isAReply &&
+                              reply.comments.replyTo === comment.comments.id,
+                          ) ?? [];
+
+                        return (
+                          <div key={comment.comments.id}>
+                            {/* Main comment */}
+                            <div className="flex items-center">
+                              <div className="mr-4">
+                                <Avatar className="h-14 w-14">
+                                  <AvatarImage
+                                    src={comment.users?.avatar ?? ""}
+                                    alt="Avatar"
+                                    width={56}
+                                    height={56}
+                                    className="rounded-full"
+                                  />
+                                  <AvatarFallback>
+                                    <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-1">
+                                      <span className="text-foreground">
+                                        {comment.users?.username.slice(0, 1)}
+                                      </span>
+                                    </div>
+                                  </AvatarFallback>
+                                </Avatar>
                               </div>
-                              <div className="text-accent-foreground font-medium">
-                                {!comment.comments.content.includes("@") ? (
-                                  <p>{comment.comments.content}</p>
-                                ) : (
-                                  <p>
-                                    {comment.comments.content
-                                      .split(" ")
-                                      .map((x: string, index: number) =>
-                                        x.startsWith("@") ? (
-                                          <Link
-                                            key={index}
-                                            className="text-primary underline"
-                                            href={`/u/${x.slice(1)}`}
-                                          >
-                                            {x + " "}
-                                          </Link>
-                                        ) : (
-                                          <span key={index}>{x + " "}</span>
-                                        ),
-                                      )}
-                                  </p>
-                                )}
+                              <div className="flex w-full justify-between">
+                                <div>
+                                  <div className="text-md font-semibold text-[#949BA8]">
+                                    <Link href={`/u/${comment.users?.id}`}>
+                                      <span className="underline">
+                                        {comment.users?.username ?? "User"}
+                                      </span>
+                                      {" • "}
+                                      <span className="text-xs font-light">
+                                        {formatTimeAgo(
+                                          comment.comments.createdAt,
+                                        )}
+                                      </span>
+                                    </Link>
+                                  </div>
+                                  <div className="text-accent-foreground font-medium">
+                                    {!comment.comments.content.includes("@") ? (
+                                      <p>{comment.comments.content}</p>
+                                    ) : (
+                                      <p>
+                                        {comment.comments.content
+                                          .split(" ")
+                                          .map((x: string, index: number) =>
+                                            x.startsWith("@") ? (
+                                              <Link
+                                                key={index}
+                                                className="text-primary underline"
+                                                href={`/u/${x.slice(1)}`}
+                                              >
+                                                {x + " "}
+                                              </Link>
+                                            ) : (
+                                              <span key={index}>{x + " "}</span>
+                                            ),
+                                          )}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                      <EllipsisVerticalIcon />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+
+                                  <DropdownMenuContent align="start">
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleReply(
+                                          comment.comments.id,
+                                          comment.users?.username ?? "User",
+                                        )
+                                      }
+                                    >
+                                      Reply
+                                    </DropdownMenuItem>
+                                    {user.id === comment.users?.id && (
+                                      <DropdownMenuItem
+                                        onClick={async () => {
+                                          void (await deleteCommentMutation.mutateAsync(
+                                            {
+                                              commentId: comment.comments.id,
+                                            },
+                                          ));
+                                        }}
+                                      >
+                                        Delete
+                                      </DropdownMenuItem>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
                               </div>
                             </div>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <EllipsisVerticalIcon />
-                                </Button>
-                              </DropdownMenuTrigger>
 
-                              <DropdownMenuContent align="start">
-                                <DropdownMenuItem
+                            {/* Replies section */}
+                            {replies.length > 0 && (
+                              <div className="border-muted mt-1 ml-18 space-y-3 border-l-2 pl-4">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
                                   onClick={() =>
-                                    handleReply(
-                                      comment.comments.id,
-                                      comment.users?.username ?? "User",
-                                    )
+                                    toggleReplies(comment.comments.id)
                                   }
+                                  className="text-muted-foreground hover:text-foreground text-xs"
                                 >
-                                  Reply
-                                </DropdownMenuItem>
-                                {user.id === comment.users?.id && (
-                                  <DropdownMenuItem
-                                    onClick={async () => {
-                                      void (await deleteCommentMutation.mutateAsync(
-                                        {
-                                          commentId: comment.comments.id,
-                                        },
-                                      ));
-                                    }}
-                                  >
-                                    Delete
-                                  </DropdownMenuItem>
+                                  {expandedReplies.has(comment.comments.id)
+                                    ? `Hide ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`
+                                    : `Show ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`}
+                                </Button>
+
+                                {expandedReplies.has(comment.comments.id) && (
+                                  <div className="flex flex-col gap-4">
+                                    {replies.reverse().map((reply) => (
+                                      <div
+                                        key={reply.comments.id}
+                                        className="flex items-center"
+                                      >
+                                        <div className="mr-3">
+                                          <Avatar className="h-10 w-10">
+                                            <AvatarImage
+                                              src={reply.users?.avatar ?? ""}
+                                              alt="Avatar"
+                                              width={40}
+                                              height={40}
+                                              className="rounded-full"
+                                            />
+                                            <AvatarFallback>
+                                              <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-1">
+                                                <span className="text-foreground text-sm">
+                                                  {reply.users?.username.slice(
+                                                    0,
+                                                    1,
+                                                  )}
+                                                </span>
+                                              </div>
+                                            </AvatarFallback>
+                                          </Avatar>
+                                        </div>
+                                        <div className="flex w-full justify-between">
+                                          <div>
+                                            <div className="text-sm font-semibold text-[#949BA8]">
+                                              <Link
+                                                href={`/u/${reply.users?.id}`}
+                                              >
+                                                <span className="underline">
+                                                  {reply.users?.username ??
+                                                    "User"}
+                                                </span>
+                                                {" • "}
+                                                <span className="text-xs font-light">
+                                                  {formatTimeAgo(
+                                                    reply.comments.createdAt,
+                                                  )}
+                                                </span>
+                                              </Link>
+                                            </div>
+                                            <div className="text-accent-foreground text-sm font-medium">
+                                              {!reply.comments.content.includes(
+                                                "@",
+                                              ) ? (
+                                                <p>{reply.comments.content}</p>
+                                              ) : (
+                                                <p>
+                                                  {reply.comments.content
+                                                    .split(" ")
+                                                    .map(
+                                                      (
+                                                        x: string,
+                                                        index: number,
+                                                      ) =>
+                                                        x.startsWith("@") ? (
+                                                          <Link
+                                                            key={index}
+                                                            className="text-primary underline"
+                                                            href={`/u/${x.slice(1)}`}
+                                                          >
+                                                            {x + " "}
+                                                          </Link>
+                                                        ) : (
+                                                          <span key={index}>
+                                                            {x + " "}
+                                                          </span>
+                                                        ),
+                                                    )}
+                                                </p>
+                                              )}
+                                            </div>
+                                          </div>
+                                          <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8"
+                                              >
+                                                <EllipsisVerticalIcon className="h-4 w-4" />
+                                              </Button>
+                                            </DropdownMenuTrigger>
+
+                                            <DropdownMenuContent align="start">
+                                              <DropdownMenuItem
+                                                onClick={() =>
+                                                  handleReply(
+                                                    comment.comments.id,
+                                                    reply.users?.username ??
+                                                      "User",
+                                                  )
+                                                }
+                                              >
+                                                Reply
+                                              </DropdownMenuItem>
+                                              {user.id === reply.users?.id && (
+                                                <DropdownMenuItem
+                                                  onClick={async () => {
+                                                    void (await deleteCommentMutation.mutateAsync(
+                                                      {
+                                                        commentId:
+                                                          reply.comments.id,
+                                                      },
+                                                    ));
+                                                  }}
+                                                >
+                                                  Delete
+                                                </DropdownMenuItem>
+                                              )}
+                                            </DropdownMenuContent>
+                                          </DropdownMenu>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
                                 )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                   )}
                 </div>
               </div>

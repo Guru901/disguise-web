@@ -1,7 +1,7 @@
 import type { TSignInSchema, TSignUpSchema } from "@/lib/schemas";
 import { db } from "@/server/db";
 import { userSchema } from "@/server/db/schema";
-import { eq, asc, ilike, sql } from "drizzle-orm";
+import { eq, or, asc, ilike, sql } from "drizzle-orm";
 import { hash, compare } from "bcrypt";
 
 export async function registerUser(userData: TSignUpSchema) {
@@ -167,10 +167,20 @@ export async function searchusers(searchTerm: string) {
 
 export async function getUserDataById(userId: string) {
   try {
+    const isValidUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        userId,
+      );
+
     const user = await db
       .select()
       .from(userSchema)
-      .where(eq(userSchema.id, userId))
+      .where(
+        or(
+          eq(userSchema.username, userId),
+          ...(isValidUuid ? [eq(userSchema.id, userId)] : []),
+        ),
+      )
       .limit(1)
       .then((res) => res[0]);
 
