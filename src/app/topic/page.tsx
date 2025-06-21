@@ -7,6 +7,7 @@ import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import Masonry from "react-masonry-css";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 const breakpointColumnsObj = {
   default: 2,
@@ -14,7 +15,7 @@ const breakpointColumnsObj = {
   700: 1,
 };
 
-export default function TopicSpecificFeed() {
+function TopicFeedContent() {
   const { user } = useGetUser();
   const params = useSearchParams();
   const topicName = params.get("name");
@@ -27,29 +28,37 @@ export default function TopicSpecificFeed() {
   if (isPostsLoading) return <Loader />;
 
   return (
+    <Masonry
+      breakpointCols={breakpointColumnsObj}
+      className="my-masonry-grid"
+      columnClassName="my-masonry-grid_column"
+    >
+      {posts?.map((post) => (
+        <PostCard
+          avatar={post.createdBy?.avatar ?? ""}
+          username={post.createdBy?.username ?? "User"}
+          title={post.title}
+          image={post.image}
+          createdAt={post.createdAt}
+          content={post.content}
+          id={post.id}
+          likes={post.likes ?? []}
+          disLikes={post.disLikes ?? []}
+          userId={user.id}
+          key={post.id}
+        />
+      ))}
+    </Masonry>
+  );
+}
+
+export default function TopicSpecificFeed() {
+  return (
     <div className="relative flex h-screen w-screen flex-col gap-3 overflow-x-hidden px-2 py-2">
       <Navbar />
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="my-masonry-grid"
-        columnClassName="my-masonry-grid_column"
-      >
-        {posts?.map((post) => (
-          <PostCard
-            avatar={post.createdBy?.avatar ?? ""}
-            username={post.createdBy?.username ?? "User"}
-            title={post.title}
-            image={post.image}
-            createdAt={post.createdAt}
-            content={post.content}
-            id={post.id}
-            likes={post.likes ?? []}
-            disLikes={post.disLikes ?? []}
-            userId={user.id}
-            key={post.id}
-          />
-        ))}
-      </Masonry>
+      <Suspense fallback={<Loader />}>
+        <TopicFeedContent />
+      </Suspense>
     </div>
   );
 }
