@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
   ChevronUp,
+  FolderIcon,
   LogOutIcon,
   PenLineIcon,
   PlusIcon,
@@ -72,6 +73,16 @@ function BottomNavigation() {
             >
               <PlusIcon />
               Post
+            </Link>
+          </DrawerClose>
+          <DrawerClose asChild>
+            <Link
+              href="/topics"
+              className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+              prefetch={false}
+            >
+              <FolderIcon />
+              Topics
             </Link>
           </DrawerClose>
 

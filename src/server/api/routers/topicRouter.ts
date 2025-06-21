@@ -3,12 +3,26 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { topicSchema } from "@/server/db/schema";
+import { topicSchema, userSchema } from "@/server/db/schema";
 import { topicSchema as zodTopicSchema } from "@/lib/schemas";
+import { desc, eq } from "drizzle-orm";
 
 export const topicRouter = createTRPCRouter({
   getAllTopics: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.select().from(topicSchema);
+    return await ctx.db
+      .select({
+        id: topicSchema.id,
+        name: topicSchema.name,
+        createdBy: topicSchema.createdBy,
+        createdAt: topicSchema.createdAt,
+        description: topicSchema.description,
+        user: {
+          id: userSchema.id,
+          username: userSchema.username,
+        },
+      })
+      .from(topicSchema)
+      .leftJoin(userSchema, eq(topicSchema.createdBy, userSchema.id));
   }),
 
   createTopic: protectedProcedure
@@ -20,6 +34,7 @@ export const topicRouter = createTRPCRouter({
           .values({
             name: input.name,
             createdBy: ctx.userId,
+            description: input.description,
           })
           .returning({ name: topicSchema.name });
 

@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
+import { Textarea } from "./ui/textarea";
 
 export default function CreateTopicForm() {
   const {
@@ -61,6 +62,22 @@ export default function CreateTopicForm() {
         {errors.name && (
           <p className="text-sm text-red-500">{errors.name.message}</p>
         )}
+        <Controller
+          control={control}
+          name="description"
+          render={({ field }) => (
+            <Textarea
+              id="description"
+              required
+              placeholder="What will be uploaded here"
+              className="h-10"
+              {...field}
+            ></Textarea>
+          )}
+        />
+        {errors.description && (
+          <p className="text-sm text-red-500">{errors.description.message}</p>
+        )}
       </div>
       {errors.root && (
         <p className="text-sm text-red-500">{errors.root.message}</p>
@@ -76,7 +93,7 @@ export default function CreateTopicForm() {
             Please Wait
           </>
         ) : (
-          "Post"
+          "Create"
         )}
       </Button>
     </form>

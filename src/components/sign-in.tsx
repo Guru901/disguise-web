@@ -108,7 +108,7 @@ export default function SignIn() {
             <p className="text-xs text-red-500">{errors.root.message}</p>
           )}
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (

@@ -34,6 +34,7 @@ export const postSchema = pgTable("posts", {
 export const topicSchema = pgTable("topics", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   name: text("name").notNull(),
+  description: text("description"),
   createdBy: uuid("created_by").references(() => userSchema.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
