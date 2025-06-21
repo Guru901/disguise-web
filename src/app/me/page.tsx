@@ -69,8 +69,8 @@ export default function Me() {
 
   return (
     <main>
-      <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[300px_1fr]">
-        <Navbar />
+      <Navbar />
+      <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[430px_1fr]">
         <div className="bg-muted/40 border-r p-6 lg:p-8">
           <div className="flex flex-col items-center gap-4">
             <Avatar className="h-44 w-44">

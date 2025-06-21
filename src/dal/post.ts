@@ -344,12 +344,14 @@ export async function deleteComment(commentId: string, userId: string) {
   }
 }
 
-export async function getUserPostsByUserId(userId: string) {
+export async function getUserPublicPostsByUserId(userId: string) {
   try {
     const results = await db
       .select()
       .from(postSchema)
-      .where(eq(postSchema.createdBy, userId))
+      .where(
+        and(eq(postSchema.createdBy, userId), eq(postSchema.isPublic, true)),
+      )
       .orderBy(desc(postSchema.createdAt));
 
     return results;

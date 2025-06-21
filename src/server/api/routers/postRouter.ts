@@ -95,7 +95,7 @@ export const postRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
-      return await postDal.getUserPostsByUserId(input.userId);
+      return await postDal.getUserPublicPostsByUserId(input.userId);
     }),
   getUserlikedPostsByUserId: protectedProcedure
     .input(

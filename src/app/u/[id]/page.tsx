@@ -38,13 +38,34 @@ export default function Me() {
   });
 
   const { data: userPosts, isLoading: isPostsLoading } =
-    api.postRouter.getUserPublicPostsByUserId.useQuery({ userId: id! });
+    api.postRouter.getUserPublicPostsByUserId.useQuery(
+      {
+        userId: data?.user?.id ?? "",
+      },
+      {
+        enabled: !!data?.user?.id,
+      },
+    );
 
   const { data: userLikedPosts, isLoading: isLikedPostsLoading } =
-    api.postRouter.getUserlikedPostsByUserId.useQuery({ userId: id! });
+    api.postRouter.getUserlikedPostsByUserId.useQuery(
+      {
+        userId: data?.user?.id ?? "",
+      },
+      {
+        enabled: !!data?.user?.id,
+      },
+    );
 
   const { data: userPrivatePosts, isLoading: isPrivatePostsLoading } =
-    api.postRouter.getUserPrivatePostsByUserId.useQuery({ userId: id! });
+    api.postRouter.getUserPrivatePostsByUserId.useQuery(
+      {
+        userId: data?.user?.id ?? "",
+      },
+      {
+        enabled: !!data?.user?.id,
+      },
+    );
 
   const removeFriendByIdMutation =
     api.userRouter.removeFriendById.useMutation();
@@ -77,8 +98,10 @@ export default function Me() {
 
   return (
     <main>
-      <div className="min-h-screen w-full grid-cols-1 lg:grid-cols-[300px_1fr]">
-        <Navbar />
+      <Navbar />
+      <div
+        className={`grid min-h-screen w-full grid-cols-1 ${isFriend ? "lg:grid-cols-[430px_1fr]" : "lg:grid-cols-[300px_1fr]"}`}
+      >
         <div className="bg-muted/40 border-r p-6 lg:p-8">
           <div className="flex flex-col items-center gap-4">
             <Avatar className="h-44 w-44">
