@@ -8,8 +8,10 @@ export async function getFeed() {
     const results = await db
       .select()
       .from(postSchema)
-      .where(eq(postSchema.isPublic, true))
-      .leftJoin(userSchema, eq(userSchema.id, postSchema.createdBy))
+      .where(
+        and(eq(postSchema.isPublic, true), eq(postSchema.topic, "General")),
+      )
+      .leftJoin(userSchema, and(eq(userSchema.id, postSchema.createdBy)))
       .orderBy(desc(postSchema.createdAt));
 
     return results.map((row) => ({
@@ -423,6 +425,27 @@ export async function getUserPrivatePostsByUserId(
       .orderBy(desc(postSchema.createdAt));
 
     return results;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function getTopicSpecificFeed(topicName: string) {
+  try {
+    const results = await db
+      .select()
+      .from(postSchema)
+      .where(
+        and(eq(postSchema.isPublic, true), eq(postSchema.topic, topicName)),
+      )
+      .leftJoin(userSchema, eq(userSchema.id, postSchema.createdBy))
+      .orderBy(desc(postSchema.createdAt));
+
+    return results.map((row) => ({
+      ...row.posts,
+      createdBy: row.users,
+    }));
   } catch (error) {
     console.error(error);
     return [];

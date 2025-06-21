@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
   ChevronUp,
+  FolderIcon,
   LogOutIcon,
+  PenLineIcon,
   PlusIcon,
   SearchIcon,
   UserRound,
@@ -73,7 +75,27 @@ function BottomNavigation() {
               Post
             </Link>
           </DrawerClose>
+          <DrawerClose asChild>
+            <Link
+              href="/topics"
+              className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+              prefetch={false}
+            >
+              <FolderIcon />
+              Topics
+            </Link>
+          </DrawerClose>
 
+          <DrawerClose asChild>
+            <Link
+              href="/create-topic"
+              className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 pl-[1rem] text-sm font-medium transition-colors"
+              prefetch={false}
+            >
+              <PenLineIcon size={19} />
+              Create Topic
+            </Link>
+          </DrawerClose>
           <DrawerClose asChild>
             <Link
               href="/search"

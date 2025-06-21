@@ -115,4 +115,14 @@ export const postRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       return await postDal.getUserlikedPostsByUserId(input.userId, ctx.userId);
     }),
+
+  getTopicSpecificFeed: protectedProcedure
+    .input(
+      z.object({
+        topicName: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await postDal.getTopicSpecificFeed(input.topicName);
+    }),
 });
