@@ -16,6 +16,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "./ui/dropdown-menu";
+import { Loader } from "./loader";
 
 export function PostDetails({
   author,
@@ -88,6 +89,34 @@ export function PostDetails({
       refetchInterval: 1000,
     },
   );
+
+  // Media loading state
+  const [showAsVideo, setShowAsVideo] = useState(false);
+  const [showAsImage, setShowAsImage] = useState(true);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
+  const handleImageError = () => {
+    setShowAsImage(false);
+    setShowAsVideo(true);
+    setVideoLoading(true);
+    setImageLoading(false);
+  };
+
+  const handleVideoError = () => {
+    setShowAsVideo(false);
+    setVideoLoading(false);
+    // Could show a fallback or error message here
+    console.error("Media failed to load");
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleVideoLoad = () => {
+    setVideoLoading(false);
+  };
 
   // Fixed useEffect for handling reply focus
   useEffect(() => {
@@ -297,13 +326,42 @@ export function PostDetails({
                 </div>
                 {image && (
                   <div className="mt-4">
-                    <Image
-                      src={image}
-                      alt="Post Image"
-                      width={500}
-                      height={500}
-                      className="w-full rounded-md object-cover"
-                    />
+                    {(imageLoading || videoLoading) && (
+                      <div className="flex h-52 w-full items-center justify-center">
+                        <Loader2 size={20} className="animate-spin" />
+                      </div>
+                    )}
+                    {showAsImage && (
+                      <Image
+                        src={image}
+                        alt="Post Image"
+                        width={500}
+                        height={500}
+                        className="h-52 w-full rounded-md object-cover"
+                        onError={handleImageError}
+                        onLoad={handleImageLoad}
+                        style={{
+                          opacity: imageLoading ? 0 : 1,
+                          transition: "opacity 0.3s",
+                        }}
+                      />
+                    )}
+                    {showAsVideo && !showAsImage && (
+                      <video
+                        src={image}
+                        controls
+                        preload="metadata"
+                        className="h-52 w-full rounded-md bg-black object-cover"
+                        onError={handleVideoError}
+                        onLoadedData={handleVideoLoad}
+                        style={{
+                          opacity: videoLoading ? 0 : 1,
+                          transition: "opacity 0.3s",
+                        }}
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    )}
                   </div>
                 )}
                 <div className="mt-3 break-words">

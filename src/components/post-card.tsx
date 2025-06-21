@@ -13,6 +13,7 @@ import { Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { api } from "@/trpc/react";
+import { Loader } from "./loader";
 
 export function PostCard({
   avatar,
@@ -44,6 +45,35 @@ export function PostCard({
   const [hasDisliked, setHasDisliked] = useState(() =>
     disLikes.includes(userId),
   );
+
+  // Use a simple approach: try to determine if it's likely a video or image
+  // Or just show both options and let the browser handle it
+  const [showAsVideo, setShowAsVideo] = useState(false);
+  const [showAsImage, setShowAsImage] = useState(true);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
+  const handleImageError = () => {
+    setShowAsImage(false);
+    setShowAsVideo(true);
+    setVideoLoading(true);
+    setImageLoading(false);
+  };
+
+  const handleVideoError = () => {
+    setShowAsVideo(false);
+    setVideoLoading(false);
+    // Could show a fallback or error message here
+    console.error("Media failed to load");
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleVideoLoad = () => {
+    setVideoLoading(false);
+  };
 
   const likePostMutation = api.postRouter.likePost.useMutation();
   const unlikePostMutation = api.postRouter.unlikePost.useMutation();
@@ -145,8 +175,8 @@ export function PostCard({
   }
 
   return (
-    <Card className="h-max py-6">
-      <CardHeader className="flex items-center gap-4 px-4 py-2">
+    <Card className="h-max overflow-hidden py-6">
+      <CardHeader className="flex items-center gap-4 px-4 py-3">
         <Avatar className="h-14 w-14">
           <AvatarImage
             src={avatar}
@@ -162,23 +192,48 @@ export function PostCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="px-4">
-        <div className="space-y-2">
+      <CardContent className="px-4 py-0">
+        <div className="space-y-3">
           <p>{title}</p>
           {image && (
-            <Image
-              src={image}
-              alt={title}
-              width="600"
-              height="200"
-              className="h-52 w-full rounded-md object-cover"
-              priority={true}
-            />
+            <>
+              {(imageLoading || videoLoading) && (
+                <div className="flex h-52 w-full items-center justify-center">
+                  <Loader />
+                </div>
+              )}
+              {showAsImage && (
+                <Image
+                  src={image}
+                  alt={title}
+                  width="600"
+                  height="200"
+                  className="h-52 w-full rounded-md object-cover"
+                  priority={true}
+                  onError={handleImageError}
+                  onLoad={handleImageLoad}
+                  style={{ display: imageLoading ? "none" : "block" }}
+                />
+              )}
+              {showAsVideo && !showAsImage && (
+                <video
+                  src={image}
+                  controls
+                  preload="metadata"
+                  className="h-52 w-full rounded-md bg-black object-cover"
+                  onError={handleVideoError}
+                  onLoadedData={handleVideoLoad}
+                  style={{ display: videoLoading ? "none" : "block" }}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              )}
+            </>
           )}
           {content && <p className="truncate overflow-hidden">{content}</p>}
         </div>
       </CardContent>
-      <CardFooter className="flex items-center justify-between">
+      <CardFooter className="flex items-center justify-between px-4 py-3">
         <div className="text-muted-foreground flex items-center gap-2">
           <div className="flex items-center gap-1">
             <Button

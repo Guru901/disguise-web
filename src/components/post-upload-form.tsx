@@ -116,7 +116,7 @@ export function PostUploadForm() {
           Image
         </Label>
         <UploadButton
-          endpoint="imageUploader"
+          endpoint="postMediaUploader"
           onClientUploadComplete={(res) => {
             setValue("image", res[0]?.ufsUrl);
             toast("Image uploaded successfully");
@@ -128,12 +128,12 @@ export function PostUploadForm() {
             button: {
               padding: "1rem",
               width: "100%",
-              color: theme === "dark" ? "white" : "black",
+              color: "#03A9F4",
               border: "1px solid #8A79AB",
             },
           }}
         />
-        {imageUrl && (
+        {imageUrl?.endsWith(".mp4") || imageUrl?.endsWith(".mkv") ? (
           <div className="mt-2 flex justify-center">
             <img
               src={imageUrl}
@@ -141,7 +141,15 @@ export function PostUploadForm() {
               className="max-h-48 rounded border object-cover"
             />
           </div>
-        )}
+        ) : imageUrl ? (
+          <div className="mt-2 flex justify-center">
+            <img
+              src={imageUrl}
+              alt="Preview"
+              className="max-h-48 rounded border object-cover"
+            />
+          </div>
+        ) : null}
         {errors.image && (
           <p className="text-sm text-red-500">{errors.image.message}</p>
         )}
