@@ -8,7 +8,7 @@ export default async function Post() {
   return (
     <>
       <Navbar />
-      <div className="flex gap-3 p-4">
+      <div className="flex flex-wrap gap-3 p-4">
         {topics.map((topic) => (
           <Link
             key={topic.id}
