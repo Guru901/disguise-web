@@ -44,3 +44,9 @@ export const commentAddSchema = z.object({
 });
 
 export type TCommentAddSchema = z.infer<typeof commentAddSchema>;
+
+export const topicSchema = z.object({
+  name: z.string().min(3).max(30).trim(),
+});
+
+export type TTopicSchema = z.infer<typeof topicSchema>;
