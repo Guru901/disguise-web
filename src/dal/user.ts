@@ -1,7 +1,7 @@
 import type { TSignInSchema, TSignUpSchema } from "@/lib/schemas";
 import { db } from "@/server/db";
 import { userSchema } from "@/server/db/schema";
-import { eq, asc, ilike } from "drizzle-orm";
+import { eq, asc, ilike, sql } from "drizzle-orm";
 import { hash, compare } from "bcrypt";
 
 export async function registerUser(userData: TSignUpSchema) {
@@ -161,6 +161,65 @@ export async function searchusers(searchTerm: string) {
       users: null,
       success: false,
       message: "Error retrieving users",
+    };
+  }
+}
+
+export async function getUserDataById(userId: string) {
+  try {
+    const user = await db
+      .select()
+      .from(userSchema)
+      .where(eq(userSchema.id, userId))
+      .limit(1)
+      .then((res) => res[0]);
+
+    user!.password = "";
+
+    return {
+      user: user,
+      message: "User data retrieved",
+      success: true,
+      status: 200,
+      error: null,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      message: "Error getting user data",
+      user: null,
+      success: false,
+      status: 500,
+      error,
+    };
+  }
+}
+
+export async function removeFriendById(userId: string, friendId: string) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        friends: sql`array_remove(${userSchema.friends}, ${friendId})`,
+      })
+      .where(eq(userSchema.id, userId));
+
+    await db
+      .update(userSchema)
+      .set({
+        friends: sql`array_remove(${userSchema.friends}, ${userId})`,
+      })
+      .where(eq(userSchema.id, friendId));
+
+    return {
+      success: true,
+      message: "Friend removed successfully",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Error removing friend",
     };
   }
 }

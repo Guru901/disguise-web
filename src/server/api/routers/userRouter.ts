@@ -11,4 +11,23 @@ export const userRouter = createTRPCRouter({
   searchUsers: protectedProcedure.input(z.string()).query(async ({ input }) => {
     return await userDal.searchusers(input);
   }),
+
+  getUserDataById: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await userDal.getUserDataById(input.id);
+    }),
+  removeFriendById: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await userDal.removeFriendById(ctx.userId, input.id);
+    }),
 });

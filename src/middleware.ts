@@ -33,6 +33,6 @@ export const config = {
     "/friends",
     "/settings",
     "/admin/dashboard",
-    "/user/:id",
+    "/u/:id",
   ],
 };

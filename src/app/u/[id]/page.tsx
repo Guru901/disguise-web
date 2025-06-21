@@ -7,25 +7,47 @@ import { Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "@/trpc/react";
-import { useUserStore } from "@/lib/userStore";
 import Navbar from "@/components/navbar";
+import { usePathname } from "next/navigation";
 import { formatTimeAgo } from "@/lib/format-time-ago";
+import { useUserStore } from "@/lib/userStore";
+import {
+  DialogTrigger,
+  Dialog,
+  DialogTitle,
+  DialogDescription,
+  DialogHeader,
+  DialogContent,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export default function Me() {
   const [selectedOption, setSelectedOption] = useState("public");
 
-  const { data, isLoading, isError } = api.userRouter.getUserData.useQuery();
+  const { user: loggedInUser } = useUserStore();
+
+  const pathName = usePathname();
+  const id = pathName.split("/")[2];
+
+  const { data, isLoading, isError } = api.userRouter.getUserDataById.useQuery({
+    id: id!,
+  });
 
   const { data: userPosts, isLoading: isPostsLoading } =
-    api.postRouter.getLoggedInUserPublicPosts.useQuery();
+    api.postRouter.getUserPublicPostsByUserId.useQuery({ userId: id! });
 
   const { data: userLikedPosts, isLoading: isLikedPostsLoading } =
-    api.postRouter.getLoggedInUserLikedPosts.useQuery();
+    api.postRouter.getUserlikedPostsByUserId.useQuery({ userId: id! });
 
   const { data: userPrivatePosts, isLoading: isPrivatePostsLoading } =
-    api.postRouter.getLoggedInUserPrivatePosts.useQuery();
+    api.postRouter.getUserPrivatePostsByUserId.useQuery({ userId: id! });
+
+  const removeFriendByIdMutation =
+    api.userRouter.removeFriendById.useMutation();
 
   const user = data?.user;
   const username = user?.username ?? "User";
@@ -33,23 +55,9 @@ export default function Me() {
   const posts = data?.user?.posts ?? [];
   const friends = user?.friends ?? [];
   const createdAt = user?.createdAt;
-  const id = user?.id ?? "";
 
-  const isProfile = true;
-  const isFriend = false;
-
-  const { setUser } = useUserStore();
-
-  useEffect(() => {
-    setUser({
-      avatar: avatar,
-      username: username,
-      posts: posts,
-      friends: friends,
-      createdAt: createdAt?.toLocaleDateString() ?? "",
-      id: id,
-    });
-  }, []);
+  const isProfile = false;
+  const isFriend = friends.includes(loggedInUser.id);
 
   if (isLoading) {
     return (
@@ -69,7 +77,7 @@ export default function Me() {
 
   return (
     <main>
-      <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[300px_1fr]">
+      <div className="min-h-screen w-full grid-cols-1 lg:grid-cols-[300px_1fr]">
         <Navbar />
         <div className="bg-muted/40 border-r p-6 lg:p-8">
           <div className="flex flex-col items-center gap-4">
@@ -98,44 +106,109 @@ export default function Me() {
             <div className="w-full">
               {!isProfile && (
                 <div className="flex w-full gap-2">
-                  <Button className="w-1/2" variant={"outline"}>
-                    {isFriend ? "Remove Friend" : "Add Friend"}
-                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-1/2" variant={"outline"}>
+                        {isFriend ? "Remove Friend" : "Add Friend"}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader className="text-center sm:text-left">
+                        <DialogTitle className="text-lg font-semibold">
+                          Remove Friend
+                        </DialogTitle>
+                        <DialogDescription className="text-muted-foreground text-sm">
+                          Are you sure you want to remove{" "}
+                          <span className="text-foreground font-semibold">
+                            {username}
+                          </span>{" "}
+                          from your friends list? This action cannot be undone.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter className="flex flex-row space-x-2">
+                        <DialogClose asChild>
+                          <Button variant="outline" className="flex-1">
+                            Cancel
+                          </Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <Button
+                            variant="destructive"
+                            className="flex-1"
+                            // Updated section for the remove friend button click handler
+                            onClick={async () => {
+                              try {
+                                const data =
+                                  await removeFriendByIdMutation.mutateAsync({
+                                    id: id!,
+                                  });
+
+                                if (data.success) {
+                                  await api
+                                    .useUtils()
+                                    .userRouter.getUserDataById.invalidate({
+                                      id: id!,
+                                    });
+
+                                  if (selectedOption === "private") {
+                                    setSelectedOption("public");
+                                  }
+
+                                  toast("Friend removed successfully");
+                                  location.reload();
+                                }
+                              } catch (error) {
+                                // Handle error case
+                                console.error(
+                                  "Failed to remove friend:",
+                                  error,
+                                );
+                                // You might want to show an error toast here
+                              }
+                            }}
+                          >
+                            Remove Friend
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+
                   <Button disabled className="w-1/2" variant={"outline"}>
                     Message
                   </Button>
                 </div>
               )}
             </div>
-            <div className="mt-2 flex w-full flex-wrap gap-2 lg:mt-0">
-              <Tabs
-                defaultValue="public"
-                value={selectedOption}
-                className="w-full"
-                onValueChange={(e) => setSelectedOption(e)}
-              >
-                <TabsList className="w-full">
-                  <TabsTrigger
-                    value={"public"}
-                    className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
+            {isProfile ||
+              (isFriend && (
+                <div className="mt-2 flex w-full flex-wrap gap-2 lg:mt-0">
+                  <Tabs
+                    defaultValue="public"
+                    value={selectedOption}
+                    className="w-full"
+                    onValueChange={(e) => setSelectedOption(e)}
                   >
-                    Public Posts ({userPosts?.length})
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value={"liked"}
-                    className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
-                  >
-                    Liked Posts ({userLikedPosts?.length})
-                  </TabsTrigger>
-                  {isFriend ||
-                    (isProfile && (
+                    <TabsList className="w-full">
+                      <TabsTrigger
+                        value={"public"}
+                        className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
+                      >
+                        Public Posts ({userPosts?.length})
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value={"liked"}
+                        className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
+                      >
+                        Liked Posts ({userLikedPosts?.length})
+                      </TabsTrigger>
                       <TabsTrigger value={"private"} className="w-1/3">
                         Private Posts ({userPrivatePosts?.length})
                       </TabsTrigger>
-                    ))}
-                </TabsList>
-              </Tabs>
-            </div>
+                    </TabsList>
+                  </Tabs>
+                </div>
+              ))}
           </div>
         </div>
         <div className="p-6 lg:p-8">
