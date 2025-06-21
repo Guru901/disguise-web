@@ -30,3 +30,5 @@ export const ourFileRouter = {
     return {};
   }),
 } satisfies FileRouter;
+
+export type OurFileRouter = typeof ourFileRouter;
