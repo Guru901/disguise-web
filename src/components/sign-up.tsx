@@ -18,11 +18,9 @@ import Link from "next/link";
 import { signUpSchema, type TSignUpSchema } from "@/lib/schemas";
 import { UploadButton } from "@/lib/uploadthing";
 import { toast } from "sonner";
-import { useTheme } from "next-themes";
 
 export default function SignUp() {
   const router = useRouter();
-  const { theme } = useTheme();
 
   const {
     control,

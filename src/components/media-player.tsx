@@ -1,6 +1,5 @@
-import { Loader2 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function MediaPlayer({
   url,
