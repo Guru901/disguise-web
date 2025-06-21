@@ -87,28 +87,30 @@ export default function Search() {
               Found {users.users.length} user
               {users.users.length !== 1 ? "s" : ""}
             </p>
-            {users.users.map((user) => (
-              <Link key={user.id} href={`/u/${user.id}`}>
-                <Card className="cursor-pointer hover:shadow-md">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={user.avatar!} alt={user.username} />
-                        <AvatarFallback className="text-sm font-medium">
-                          {user.username.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{user.username}</h3>
-                        <p className="text-muted-foreground text-sm">
-                          Click to view profile
-                        </p>
+            <div className="flex flex-col gap-4">
+              {users.users.map((user) => (
+                <Link key={user.id} href={`/u/${user.id}`}>
+                  <Card className="cursor-pointer hover:shadow-md">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={user.avatar!} alt={user.username} />
+                          <AvatarFallback className="text-sm font-medium">
+                            {user.username.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">{user.username}</h3>
+                          <p className="text-muted-foreground text-sm">
+                            Click to view profile
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
           </div>
         ) : debouncedSearch.length > 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
