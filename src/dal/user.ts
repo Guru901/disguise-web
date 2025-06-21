@@ -1,7 +1,7 @@
 import type { TSignInSchema, TSignUpSchema } from "@/lib/schemas";
 import { db } from "@/server/db";
 import { userSchema } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, asc, ilike } from "drizzle-orm";
 import { hash, compare } from "bcrypt";
 
 export async function registerUser(userData: TSignUpSchema) {
@@ -133,6 +133,34 @@ export async function getUserData(userId: string) {
       success: false,
       status: 500,
       error,
+    };
+  }
+}
+
+export async function searchusers(searchTerm: string) {
+  try {
+    const users = await db
+      .select({
+        id: userSchema.id,
+        username: userSchema.username,
+        avatar: userSchema.avatar,
+      })
+      .from(userSchema)
+      .where(ilike(userSchema.username, "%" + searchTerm + "%"))
+      .orderBy(asc(userSchema.username))
+      .limit(10);
+
+    return {
+      users,
+      success: true,
+      message: "Users retrieved successfully",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      users: null,
+      success: false,
+      message: "Error retrieving users",
     };
   }
 }
