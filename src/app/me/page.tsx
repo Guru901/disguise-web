@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { api } from "@/trpc/react";
 import { useUserStore } from "@/lib/userStore";
+import Navbar from "@/components/navbar";
 
 export default function Me() {
   const [selectedOption, setSelectedOption] = useState("public");
@@ -68,6 +69,7 @@ export default function Me() {
   return (
     <main>
       <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[300px_1fr]">
+        <Navbar />
         <div className="bg-muted/40 border-r p-6 lg:p-8">
           <div className="flex flex-col items-center gap-4">
             <Avatar className="h-44 w-44">
