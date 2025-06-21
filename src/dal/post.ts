@@ -22,7 +22,7 @@ export async function getFeed() {
   }
 }
 
-export async function getLoggedInUserPost(userId: string) {
+export async function getLoggedInUserPublicPost(userId: string) {
   try {
     const results = await db
       .select()
@@ -341,5 +341,87 @@ export async function deleteComment(commentId: string, userId: string) {
       success: false,
       message: "Failed to delete comment",
     };
+  }
+}
+
+export async function getUserPostsByUserId(userId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(postSchema)
+      .where(eq(postSchema.createdBy, userId))
+      .orderBy(desc(postSchema.createdAt));
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function getUserlikedPostsByUserId(
+  userId: string,
+  loggedInUserId: string,
+) {
+  try {
+    const isFriend = await db
+      .select()
+      .from(userSchema)
+      .where(
+        and(
+          eq(userSchema.id, loggedInUserId),
+          sql`${userId} = ANY(${userSchema.friends})`,
+        ),
+      )
+      .limit(1);
+
+    if (!isFriend) return [];
+
+    const results = await db
+      .select()
+      .from(postSchema)
+      .where(and(sql`${userId} = ANY(${postSchema.likes})`))
+      .orderBy(desc(postSchema.createdAt));
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function getUserPrivatePostsByUserId(
+  userId: string,
+  loggedInUserId: string,
+) {
+  try {
+    const isFriend = await db
+      .select()
+      .from(userSchema)
+      .where(
+        and(
+          eq(userSchema.id, loggedInUserId),
+          sql`${userId} = ANY(${userSchema.friends})`,
+        ),
+      )
+      .limit(1);
+
+    if (!isFriend) return [];
+
+    const results = await db
+      .select()
+      .from(postSchema)
+      .where(
+        and(
+          sql`${userId} = ANY(${postSchema.createdBy})`,
+          eq(postSchema.isPublic, false),
+        ),
+      )
+      .orderBy(desc(postSchema.createdAt));
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 }

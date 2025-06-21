@@ -12,8 +12,8 @@ export const postRouter = createTRPCRouter({
     return await postDal.getFeed();
   }),
 
-  getUserPosts: protectedProcedure.query(async ({ ctx }) => {
-    return await postDal.getLoggedInUserPost(ctx.userId);
+  getLoggedInUserPublicPosts: protectedProcedure.query(async ({ ctx }) => {
+    return await postDal.getLoggedInUserPublicPost(ctx.userId);
   }),
 
   getLoggedInUserLikedPosts: protectedProcedure.query(async ({ ctx }) => {
@@ -86,5 +86,33 @@ export const postRouter = createTRPCRouter({
     .input(z.object({ commentId: z.string() }))
     .mutation(async ({ input, ctx }) => {
       return await postDal.deleteComment(input.commentId, ctx.userId);
+    }),
+
+  getUserPublicPostsByUserId: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await postDal.getUserPostsByUserId(input.userId);
+    }),
+  getUserlikedPostsByUserId: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await postDal.getUserlikedPostsByUserId(input.userId, ctx.userId);
+    }),
+  getUserPrivatePostsByUserId: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await postDal.getUserlikedPostsByUserId(input.userId, ctx.userId);
     }),
 });

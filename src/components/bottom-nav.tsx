@@ -18,8 +18,10 @@ import {
 import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
+import { useUserStore } from "@/lib/userStore";
 
 function BottomNavigation() {
+  const { setUser } = useUserStore();
   return (
     <Drawer>
       <DrawerTrigger asChild>
@@ -87,6 +89,14 @@ function BottomNavigation() {
               variant={"ghost"}
               onClick={async () => {
                 await fetch("/api/logout");
+                setUser({
+                  avatar: "",
+                  username: "",
+                  posts: [],
+                  friends: [],
+                  createdAt: "",
+                  id: "",
+                });
                 location.href = "/login";
               }}
               className="hover:bg-muted hover:text-foreground flex w-full items-center justify-start gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
