@@ -4,7 +4,13 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { formatTimeAgo } from "@/lib/format-time-ago";
-import { EllipsisVerticalIcon, Loader2, Share2 } from "lucide-react";
+import {
+  EllipsisVerticalIcon,
+  Loader2,
+  Share2,
+  ImageIcon,
+  X,
+} from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
@@ -16,7 +22,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "./ui/dropdown-menu";
-import { Loader } from "./loader";
+import { UploadButton } from "@/lib/uploadthing";
+import MediaPlayer from "./media-player";
 
 export function PostDetails({
   author,
@@ -47,8 +54,12 @@ export function PostDetails({
 }) {
   const { user } = useGetUser();
 
-  const [newComment, setNewComment] = useState("");
+  const [newComment, setNewComment] = useState({
+    image: "",
+    content: "",
+  });
   const [commentLoading, setCommentLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [hasLiked, setHasLiked] = useState(() => likes.includes(user.id));
   const [replyTo, setReplyTo] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -90,35 +101,6 @@ export function PostDetails({
     },
   );
 
-  // Media loading state
-  const [showAsVideo, setShowAsVideo] = useState(false);
-  const [showAsImage, setShowAsImage] = useState(true);
-  const [videoLoading, setVideoLoading] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
-
-  const handleImageError = () => {
-    setShowAsImage(false);
-    setShowAsVideo(true);
-    setVideoLoading(true);
-    setImageLoading(false);
-  };
-
-  const handleVideoError = () => {
-    setShowAsVideo(false);
-    setVideoLoading(false);
-    // Could show a fallback or error message here
-    console.error("Media failed to load");
-  };
-
-  const handleImageLoad = () => {
-    setImageLoading(false);
-  };
-
-  const handleVideoLoad = () => {
-    setVideoLoading(false);
-  };
-
-  // Fixed useEffect for handling reply focus
   useEffect(() => {
     if (replyTo && inputRef.current) {
       // Use setTimeout to ensure DOM is updated before focusing
@@ -138,20 +120,17 @@ export function PostDetails({
   // Function to handle reply button click
   const handleReply = (commentId: string, username: string) => {
     setReplyTo(commentId);
-    // Pre-fill the comment with @username
-    setNewComment(`@${username} `);
+    setNewComment({ content: `@${username} `, image: "" });
 
-    // Focus the input after a short delay to ensure state is updated
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
-        // Set cursor position at the end
         inputRef.current.setSelectionRange(
           inputRef.current.value.length,
           inputRef.current.value.length,
         );
       }
-    }, 100);
+    }, 200);
   };
 
   // Function to toggle reply visibility
@@ -167,21 +146,27 @@ export function PostDetails({
     });
   };
 
+  const removeUploadedImage = () => {
+    setNewComment({ ...newComment, image: "" });
+  };
+
   async function addComment() {
-    if (newComment.trim() === "") return;
+    if (newComment.content.trim() === "") return;
     try {
       setCommentLoading(true);
       let data;
       if (replyTo) {
         data = await commentAddMutation.mutateAsync({
-          content: newComment,
+          content: newComment.content,
+          image: newComment.image,
           postId: postID,
           isAReply: true,
           replyTo: replyTo,
         });
       } else {
         data = await commentAddMutation.mutateAsync({
-          content: newComment,
+          content: newComment.content,
+          image: newComment.image,
           postId: postID,
           isAReply: false,
           replyTo: replyTo,
@@ -189,7 +174,7 @@ export function PostDetails({
       }
 
       if (data.success) {
-        setNewComment("");
+        setNewComment({ content: "", image: "" });
         setReplyTo(""); // Clear the reply state
         toast("Comment added");
         void (await refetchComments());
@@ -326,42 +311,18 @@ export function PostDetails({
                 </div>
                 {image && (
                   <div className="mt-4">
-                    {(imageLoading || videoLoading) && (
-                      <div className="flex h-52 w-full items-center justify-center">
-                        <Loader2 size={20} className="animate-spin" />
-                      </div>
-                    )}
-                    {showAsImage && (
-                      <Image
-                        src={image}
-                        alt="Post Image"
-                        width={500}
-                        height={500}
-                        className="h-52 w-full rounded-md object-cover"
-                        onError={handleImageError}
-                        onLoad={handleImageLoad}
-                        style={{
-                          opacity: imageLoading ? 0 : 1,
-                          transition: "opacity 0.3s",
-                        }}
-                      />
-                    )}
-                    {showAsVideo && !showAsImage && (
-                      <video
-                        src={image}
-                        controls
-                        preload="metadata"
-                        className="h-52 w-full rounded-md bg-black object-cover"
-                        onError={handleVideoError}
-                        onLoadedData={handleVideoLoad}
-                        style={{
-                          opacity: videoLoading ? 0 : 1,
-                          transition: "opacity 0.3s",
-                        }}
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                    )}
+                    <MediaPlayer
+                      url={image}
+                      imageProps={{
+                        alt: "Post Image",
+                        width: 500,
+                        height: 500,
+                        className: "h-full w-full rounded-md object-cover",
+                      }}
+                      videoProps={{
+                        className: "h-52 w-full rounded-md object-cover",
+                      }}
+                    />
                   </div>
                 )}
                 <div className="mt-3 break-words">
@@ -412,60 +373,138 @@ export function PostDetails({
                   Comments
                 </h2>
                 <div className="space-y-4">
-                  <div className="flex w-full items-center gap-1">
-                    <Input
-                      type="text"
-                      className="w-full rounded-md py-5"
-                      placeholder={
-                        replyTo ? "Write your reply..." : "Add a comment..."
-                      }
-                      onChange={(e) => setNewComment(e.target.value)}
-                      value={newComment}
-                      ref={inputRef}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          void (async () => {
-                            await addComment();
-                          })();
-                        }
-                        if (e.key === "Escape") {
-                          setReplyTo("");
-                          setNewComment("");
-                        }
-                      }}
-                    />
-                    <Button
-                      className="w-[30%] py-5"
-                      onClick={addComment}
-                      disabled={commentLoading || !newComment.trim()}
-                    >
-                      {commentLoading
-                        ? "Please Wait"
-                        : replyTo
-                          ? "Reply"
-                          : "Submit"}
-                    </Button>
-                  </div>
+                  {/* Comment input with upload functionality */}
+                  <div className="space-y-3">
+                    <div className="flex w-full items-end gap-2">
+                      <div className="flex-1">
+                        <Input
+                          type="text"
+                          className="w-full rounded-md py-5"
+                          placeholder={
+                            replyTo ? "Write your reply..." : "Add a comment..."
+                          }
+                          onChange={(e) =>
+                            setNewComment({
+                              ...newComment,
+                              content: e.target.value,
+                            })
+                          }
+                          value={newComment.content}
+                          ref={inputRef}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              void (async () => {
+                                await addComment();
+                              })();
+                            }
+                            if (e.key === "Escape") {
+                              setReplyTo("");
+                              setNewComment({
+                                content: "",
+                                image: "",
+                              });
+                            }
+                          }}
+                        />
+                      </div>
 
-                  {/* Show reply indicator */}
-                  {replyTo && (
-                    <div className="flex items-center justify-between rounded-md bg-blue-50 p-2 dark:bg-blue-900/20">
-                      <span className="text-sm text-blue-600 dark:text-blue-400">
-                        Replying to comment
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setReplyTo("");
-                          setNewComment("");
-                        }}
-                      >
-                        Cancel
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <UploadButton
+                          endpoint="postMediaUploader"
+                          onClientUploadComplete={(res) => {
+                            if (res?.[0]?.ufsUrl) {
+                              setNewComment((prev) => ({
+                                ...prev,
+                                image: res[0]!.ufsUrl,
+                              }));
+                              toast("Image uploaded successfully!");
+                              setUploadingImage(false);
+                            }
+                          }}
+                          onUploadError={(error: Error) => {
+                            toast(`Upload failed: ${error.message}`);
+                            setUploadingImage(false);
+                          }}
+                          onUploadBegin={() => {
+                            setUploadingImage(true);
+                          }}
+                          appearance={{
+                            button:
+                              "h-10 w-10 p-0 bg-transparent border border-input hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
+                            allowedContent: "hidden",
+                          }}
+                          content={{
+                            button: uploadingImage ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <ImageIcon className="h-4 w-4" />
+                            ),
+                          }}
+                        />
+
+                        <Button
+                          className="py-5"
+                          onClick={addComment}
+                          disabled={
+                            commentLoading ||
+                            (!newComment.content.trim() && !newComment.image)
+                          }
+                        >
+                          {commentLoading
+                            ? "Please Wait"
+                            : replyTo
+                              ? "Reply"
+                              : "Submit"}
+                        </Button>
+                      </div>
                     </div>
-                  )}
+
+                    {/* Image preview */}
+                    {newComment.image && (
+                      <div className="relative inline-block">
+                        <div className="relative">
+                          <Image
+                            src={newComment.image}
+                            alt="Comment attachment"
+                            width={200}
+                            height={200}
+                            className="max-h-32 max-w-48 rounded-md object-cover"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                            onClick={removeUploadedImage}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Show reply indicator */}
+                    {replyTo && (
+                      <div className="flex items-center justify-between rounded-md bg-blue-50 p-2 dark:bg-blue-900/20">
+                        <span className="text-sm text-blue-600 dark:text-blue-400">
+                          Replying to comment
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setReplyTo("");
+                            setNewComment({
+                              content: "",
+                              image: "",
+                            });
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    )}
+                  </div>
 
                   {isCommentsLoading || isCommentsPending ? (
                     <div className="flex min-h-[300px] w-full items-center justify-center">
@@ -486,7 +525,7 @@ export function PostDetails({
                         return (
                           <div key={comment.comments.id}>
                             {/* Main comment */}
-                            <div className="flex items-center">
+                            <div className="flex items-start">
                               <div className="mr-4">
                                 <Avatar className="h-14 w-14">
                                   <AvatarImage
@@ -506,7 +545,7 @@ export function PostDetails({
                                 </Avatar>
                               </div>
                               <div className="flex w-full justify-between">
-                                <div>
+                                <div className="flex-1">
                                   <div className="text-md font-semibold text-[#949BA8]">
                                     <Link href={`/u/${comment.users?.id}`}>
                                       <span className="underline">
@@ -543,6 +582,23 @@ export function PostDetails({
                                       </p>
                                     )}
                                   </div>
+                                  {comment.comments.image && (
+                                    <div className="mt-2">
+                                      <MediaPlayer
+                                        imageProps={{
+                                          alt: "Comment attachment",
+                                          width: 250,
+                                          height: 150,
+                                          className:
+                                            "w-full rounded-md object-cover",
+                                        }}
+                                        videoProps={{
+                                          className: "md:max-w-[28rem] w-full",
+                                        }}
+                                        url={comment.comments.image}
+                                      />
+                                    </div>
+                                  )}
                                 </div>
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
@@ -553,12 +609,12 @@ export function PostDetails({
 
                                   <DropdownMenuContent align="start">
                                     <DropdownMenuItem
-                                      onClick={() =>
+                                      onClick={() => {
                                         handleReply(
                                           comment.comments.id,
                                           comment.users?.username ?? "User",
-                                        )
-                                      }
+                                        );
+                                      }}
                                     >
                                       Reply
                                     </DropdownMenuItem>
@@ -601,7 +657,7 @@ export function PostDetails({
                                     {replies.reverse().map((reply) => (
                                       <div
                                         key={reply.comments.id}
-                                        className="flex items-center"
+                                        className="flex items-start"
                                       >
                                         <div className="mr-3">
                                           <Avatar className="h-10 w-10">
@@ -625,7 +681,7 @@ export function PostDetails({
                                           </Avatar>
                                         </div>
                                         <div className="flex w-full justify-between">
-                                          <div>
+                                          <div className="flex-1">
                                             <div className="text-sm font-semibold text-[#949BA8]">
                                               <Link
                                                 href={`/u/${reply.users?.id}`}
@@ -673,6 +729,18 @@ export function PostDetails({
                                                 </p>
                                               )}
                                             </div>
+                                            {/* Display reply image if it exists */}
+                                            {reply.comments.image && (
+                                              <div className="mt-2">
+                                                <Image
+                                                  src={reply.comments.image}
+                                                  alt="Reply attachment"
+                                                  width={250}
+                                                  height={150}
+                                                  className="max-h-32 max-w-48 rounded-md object-cover"
+                                                />
+                                              </div>
+                                            )}
                                           </div>
                                           <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -687,13 +755,14 @@ export function PostDetails({
 
                                             <DropdownMenuContent align="start">
                                               <DropdownMenuItem
-                                                onClick={() =>
+                                                onSelect={(event) => {
+                                                  event.preventDefault();
                                                   handleReply(
                                                     comment.comments.id,
                                                     reply.users?.username ??
                                                       "User",
-                                                  )
-                                                }
+                                                  );
+                                                }}
                                               >
                                                 Reply
                                               </DropdownMenuItem>

@@ -6,14 +6,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Image from "next/image";
 import Link from "next/link";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import { Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { api } from "@/trpc/react";
-import { Loader } from "./loader";
+import MediaPlayer from "@/components/media-player";
 
 export function PostCard({
   avatar,
@@ -45,35 +44,6 @@ export function PostCard({
   const [hasDisliked, setHasDisliked] = useState(() =>
     disLikes.includes(userId),
   );
-
-  // Use a simple approach: try to determine if it's likely a video or image
-  // Or just show both options and let the browser handle it
-  const [showAsVideo, setShowAsVideo] = useState(false);
-  const [showAsImage, setShowAsImage] = useState(true);
-  const [videoLoading, setVideoLoading] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
-
-  const handleImageError = () => {
-    setShowAsImage(false);
-    setShowAsVideo(true);
-    setVideoLoading(true);
-    setImageLoading(false);
-  };
-
-  const handleVideoError = () => {
-    setShowAsVideo(false);
-    setVideoLoading(false);
-    // Could show a fallback or error message here
-    console.error("Media failed to load");
-  };
-
-  const handleImageLoad = () => {
-    setImageLoading(false);
-  };
-
-  const handleVideoLoad = () => {
-    setVideoLoading(false);
-  };
 
   const likePostMutation = api.postRouter.likePost.useMutation();
   const unlikePostMutation = api.postRouter.unlikePost.useMutation();
@@ -196,39 +166,18 @@ export function PostCard({
         <div className="space-y-3">
           <p>{title}</p>
           {image && (
-            <>
-              {(imageLoading || videoLoading) && (
-                <div className="flex h-52 w-full items-center justify-center">
-                  <Loader />
-                </div>
-              )}
-              {showAsImage && (
-                <Image
-                  src={image}
-                  alt={title}
-                  width="600"
-                  height="200"
-                  className="h-52 w-full rounded-md object-cover"
-                  priority={true}
-                  onError={handleImageError}
-                  onLoad={handleImageLoad}
-                  style={{ display: imageLoading ? "none" : "block" }}
-                />
-              )}
-              {showAsVideo && !showAsImage && (
-                <video
-                  src={image}
-                  controls
-                  preload="metadata"
-                  className="h-52 w-full rounded-md bg-black object-cover"
-                  onError={handleVideoError}
-                  onLoadedData={handleVideoLoad}
-                  style={{ display: videoLoading ? "none" : "block" }}
-                >
-                  Your browser does not support the video tag.
-                </video>
-              )}
-            </>
+            <MediaPlayer
+              url={image}
+              imageProps={{
+                alt: title,
+                width: 600,
+                height: 200,
+                className: "h-52 w-full rounded-md object-cover",
+              }}
+              videoProps={{
+                className: "h-52 w-full rounded-md bg-black object-cover",
+              }}
+            />
           )}
           {content && <p className="truncate overflow-hidden">{content}</p>}
         </div>
