@@ -17,7 +17,7 @@ export default function MediaPlayer({
     className?: string;
   };
 }) {
-  const [contentType, setContentType] = useState(url.endsWith(".mp4") || url.endsWith(".mkv") ? "video" : "image");
+  const contentType =  url.endsWith(".mp4") || url.endsWith(".mkv") ? "video" : "image";
 
 
   return contentType === "image" ? (
