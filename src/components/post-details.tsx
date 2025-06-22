@@ -8,7 +8,6 @@ import {
   EllipsisVerticalIcon,
   Loader2,
   Share2,
-  ImageIcon,
   X,
 } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
@@ -22,8 +21,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "./ui/dropdown-menu";
-import { UploadButton } from "@/lib/uploadthing";
 import MediaPlayer from "./media-player";
+import { CldUploadButton } from "next-cloudinary";
 
 export function PostDetails({
   author,
@@ -410,36 +409,18 @@ export function PostDetails({
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <UploadButton
-                          endpoint="postMediaUploader"
-                          onClientUploadComplete={(res) => {
-                            if (res?.[0]?.ufsUrl) {
-                              setNewComment((prev) => ({
-                                ...prev,
-                                image: res[0]!.ufsUrl,
-                              }));
-                              toast("Image uploaded successfully!");
-                              setUploadingImage(false);
-                            }
-                          }}
-                          onUploadError={(error: Error) => {
-                            toast(`Upload failed: ${error.message}`);
+                        <CldUploadButton
+                          uploadPreset="social-media-again"
+                          onSuccess={(results) => {
+                            // @ts-expect-error - results.info is not typed
+                            const uploadedImageUrl = String(results.info.secure_url);
+
+                            setNewComment((prev) => ({
+                              ...prev,
+                              image: String(uploadedImageUrl),
+                            }));
+                            toast("Image uploaded successfully!");
                             setUploadingImage(false);
-                          }}
-                          onUploadBegin={() => {
-                            setUploadingImage(true);
-                          }}
-                          appearance={{
-                            button:
-                              "h-10 w-10 p-0 bg-transparent border border-input hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
-                            allowedContent: "hidden",
-                          }}
-                          content={{
-                            button: uploadingImage ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <ImageIcon className="h-4 w-4" />
-                            ),
                           }}
                         />
 
@@ -464,12 +445,16 @@ export function PostDetails({
                     {newComment.image && (
                       <div className="relative inline-block">
                         <div className="relative">
-                          <Image
-                            src={newComment.image}
-                            alt="Comment attachment"
-                            width={200}
-                            height={200}
-                            className="max-h-32 max-w-48 rounded-md object-cover"
+                          <MediaPlayer
+                            url={newComment.image}
+                            imageProps={{
+                              alt: "Comment attachment",
+                              width: 200,
+                              height: 200,
+                            }}
+                            videoProps={{
+                              className: "max-h-32 max-w-48 rounded-md object-cover",
+                            }}
                           />
                           <Button
                             variant="destructive"
@@ -732,12 +717,16 @@ export function PostDetails({
                                             {/* Display reply image if it exists */}
                                             {reply.comments.image && (
                                               <div className="mt-2">
-                                                <Image
-                                                  src={reply.comments.image}
-                                                  alt="Reply attachment"
-                                                  width={250}
-                                                  height={150}
-                                                  className="max-h-32 max-w-48 rounded-md object-cover"
+                                                <MediaPlayer
+                                                  url={reply.comments.image}
+                                                  imageProps={{
+                                                    alt: "Reply attachment",
+                                                    width: 250,
+                                                    height: 150,
+                                                  }}
+                                                  videoProps={{
+                                                    className: "md:max-w-[28rem] w-full",
+                                                  }}
                                                 />
                                               </div>
                                             )}

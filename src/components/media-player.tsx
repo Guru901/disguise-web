@@ -1,6 +1,5 @@
-import { Loader2 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 
 export default function MediaPlayer({
   url,
@@ -18,42 +17,8 @@ export default function MediaPlayer({
     className?: string;
   };
 }) {
-  const [contentType, setContentType] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [contentType, setContentType] = useState(url.endsWith(".mp4") || url.endsWith(".mkv") ? "video" : "image");
 
-  useEffect(() => {
-    void (async () => {
-      setLoading(true);
-      const response = await fetch(url, { method: "HEAD" }); // Use HEAD to fetch only headers
-      const contentType = response.headers.get("Content-Type");
-      if (!contentType) {
-        console.log("Content-Type not available");
-        return;
-      }
-
-      if (contentType.startsWith("image/")) {
-        console.log("It is an image:", contentType);
-        setContentType("image");
-      } else if (contentType.startsWith("video/")) {
-        console.log("It is a video:", contentType);
-        setContentType("video");
-      } else {
-        console.log("Unknown type:", contentType);
-      }
-      setLoading(false);
-    })();
-  }, [url]);
-
-  if (loading)
-    return (
-      <div
-        className={`flex items-center justify-center`}
-        style={{ height: imageProps.height, width: imageProps.width }}
-      >
-        <Loader2 className="animate-spin" />
-      </div>
-    );
 
   return contentType === "image" ? (
     <Image
@@ -65,24 +30,12 @@ export default function MediaPlayer({
     />
   ) : (
     <div className={`${videoProps.className} relative`}>
-      {!videoLoaded && (
-        <div
-          className={`bg-opacity-50 left -0 absolute top-0 z-10 flex h-full w-full items-center justify-center ${videoProps.className} bg-black`}
-        >
-          <Loader2 className="h-8 w-8 animate-spin text-white" />
-        </div>
-      )}
       <video
         src={url}
         controls
         preload="metadata"
         className={videoProps.className}
-        onLoadedData={() => setVideoLoaded(true)}
-        style={{
-          opacity: videoLoaded ? 1 : 0,
-          transition: "opacity 0.3s",
-        }}
-      />
+        />
     </div>
   );
 }

@@ -8,15 +8,18 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     JWT_SECRET: z.string(),
-    UPLOADTHING_TOKEN: z.string(),
   },
-  client: {},
+  
+  client: {
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string(),
+  },
 
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     JWT_SECRET: process.env.JWT_SECRET,
-    UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:
+      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
