@@ -18,8 +18,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
-import { UploadButton } from "@/lib/uploadthing";
 import { toast } from "sonner";
+import { CldUploadButton } from "next-cloudinary";
+import { useState } from "react";
 
 export function PostUploadForm() {
   const router = useRouter();
@@ -47,6 +48,7 @@ export function PostUploadForm() {
     api.topicRouter.getAllTopics.useQuery();
 
   const imageUrl = watch("image");
+  const [image, setImage] = useState("");
 
   async function submitForm(data: TUploadPostSchema) {
     if (data.author === "") {
@@ -113,22 +115,14 @@ export function PostUploadForm() {
         <Label htmlFor="image" className="text-lg">
           Image
         </Label>
-        <UploadButton
-          endpoint="postMediaUploader"
-          onClientUploadComplete={(res) => {
-            setValue("image", res[0]?.ufsUrl);
+        <CldUploadButton
+          uploadPreset="social-media-again"
+          onSuccess={(results) => {
+            // @ts-expect-error - results.info is not typed
+            const uploadImageUrl = String(results.info.secure_url);
+            setImage(uploadImageUrl);
+            setValue("image", uploadImageUrl);
             toast("Image uploaded successfully");
-          }}
-          onUploadError={(error: Error) => {
-            alert(`ERROR! ${error.message}`);
-          }}
-          appearance={{
-            button: {
-              padding: "1rem",
-              width: "100%",
-              color: "#03A9F4",
-              border: "1px solid #8A79AB",
-            },
           }}
         />
         {imageUrl?.endsWith(".mp4") || imageUrl?.endsWith(".mkv") ? (

@@ -16,11 +16,14 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { signUpSchema, type TSignUpSchema } from "@/lib/schemas";
-import { UploadButton } from "@/lib/uploadthing";
 import { toast } from "sonner";
+import { CldUploadButton } from "next-cloudinary";
+import { useState } from "react";
 
 export default function SignUp() {
   const router = useRouter();
+
+  const [image, setImage] = useState("")
 
   const {
     control,
@@ -120,26 +123,21 @@ export default function SignUp() {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="avatar">Avatar (optional)</Label>
-
-            <UploadButton
-              endpoint="avatarUploader"
-              onClientUploadComplete={(res) => {
-                setValue("avatar", res[0]?.ufsUrl);
+            <CldUploadButton
+              uploadPreset="social-media-again"
+              onSuccess={(results) => {
+                // @ts-expect-error - results.info is not typed
+                const imageUrl = String(results.info.secure_url);
+                setImage(imageUrl);
+                setValue("avatar", imageUrl); 
                 toast("Avatar uploaded successfully");
               }}
-              onUploadError={(error: Error) => {
-                alert(`ERROR! ${error.message}`);
-              }}
-              appearance={{
-                button: {
-                  padding: "1rem",
-                  width: "100%",
-                  color: "#03A9F4",
-                  border: "1px solid #8A79AB",
-                },
-              }}
             />
-
+            {image && (
+              <div className="mt-2">
+                <img src={image} alt="Avatar preview" className="w-16 h-16 rounded-full object-cover" />
+              </div>
+            )}
             {errors && errors.avatar && (
               <p className="text-xs text-red-500">{errors.avatar.message}</p>
             )}
