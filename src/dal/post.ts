@@ -1,7 +1,7 @@
 import type { TCommentAddSchema, TUploadPostSchema } from "@/lib/schemas";
 import { db } from "@/server/db";
 import { commentSchema, postSchema, userSchema } from "@/server/db/schema";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql, or } from "drizzle-orm";
 
 export async function getFeed() {
   try {
@@ -9,7 +9,10 @@ export async function getFeed() {
       .select()
       .from(postSchema)
       .where(
-        and(eq(postSchema.isPublic, true), eq(postSchema.topic, "General")),
+        and(
+          eq(postSchema.isPublic, true),
+          or(eq(postSchema.topic, "General"), eq(postSchema.topic, "")),
+        ),
       )
       .leftJoin(userSchema, and(eq(userSchema.id, postSchema.createdBy)))
       .orderBy(desc(postSchema.createdAt));
@@ -81,7 +84,11 @@ export async function createPost(input: TUploadPostSchema) {
   await db
     .update(userSchema)
     .set({
-      posts: sql`array_append(${userSchema.posts}, ${post[0]!.id})`,
+      posts: sql`array_append
+      (
+      ${userSchema.posts},
+      ${post[0]!.id}
+      )`,
     })
     .where(eq(userSchema.id, input.author));
 
@@ -104,7 +111,11 @@ export async function likePost(userId: string, postId: string) {
     await db
       .update(postSchema)
       .set({
-        likes: sql`array_append(${postSchema.likes}, ${userId})`,
+        likes: sql`array_append
+        (
+        ${postSchema.likes},
+        ${userId}
+        )`,
       })
       .where(eq(postSchema.id, postId));
 
@@ -126,7 +137,11 @@ export async function unlikePost(userId: string, postId: string) {
     await db
       .update(postSchema)
       .set({
-        likes: sql`array_remove(${postSchema.likes}, ${userId})`,
+        likes: sql`array_remove
+        (
+        ${postSchema.likes},
+        ${userId}
+        )`,
       })
       .where(eq(postSchema.id, postId));
 
@@ -148,8 +163,16 @@ export async function likeAndUndislikePost(userId: string, postId: string) {
     await db
       .update(postSchema)
       .set({
-        likes: sql`array_append(${postSchema.likes}, ${userId})`,
-        disLikes: sql`array_remove(${postSchema.disLikes}, ${userId})`,
+        likes: sql`array_append
+        (
+        ${postSchema.likes},
+        ${userId}
+        )`,
+        disLikes: sql`array_remove
+        (
+        ${postSchema.disLikes},
+        ${userId}
+        )`,
       })
       .where(eq(postSchema.id, postId));
 
@@ -171,7 +194,11 @@ export async function dislikePost(userId: string, postId: string) {
     await db
       .update(postSchema)
       .set({
-        disLikes: sql`array_append(${postSchema.disLikes}, ${userId})`,
+        disLikes: sql`array_append
+        (
+        ${postSchema.disLikes},
+        ${userId}
+        )`,
       })
       .where(eq(postSchema.id, postId));
 
@@ -193,7 +220,11 @@ export async function undislikePost(userId: string, postId: string) {
     await db
       .update(postSchema)
       .set({
-        disLikes: sql`array_remove(${postSchema.disLikes}, ${userId})`,
+        disLikes: sql`array_remove
+        (
+        ${postSchema.disLikes},
+        ${userId}
+        )`,
       })
       .where(eq(postSchema.id, postId));
 
@@ -215,8 +246,16 @@ export async function dislikeAndUnlikePost(userId: string, postId: string) {
     await db
       .update(postSchema)
       .set({
-        disLikes: sql`array_append(${postSchema.disLikes}, ${userId})`,
-        likes: sql`array_remove(${postSchema.likes}, ${userId})`,
+        disLikes: sql`array_append
+        (
+        ${postSchema.disLikes},
+        ${userId}
+        )`,
+        likes: sql`array_remove
+        (
+        ${postSchema.likes},
+        ${userId}
+        )`,
       })
       .where(eq(postSchema.id, postId));
 
@@ -268,7 +307,11 @@ export async function addComment(input: TCommentAddSchema, userId: string) {
     await db
       .update(commentSchema)
       .set({
-        replies: sql`array_append(${commentSchema.replies}, ${userId})`,
+        replies: sql`array_append
+        (
+        ${commentSchema.replies},
+        ${userId}
+        )`,
       })
       .where(eq(commentSchema.id, input.replyTo));
   } else {
@@ -286,7 +329,8 @@ export async function addComment(input: TCommentAddSchema, userId: string) {
   await db
     .update(postSchema)
     .set({
-      commentsCount: sql`comments_count + 1`,
+      commentsCount: sql`comments_count
+      + 1`,
     })
     .where(eq(postSchema.id, input.postId));
 
@@ -302,7 +346,12 @@ export async function getLoggedInUserLikedPosts(userId: string) {
     const results = await db
       .select()
       .from(postSchema)
-      .where(sql`${userId} = ANY(${postSchema.likes})`)
+      .where(
+        sql`${userId}
+        = ANY(
+        ${postSchema.likes}
+        )`,
+      )
       .orderBy(desc(postSchema.createdAt));
 
     return results;
@@ -377,7 +426,10 @@ export async function getUserlikedPostsByUserId(
       .where(
         and(
           eq(userSchema.id, loggedInUserId),
-          sql`${userId} = ANY(${userSchema.friends})`,
+          sql`${userId}
+          = ANY(
+          ${userSchema.friends}
+          )`,
         ),
       )
       .limit(1);
@@ -387,7 +439,12 @@ export async function getUserlikedPostsByUserId(
     const results = await db
       .select()
       .from(postSchema)
-      .where(and(sql`${userId} = ANY(${postSchema.likes})`))
+      .where(
+        and(sql`${userId}
+        = ANY(
+        ${postSchema.likes}
+        )`),
+      )
       .orderBy(desc(postSchema.createdAt));
 
     return results;
@@ -408,7 +465,10 @@ export async function getUserPrivatePostsByUserId(
       .where(
         and(
           eq(userSchema.id, loggedInUserId),
-          sql`${userId} = ANY(${userSchema.friends})`,
+          sql`${userId}
+          = ANY(
+          ${userSchema.friends}
+          )`,
         ),
       )
       .limit(1);
@@ -420,7 +480,10 @@ export async function getUserPrivatePostsByUserId(
       .from(postSchema)
       .where(
         and(
-          sql`${userId} = ANY(${postSchema.createdBy})`,
+          sql`${userId}
+          = ANY(
+          ${postSchema.createdBy}
+          )`,
           eq(postSchema.isPublic, false),
         ),
       )
