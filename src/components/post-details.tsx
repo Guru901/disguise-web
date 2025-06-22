@@ -1,11 +1,11 @@
 import { Card } from "./ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import Image from "next/image";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import {
   EllipsisVerticalIcon,
+  ImageIcon,
   Loader2,
   Share2,
   X,
@@ -410,6 +410,7 @@ export function PostDetails({
 
                       <div className="flex items-center gap-2">
                         <CldUploadButton
+                          className="w-full"
                           uploadPreset="social-media-again"
                           onSuccess={(results) => {
                             // @ts-expect-error - results.info is not typed
@@ -422,8 +423,9 @@ export function PostDetails({
                             toast("Image uploaded successfully!");
                             setUploadingImage(false);
                           }}
-                        />
-
+                        >
+                          <Button variant="outline" size="icon"><ImageIcon className="h-4 w-4" /></Button>
+                        </CldUploadButton>
                         <Button
                           className="py-5"
                           onClick={addComment}
@@ -544,7 +546,7 @@ export function PostDetails({
                                       </span>
                                     </Link>
                                   </div>
-                                  <div className="text-accent-foreground font-medium">
+                                  <div className="text-accent-foreground">
                                     {!comment.comments.content.includes("@") ? (
                                       <p>{comment.comments.content}</p>
                                     ) : (

@@ -125,6 +125,7 @@ export default function SignUp() {
             <Label htmlFor="avatar">Avatar (optional)</Label>
             <CldUploadButton
               uploadPreset="social-media-again"
+              className="w-full"
               onSuccess={(results) => {
                 // @ts-expect-error - results.info is not typed
                 const imageUrl = String(results.info.secure_url);

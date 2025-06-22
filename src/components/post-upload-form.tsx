@@ -48,7 +48,7 @@ export function PostUploadForm() {
     api.topicRouter.getAllTopics.useQuery();
 
   const imageUrl = watch("image");
-  const [image, setImage] = useState("");
+  const [_, setImage] = useState("");
 
   async function submitForm(data: TUploadPostSchema) {
     if (data.author === "") {
@@ -116,6 +116,7 @@ export function PostUploadForm() {
           Image
         </Label>
         <CldUploadButton
+          className="w-full"
           uploadPreset="social-media-again"
           onSuccess={(results) => {
             // @ts-expect-error - results.info is not typed
