@@ -379,12 +379,20 @@ export async function getLoggedInUserPrivatePosts(userId: string) {
 
 export async function deleteComment(commentId: string, userId: string) {
   try {
-    await db
+    const comment = await db
       .delete(commentSchema)
       .where(
         and(eq(commentSchema.id, commentId), eq(commentSchema.author, userId)),
-      );
-
+      ).returning({ post: commentSchema.post });
+    
+    await db
+      .update(postSchema)
+      .set({
+        commentsCount: sql`comments_count
+        - 1`,
+      })
+      .where(eq(postSchema.id, comment[0]!.post!));
+      
     return {
       success: true,
       message: "Comment deleted successfully",

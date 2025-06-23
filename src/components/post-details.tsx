@@ -61,6 +61,7 @@ export function PostDetails({
   const [uploadingImage, setUploadingImage] = useState(false);
   const [hasLiked, setHasLiked] = useState(() => likes.includes(user.id));
   const [replyTo, setReplyTo] = useState("");
+  const [optimisticCommentsCount, setOptimisticCommentsCount] = useState(commentsCount);
   const inputRef = useRef<HTMLInputElement>(null);
   const [hasDisliked, setHasDisliked] = useState(() =>
     disLikes.includes(user.id),
@@ -170,6 +171,8 @@ export function PostDetails({
           isAReply: false,
           replyTo: replyTo,
         });
+
+        setOptimisticCommentsCount((prev) => prev + 1);
       }
 
       if (data.success) {
@@ -363,7 +366,7 @@ export function PostDetails({
                   </div>
                   <div className="text-muted-foreground text-sm">
                     {optimisticLikes} Likes • {optimisticDislikes} Dislikes •{" "}
-                    {commentsCount} Comments
+                    {optimisticCommentsCount} Comments
                   </div>
                 </div>
               </div>
@@ -608,11 +611,14 @@ export function PostDetails({
                                     {user.id === comment.users?.id && (
                                       <DropdownMenuItem
                                         onClick={async () => {
-                                          void (await deleteCommentMutation.mutateAsync(
+                                          void (
+                                            await deleteCommentMutation.mutateAsync(
                                             {
                                               commentId: comment.comments.id,
                                             },
                                           ));
+
+                                          setOptimisticCommentsCount((prev) => prev - 1);
                                         }}
                                       >
                                         Delete
@@ -766,6 +772,7 @@ export function PostDetails({
                                                           reply.comments.id,
                                                       },
                                                     ));
+                                                    api.useUtils().invalidate();
                                                   }}
                                                 >
                                                   Delete
