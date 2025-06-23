@@ -772,7 +772,6 @@ export function PostDetails({
                                                           reply.comments.id,
                                                       },
                                                     ));
-                                                    api.useUtils().invalidate();
                                                   }}
                                                 >
                                                   Delete
