@@ -15,6 +15,7 @@ export const userSchema = pgTable("users", {
   posts: text("posts").notNull().array(),
   friends: text("friends").notNull().array(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  lastOnline: timestamp("last_online"),
 });
 
 export const postSchema = pgTable("posts", {

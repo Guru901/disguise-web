@@ -34,6 +34,7 @@ export default function Me() {
   const posts = data?.user?.posts ?? [];
   const friends = user?.friends ?? [];
   const createdAt = user?.createdAt;
+  const lastOnline = user?.lastOnline;
   const id = user?.id ?? "";
 
   const isProfile = true;
@@ -82,9 +83,16 @@ export default function Me() {
             </Avatar>
             <div className="space-y-1 text-center">
               <h2 className="text-xl font-semibold">{username}</h2>
-              <span className="text-primary text-sm">
-                Joined {formatTimeAgo(createdAt!)}
-              </span>
+              <div className="flex flex-col items-center text-sm">
+                <span className="text-primary text-sm">
+                  Joined {formatTimeAgo(createdAt!)}
+                </span>
+                {lastOnline && (
+                  <span className="text-primary text-sm">
+                    Last online {formatTimeAgo(lastOnline)}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="bg-background flex w-full items-center justify-around rounded-lg p-4 text-sm font-medium">
               <div className="flex flex-col items-center">
@@ -120,18 +128,18 @@ export default function Me() {
                     value={"public"}
                     className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
                   >
-                    Public Posts ({userPosts?.length})
+                    Public Posts ({userPosts?.length ?? 0})
                   </TabsTrigger>
                   <TabsTrigger
                     value={"liked"}
                     className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
                   >
-                    Liked Posts ({userLikedPosts?.length})
+                    Liked Posts ({userLikedPosts?.length ?? 0})
                   </TabsTrigger>
                   {isFriend ||
                     (isProfile && (
                       <TabsTrigger value={"private"} className="w-1/3">
-                        Private Posts ({userPrivatePosts?.length})
+                        Private Posts ({userPrivatePosts?.length ?? 0})
                       </TabsTrigger>
                     ))}
                 </TabsList>

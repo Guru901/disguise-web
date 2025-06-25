@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await loginUser(parsed.data);
+    
     if (result.success) {
       const token = jwt.sign({ id: result.data }, env.JWT_SECRET);
       const cookie = await cookies();

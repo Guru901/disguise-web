@@ -210,14 +210,22 @@ export async function removeFriendById(userId: string, friendId: string) {
     await db
       .update(userSchema)
       .set({
-        friends: sql`array_remove(${userSchema.friends}, ${friendId})`,
+        friends: sql`array_remove
+        (
+        ${userSchema.friends},
+        ${friendId}
+        )`,
       })
       .where(eq(userSchema.id, userId));
 
     await db
       .update(userSchema)
       .set({
-        friends: sql`array_remove(${userSchema.friends}, ${userId})`,
+        friends: sql`array_remove
+        (
+        ${userSchema.friends},
+        ${userId}
+        )`,
       })
       .where(eq(userSchema.id, friendId));
 
@@ -230,6 +238,27 @@ export async function removeFriendById(userId: string, friendId: string) {
     return {
       success: false,
       message: "Error removing friend",
+    };
+  }
+}
+
+export async function updateLastOnline(userId: string) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        lastOnline: new Date(),
+      })
+      .where(eq(userSchema.id, userId));
+    return {
+      success: true,
+      message: "Last online updated successfully",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Error updating last online",
     };
   }
 }

@@ -21,9 +21,15 @@ import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { useUserStore } from "@/lib/userStore";
+import { api } from "@/trpc/react";
 
 function BottomNavigation() {
   const { setUser } = useUserStore();
+
+  api.userRouter.updateLastOnline.useQuery(null, {
+    refetchInterval: 10000,
+  });
+
   return (
     <Drawer>
       <DrawerTrigger asChild>
