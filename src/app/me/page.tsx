@@ -34,7 +34,7 @@ export default function Me() {
   const posts = data?.user?.posts ?? [];
   const friends = user?.friends ?? [];
   const createdAt = user?.createdAt;
-  const lastOnline = user?.lastOnline;
+  const { data: lastOnline } = api.userRouter.getLastOnline.useQuery("");
   const id = user?.id ?? "";
 
   const isProfile = true;

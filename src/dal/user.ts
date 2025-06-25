@@ -262,3 +262,29 @@ export async function updateLastOnline(userId: string) {
     };
   }
 }
+
+export async function getLastOnline(userId: string) {
+  try {
+    const user = await db
+      .select()
+      .from(userSchema)
+      .where(eq(userSchema.id, userId))
+      .limit(1)
+      .then((res) => res[0]);
+    return {
+      user: user,
+      message: "Last online retrieved successfully",
+      success: true,
+      status: 200,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      user: null,
+      message: "Error retrieving last online",
+      success: false,
+      status: 500,
+      error,
+    };
+  }
+}
