@@ -26,7 +26,7 @@ import { api } from "@/trpc/react";
 function BottomNavigation() {
   const { setUser } = useUserStore();
 
-  api.userRouter.updateLastOnline.useQuery(null, {
+  api.userRouter.updateLastOnline.useQuery("", {
     refetchInterval: 10000,
   });
 

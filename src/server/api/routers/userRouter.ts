@@ -31,7 +31,9 @@ export const userRouter = createTRPCRouter({
       return await userDal.removeFriendById(ctx.userId, input.id);
     }),
 
-  updateLastOnline: protectedProcedure.query(async ({ ctx }) => {
-    return await userDal.updateLastOnline(ctx.userId);
-  }),
+  updateLastOnline: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx }) => {
+      return await userDal.updateLastOnline(ctx.userId);
+    }),
 });
