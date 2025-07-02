@@ -25,10 +25,9 @@ export default function RootLayout({
     <html lang="en" className={`${geist.variable}`}>
       <body>
         <ThemeProvider
-          attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
+          themes={["light", "dark", "caffeine", "sunset", "t3-chat", "ghibli"]}
         >
           <TRPCReactProvider>
             <div className="mb-20">{children}</div>

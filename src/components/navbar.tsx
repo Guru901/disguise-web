@@ -52,8 +52,17 @@ export default function Navbar() {
                 <DropdownMenuItem onClick={() => setTheme("dark")}>
                   Dark
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
-                  System
+                <DropdownMenuItem onClick={() => setTheme("caffeine")}>
+                  Caffeine
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("sunset")}>
+                  Sunset
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("ghibli")}>
+                  Ghibli
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("t3-chat")}>
+                  Pink
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
