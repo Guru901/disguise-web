@@ -61,7 +61,8 @@ export function PostDetails({
   const [uploadingImage, setUploadingImage] = useState(false);
   const [hasLiked, setHasLiked] = useState(() => likes.includes(user.id));
   const [replyTo, setReplyTo] = useState("");
-  const [optimisticCommentsCount, setOptimisticCommentsCount] = useState(commentsCount);
+  const [optimisticCommentsCount, setOptimisticCommentsCount] =
+    useState(commentsCount);
   const inputRef = useRef<HTMLInputElement>(null);
   const [hasDisliked, setHasDisliked] = useState(() =>
     disLikes.includes(user.id),
@@ -120,6 +121,7 @@ export function PostDetails({
   // Function to handle reply button click
   const handleReply = (commentId: string, username: string) => {
     setReplyTo(commentId);
+    username = username.replace(" ", "_");
     setNewComment({ content: `@${username} `, image: "" });
 
     setTimeout(() => {
@@ -416,8 +418,10 @@ export function PostDetails({
                           className="w-full"
                           uploadPreset="social-media-again"
                           onSuccess={(results) => {
-                            // @ts-expect-error - results.info is not typed
-                            const uploadedImageUrl = String(results.info.secure_url);
+                            const uploadedImageUrl = String(
+                              // @ts-expect-error - results.info is not typed
+                              results.info.secure_url,
+                            );
 
                             setNewComment((prev) => ({
                               ...prev,
@@ -427,7 +431,9 @@ export function PostDetails({
                             setUploadingImage(false);
                           }}
                         >
-                          <Button variant="outline" size="icon"><ImageIcon className="h-4 w-4" /></Button>
+                          <Button variant="outline" size="icon">
+                            <ImageIcon className="h-4 w-4" />
+                          </Button>
                         </CldUploadButton>
                         <Button
                           className="py-5"
@@ -458,7 +464,8 @@ export function PostDetails({
                               height: 200,
                             }}
                             videoProps={{
-                              className: "max-h-32 max-w-48 rounded-md object-cover",
+                              className:
+                                "max-h-32 max-w-48 rounded-md object-cover",
                             }}
                           />
                           <Button
@@ -611,14 +618,15 @@ export function PostDetails({
                                     {user.id === comment.users?.id && (
                                       <DropdownMenuItem
                                         onClick={async () => {
-                                          void (
-                                            await deleteCommentMutation.mutateAsync(
+                                          void (await deleteCommentMutation.mutateAsync(
                                             {
                                               commentId: comment.comments.id,
                                             },
                                           ));
 
-                                          setOptimisticCommentsCount((prev) => prev - 1);
+                                          setOptimisticCommentsCount(
+                                            (prev) => prev - 1,
+                                          );
                                         }}
                                       >
                                         Delete
@@ -733,7 +741,8 @@ export function PostDetails({
                                                     height: 150,
                                                   }}
                                                   videoProps={{
-                                                    className: "md:max-w-[28rem] w-full",
+                                                    className:
+                                                      "md:max-w-[28rem] w-full",
                                                   }}
                                                 />
                                               </div>
