@@ -1,5 +1,4 @@
 import Image from "next/image";
-import {  useState } from "react";
 
 export default function MediaPlayer({
   url,
@@ -17,8 +16,8 @@ export default function MediaPlayer({
     className?: string;
   };
 }) {
-  const contentType =  url.endsWith(".mp4") || url.endsWith(".mkv") ? "video" : "image";
-
+  const contentType =
+    url.endsWith(".mp4") || url.endsWith(".mkv") ? "video" : "image";
 
   return contentType === "image" ? (
     <Image
@@ -35,7 +34,7 @@ export default function MediaPlayer({
         controls
         preload="metadata"
         className={videoProps.className}
-        />
+      />
     </div>
   );
 }

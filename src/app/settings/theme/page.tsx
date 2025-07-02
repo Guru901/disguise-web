@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon, Palette, Star } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect } from "react";
 
 const themes = [
   {
@@ -41,7 +40,7 @@ const themes = [
 ];
 
 export default function ThemeSettingsPage() {
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
 
   return (
     <main>
@@ -49,7 +48,7 @@ export default function ThemeSettingsPage() {
       <div className="bg-background flex min-h-screen w-full flex-col items-center px-4 pt-8">
         <h1 className="mb-8 text-2xl font-bold">Choose Theme</h1>
         <div className="grid w-full max-w-2xl gap-6 md:grid-cols-2">
-          {themes.map((theme, i) => (
+          {themes.map((theme) => (
             <Card
               key={theme.name}
               onClick={() => setTheme(theme.themeName)}
