@@ -59,7 +59,6 @@ export function PostDetails({
     content: "",
   });
   const [commentLoading, setCommentLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [hasLiked, setHasLiked] = useState(() => likes.includes(user.id));
   const [replyTo, setReplyTo] = useState("");
   const [optimisticCommentsCount, setOptimisticCommentsCount] =
@@ -433,7 +432,6 @@ export function PostDetails({
                               image: String(uploadedImageUrl),
                             }));
                             toast("Image uploaded successfully!");
-                            setUploadingImage(false);
                           }}
                         >
                           <Button variant="outline" size="icon">

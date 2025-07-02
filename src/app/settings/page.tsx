@@ -1,17 +1,8 @@
 "use client";
 
 import Navbar from "@/components/navbar";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  LogOut,
-  User,
-  Bell,
-  Settings,
-  KeyRound,
-  Feather,
-  Sun,
-} from "lucide-react";
+import { LogOut, Bell, Settings, KeyRound, Sun } from "lucide-react";
 import Link from "next/link";
 
 const options = [
