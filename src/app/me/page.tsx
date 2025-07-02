@@ -34,7 +34,6 @@ export default function Me() {
   const posts = data?.user?.posts ?? [];
   const friends = user?.friends ?? [];
   const createdAt = user?.createdAt;
-  const { data: lastOnline } = api.userRouter.getLastOnline.useQuery("");
   const id = user?.id ?? "";
 
   const isProfile = true;
@@ -87,11 +86,6 @@ export default function Me() {
                 <span className="text-primary text-sm">
                   Joined {formatTimeAgo(createdAt!)}
                 </span>
-                {lastOnline && (
-                  <span className="text-primary text-sm">
-                    Last online {formatTimeAgo(lastOnline)}
-                  </span>
-                )}
               </div>
             </div>
             <div className="bg-background flex w-full items-center justify-around rounded-lg p-4 text-sm font-medium">
