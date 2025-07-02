@@ -11,41 +11,37 @@ const themes = [
   {
     name: "Light",
     icon: <Sun className="mr-2 size-6" />,
-    placeholder: "/* Paste Light theme CSS variables here */",
+    themeName: "light",
   },
   {
     name: "Dark",
     icon: <Moon className="mr-2 size-6" />,
-    placeholder: "/* Paste Dark theme CSS variables here */",
+    themeName: "dark",
   },
   {
-    name: "Solarized",
+    name: "Sunset",
     icon: <Palette className="mr-2 size-6" />,
-    placeholder: "/* Paste Solarized theme CSS variables here */",
+    themeName: "sunset",
   },
   {
-    name: "Dracula",
+    name: "Ghibli",
     icon: <Star className="mr-2 size-6" />,
-    placeholder: "/* Paste Dracula theme CSS variables here */",
+    themeName: "ghibli",
   },
   {
-    name: "Nord",
+    name: "Pink",
     icon: <Palette className="mr-2 size-6" />,
-    placeholder: "/* Paste Nord theme CSS variables here */",
+    themeName: "t3-chat",
   },
   {
-    name: "Gruvbox",
+    name: "Caffeine",
     icon: <Star className="mr-2 size-6" />,
-    placeholder: "/* Paste Gruvbox theme CSS variables here */",
+    themeName: "caffeine",
   },
 ];
 
 export default function ThemeSettingsPage() {
-  const { theme } = useTheme();
-
-  useEffect(() => {
-    console.log(theme);
-  }, [theme]);
+  const { theme, setTheme } = useTheme();
 
   return (
     <main>
@@ -56,6 +52,7 @@ export default function ThemeSettingsPage() {
           {themes.map((theme, i) => (
             <Card
               key={theme.name}
+              onClick={() => setTheme(theme.themeName)}
               className={`flex cursor-pointer flex-col items-start gap-3 border-2 p-6 transition-colors ${false ? "border-primary bg-muted/40" : "bg-muted/20 hover:border-muted-foreground border-transparent"}`}
             >
               <div className="mb-2 flex items-center">
