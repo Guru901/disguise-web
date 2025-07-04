@@ -324,7 +324,7 @@ export function PostDetails({
                         className: "h-full w-full rounded-md object-cover",
                       }}
                       videoProps={{
-                        className: "h-52 w-full rounded-md object-cover",
+                        className: "h-full w-full rounded-md object-cover",
                       }}
                     />
                   </div>

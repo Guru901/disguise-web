@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Video from "next-video";
 
 export default function MediaPlayer({
   url,
@@ -28,13 +29,8 @@ export default function MediaPlayer({
       className={imageProps.className}
     />
   ) : (
-    <div className={`${videoProps.className} relative`}>
-      <video
-        src={url}
-        controls
-        preload="metadata"
-        className={videoProps.className}
-      />
+    <div className={`relative w-full`}>
+      <video src={url} controls className={videoProps.className} />
     </div>
   );
 }
