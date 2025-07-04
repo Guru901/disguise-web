@@ -93,17 +93,17 @@ export default function Feed() {
             ref={lastPostRef}
           />
         ))}
-        {hasMore && page !== 1 && (
-          <div className="flex w-full items-center justify-center py-8">
-            <div className="border-border animate-fade-in flex flex-col items-center gap-3 rounded-xl border px-8 py-6 shadow-md">
-              <Loader2 className="text-primary mb-2 h-8 w-8 animate-spin" />
-              <span className="text-muted-foreground text-base font-medium">
-                Loading more posts...
-              </span>
-            </div>
-          </div>
-        )}
       </Masonry>
+      {hasMore && page !== 1 && (
+        <div className="flex w-screen items-center justify-center py-8">
+          <div className="animate-fade-in flex w-full flex-col items-center gap-3 rounded-xl border px-8 py-6 shadow-md">
+            <Loader2 className="text-primary mb-2 h-8 w-8 animate-spin" />
+            <span className="text-muted-foreground text-base font-medium">
+              Loading more posts...
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

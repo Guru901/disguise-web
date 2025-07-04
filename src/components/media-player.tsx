@@ -26,6 +26,8 @@ export default function MediaPlayer({
       width={imageProps.width}
       height={imageProps.height}
       className={imageProps.className}
+      priority
+      loading="eager"
     />
   ) : (
     <div className={`relative w-full`}>
