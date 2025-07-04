@@ -3,7 +3,7 @@ import { db } from "@/server/db";
 import { commentSchema, postSchema, userSchema } from "@/server/db/schema";
 import { and, desc, eq, sql, or } from "drizzle-orm";
 
-export async function getFeed() {
+export async function getFeed(page: number, limit: number) {
   try {
     const results = await db
       .select()
@@ -15,7 +15,9 @@ export async function getFeed() {
         ),
       )
       .leftJoin(userSchema, and(eq(userSchema.id, postSchema.createdBy)))
-      .orderBy(desc(postSchema.createdAt));
+      .orderBy(desc(postSchema.createdAt))
+      .limit(limit)
+      .offset((page - 1) * limit);
 
     return results.map((row) => ({
       ...row.posts,

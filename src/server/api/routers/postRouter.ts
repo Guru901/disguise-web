@@ -8,9 +8,16 @@ import {
 import { z } from "zod";
 
 export const postRouter = createTRPCRouter({
-  getFeed: protectedProcedure.query(async () => {
-    return await postDal.getFeed();
-  }),
+  getFeed: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().default(1),
+        limit: z.number().default(10),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await postDal.getFeed(input.page, input.limit);
+    }),
 
   getLoggedInUserPublicPosts: protectedProcedure.query(async ({ ctx }) => {
     return await postDal.getLoggedInUserPublicPost(ctx.userId);

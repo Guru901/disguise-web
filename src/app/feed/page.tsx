@@ -3,11 +3,14 @@
 import { Loader } from "@/components/loader";
 import { PostCard } from "@/components/post-card";
 import { FetchOptions } from "./fetch-options";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Navbar from "@/components/navbar";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import Masonry from "react-masonry-css";
+import { Loader2 } from "lucide-react";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "@/server/api/root";
 
 const breakpointColumnsObj = {
   default: 2,
@@ -15,14 +18,50 @@ const breakpointColumnsObj = {
   700: 1,
 };
 
+type Post = NonNullable<
+  inferRouterOutputs<AppRouter>["postRouter"]["getFeed"][number]
+>;
+
 export default function Feed() {
   const { user } = useGetUser();
   const [selectedOption, setSelectedOption] = useState("general");
+  const [hasMore, setHasMore] = useState(true);
+  const observer = useRef<IntersectionObserver>(null);
+  const [page, setPage] = useState(1);
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
 
   const { data: posts, isLoading: isPostsLoading } =
-    api.postRouter.getFeed.useQuery();
+    api.postRouter.getFeed.useQuery({
+      page,
+      limit: 10,
+    });
 
-  if (isPostsLoading) return <Loader />;
+  const lastPostRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (isPostsLoading || posts?.length === 0 || !hasMore) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0]!.isIntersecting) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+      return () => {
+        if (observer.current) {
+          observer.current.disconnect();
+        }
+      };
+    },
+    [isPostsLoading, posts?.length, hasMore],
+  );
+
+  useEffect(() => {
+    if (posts) {
+      setAllPosts((prev) => [...prev, ...posts]);
+    }
+  }, [posts]);
+
+  if (isPostsLoading && page === 1) return <Loader />;
 
   return (
     <div className="relative flex h-screen w-screen flex-col gap-3 overflow-x-hidden px-2 py-2">
@@ -38,7 +77,7 @@ export default function Feed() {
         className="my-masonry-grid"
         columnClassName="my-masonry-grid_column"
       >
-        {posts?.map((post) => (
+        {allPosts?.map((post) => (
           <PostCard
             avatar={post.createdBy?.avatar ?? ""}
             username={post.createdBy?.username ?? "User"}
@@ -51,8 +90,19 @@ export default function Feed() {
             disLikes={post.disLikes ?? []}
             userId={user.id}
             key={post.id}
+            ref={lastPostRef}
           />
         ))}
+        {hasMore && page !== 1 && (
+          <div className="flex w-full items-center justify-center py-8">
+            <div className="border-border animate-fade-in flex flex-col items-center gap-3 rounded-xl border px-8 py-6 shadow-md">
+              <Loader2 className="text-primary mb-2 h-8 w-8 animate-spin" />
+              <span className="text-muted-foreground text-base font-medium">
+                Loading more posts...
+              </span>
+            </div>
+          </div>
+        )}
       </Masonry>
     </div>
   );

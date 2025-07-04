@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Card,
   CardHeader,
@@ -14,216 +15,229 @@ import { useState } from "react";
 import { api } from "@/trpc/react";
 import MediaPlayer from "@/components/media-player";
 
-export function PostCard({
-  avatar,
-  username,
-  title,
-  image,
-  createdAt,
-  content,
-  likes,
-  disLikes,
-  id,
-  userId,
-}: {
-  avatar: string;
-  username: string;
-  title: string;
-  image: string | null;
-  createdAt: Date;
-  content: string | null;
-  id: string;
-  likes: string[];
-  disLikes: string[];
-  userId: string;
-}) {
-  const [optimisticLikes, setOptimisticLikes] = useState(likes.length);
-  const [optimisticDislikes, setOptimisticDislikes] = useState(disLikes.length);
-
-  const [hasLiked, setHasLiked] = useState(() => likes.includes(userId));
-  const [hasDisliked, setHasDisliked] = useState(() =>
-    disLikes.includes(userId),
-  );
-
-  const likePostMutation = api.postRouter.likePost.useMutation();
-  const unlikePostMutation = api.postRouter.unlikePost.useMutation();
-  const likeAndUndislikePostMutation =
-    api.postRouter.likeAndUndislikePost.useMutation();
-
-  const dislikePostMutation = api.postRouter.dislikePost.useMutation();
-  const undislikePostMutation = api.postRouter.undislikePost.useMutation();
-  const dislikeAndUnlikePostMutation =
-    api.postRouter.dislikeAndUnlikePost.useMutation();
-
-  async function copyUrlToClipboard() {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      toast("Copied to clipboard");
-    } catch (err) {
-      console.error("Failed to copy: ", err);
-    }
+const PostCard = React.forwardRef<
+  HTMLDivElement,
+  {
+    avatar: string;
+    username: string;
+    title: string;
+    image: string | null;
+    createdAt: Date;
+    content: string | null;
+    id: string;
+    likes: string[];
+    disLikes: string[];
+    userId: string;
   }
+>(
+  (
+    {
+      avatar,
+      username,
+      title,
+      image,
+      createdAt,
+      content,
+      id,
+      likes,
+      disLikes,
+      userId,
+    },
+    ref,
+  ) => {
+    const [optimisticLikes, setOptimisticLikes] = useState(likes.length);
+    const [optimisticDislikes, setOptimisticDislikes] = useState(
+      disLikes.length,
+    );
 
-  async function likePost() {
-    if (hasLiked) {
-      // We are unliking the post
-      setOptimisticLikes((prev) => prev - 1);
-      setHasLiked(false);
-      try {
-        await unlikePostMutation.mutateAsync({ post: id });
-      } catch (error) {
-        console.error(error);
-        setOptimisticLikes((prev) => prev + 1);
-        setHasLiked(true);
-      }
-    } else {
-      // We are liking the post
-      const wasDisliked = hasDisliked;
-      setOptimisticLikes((prev) => prev + 1);
-      setHasLiked(true);
-      if (wasDisliked) {
-        setOptimisticDislikes((prev) => prev - 1);
-        setHasDisliked(false);
-      }
+    const [hasLiked, setHasLiked] = useState(() => likes.includes(userId));
+    const [hasDisliked, setHasDisliked] = useState(() =>
+      disLikes.includes(userId),
+    );
 
+    const likePostMutation = api.postRouter.likePost.useMutation();
+    const unlikePostMutation = api.postRouter.unlikePost.useMutation();
+    const likeAndUndislikePostMutation =
+      api.postRouter.likeAndUndislikePost.useMutation();
+
+    const dislikePostMutation = api.postRouter.dislikePost.useMutation();
+    const undislikePostMutation = api.postRouter.undislikePost.useMutation();
+    const dislikeAndUnlikePostMutation =
+      api.postRouter.dislikeAndUnlikePost.useMutation();
+
+    async function copyUrlToClipboard() {
       try {
-        if (wasDisliked) {
-          await likeAndUndislikePostMutation.mutateAsync({ post: id });
-        } else {
-          await likePostMutation.mutateAsync({ post: id });
-        }
-      } catch (error) {
-        console.error(error);
-        setOptimisticLikes((prev) => prev - 1);
-        setHasLiked(false);
-        if (wasDisliked) {
-          setOptimisticDislikes((prev) => prev + 1);
-          setHasDisliked(true);
-        }
+        await navigator.clipboard.writeText(window.location.href);
+        toast("Copied to clipboard");
+      } catch (err) {
+        console.error("Failed to copy: ", err);
       }
     }
-  }
 
-  async function dislikePost() {
-    if (hasDisliked) {
-      // We are undisliking the post
-      setOptimisticDislikes((prev) => prev - 1);
-      setHasDisliked(false);
-      try {
-        await undislikePostMutation.mutateAsync({ post: id });
-      } catch (error) {
-        console.error(error);
-        setOptimisticDislikes((prev) => prev + 1);
-        setHasDisliked(true);
-      }
-    } else {
-      // We are disliking the post
-      const wasLiked = hasLiked;
-      setOptimisticDislikes((prev) => prev + 1);
-      setHasDisliked(true);
-      if (wasLiked) {
+    async function likePost() {
+      if (hasLiked) {
+        // We are unliking the post
         setOptimisticLikes((prev) => prev - 1);
         setHasLiked(false);
-      }
-
-      try {
-        if (wasLiked) {
-          await dislikeAndUnlikePostMutation.mutateAsync({ post: id });
-        } else {
-          await dislikePostMutation.mutateAsync({ post: id });
-        }
-      } catch (error) {
-        console.error(error);
-        setOptimisticDislikes((prev) => prev - 1);
-        setHasDisliked(false);
-        if (wasLiked) {
+        try {
+          await unlikePostMutation.mutateAsync({ post: id });
+        } catch (error) {
+          console.error(error);
           setOptimisticLikes((prev) => prev + 1);
           setHasLiked(true);
         }
+      } else {
+        // We are liking the post
+        const wasDisliked = hasDisliked;
+        setOptimisticLikes((prev) => prev + 1);
+        setHasLiked(true);
+        if (wasDisliked) {
+          setOptimisticDislikes((prev) => prev - 1);
+          setHasDisliked(false);
+        }
+
+        try {
+          if (wasDisliked) {
+            await likeAndUndislikePostMutation.mutateAsync({ post: id });
+          } else {
+            await likePostMutation.mutateAsync({ post: id });
+          }
+        } catch (error) {
+          console.error(error);
+          setOptimisticLikes((prev) => prev - 1);
+          setHasLiked(false);
+          if (wasDisliked) {
+            setOptimisticDislikes((prev) => prev + 1);
+            setHasDisliked(true);
+          }
+        }
       }
     }
-  }
 
-  return (
-    <Card className="h-max overflow-hidden py-6">
-      <CardHeader className="flex items-center gap-4 px-4 py-3">
-        <Avatar className="h-14 w-14">
-          <AvatarImage
-            src={avatar}
-            alt="@shadcn"
-            className="w-24 object-cover"
-          />
-          <AvatarFallback>{username.slice(0, 2)}</AvatarFallback>
-        </Avatar>
-        <div className="space-y-1">
-          <div className="font-medium">{username}</div>
-          <div className="text-muted-foreground text-sm">
-            {formatTimeAgo(createdAt)}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="px-4 py-0">
-        <div className="space-y-3">
-          <p>{title}</p>
-          {image && (
-            <MediaPlayer
-              url={image}
-              imageProps={{
-                alt: title,
-                width: 600,
-                height: 200,
-                className: "h-52 w-full rounded-md object-cover",
-              }}
-              videoProps={{
-                className: "h-52 w-full rounded-md bg-black object-cover",
-              }}
+    async function dislikePost() {
+      if (hasDisliked) {
+        // We are undisliking the post
+        setOptimisticDislikes((prev) => prev - 1);
+        setHasDisliked(false);
+        try {
+          await undislikePostMutation.mutateAsync({ post: id });
+        } catch (error) {
+          console.error(error);
+          setOptimisticDislikes((prev) => prev + 1);
+          setHasDisliked(true);
+        }
+      } else {
+        // We are disliking the post
+        const wasLiked = hasLiked;
+        setOptimisticDislikes((prev) => prev + 1);
+        setHasDisliked(true);
+        if (wasLiked) {
+          setOptimisticLikes((prev) => prev - 1);
+          setHasLiked(false);
+        }
+
+        try {
+          if (wasLiked) {
+            await dislikeAndUnlikePostMutation.mutateAsync({ post: id });
+          } else {
+            await dislikePostMutation.mutateAsync({ post: id });
+          }
+        } catch (error) {
+          console.error(error);
+          setOptimisticDislikes((prev) => prev - 1);
+          setHasDisliked(false);
+          if (wasLiked) {
+            setOptimisticLikes((prev) => prev + 1);
+            setHasLiked(true);
+          }
+        }
+      }
+    }
+
+    return (
+      <Card className="h-max overflow-hidden py-6" ref={ref}>
+        <CardHeader className="flex items-center gap-4 px-4 py-3">
+          <Avatar className="h-14 w-14">
+            <AvatarImage
+              src={avatar}
+              alt="@shadcn"
+              className="w-24 object-cover"
             />
-          )}
-          {content && <p className="truncate overflow-hidden">{content}</p>}
-        </div>
-      </CardContent>
-      <CardFooter className="flex items-center justify-between px-4 py-3">
-        <div className="text-muted-foreground flex items-center gap-2">
-          <div className="flex items-center gap-1">
-            <Button
-              className="flex gap-1"
-              variant={"ghost"}
-              size={"icon"}
-              onClick={likePost}
-            >
-              {hasLiked ? <HeartIconFilled /> : <HeartIcon />}
-              <span>{optimisticLikes}</span>
-            </Button>
+            <AvatarFallback>{username.slice(0, 2)}</AvatarFallback>
+          </Avatar>
+          <div className="space-y-1">
+            <div className="font-medium">{username}</div>
+            <div className="text-muted-foreground text-sm">
+              {formatTimeAgo(createdAt)}
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <Button
-              className="flex gap-1"
-              variant={"ghost"}
-              size={"icon"}
-              onClick={dislikePost}
-            >
-              {hasDisliked ? <ThumbsDownIconFilled /> : <ThumbsDownIcon />}
-              <span>{optimisticDislikes}</span>
-            </Button>
+        </CardHeader>
+        <CardContent className="px-4 py-0">
+          <div className="space-y-3">
+            <p>{title}</p>
+            {image && (
+              <MediaPlayer
+                url={image}
+                imageProps={{
+                  alt: title,
+                  width: 600,
+                  height: 200,
+                  className: "h-52 w-full rounded-md object-cover",
+                }}
+                videoProps={{
+                  className: "h-52 w-full rounded-md bg-black object-cover",
+                }}
+              />
+            )}
+            {content && <p className="truncate overflow-hidden">{content}</p>}
           </div>
-          <div className="flex items-center gap-1">
-            <Button
-              className="flex gap-1"
-              variant={"ghost"}
-              size={"icon"}
-              onClick={copyUrlToClipboard}
-            >
-              <Share2 />
-            </Button>
+        </CardContent>
+        <CardFooter className="flex items-center justify-between px-4 py-3">
+          <div className="text-muted-foreground flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <Button
+                className="flex gap-1"
+                variant={"ghost"}
+                size={"icon"}
+                onClick={likePost}
+              >
+                {hasLiked ? <HeartIconFilled /> : <HeartIcon />}
+                <span>{optimisticLikes}</span>
+              </Button>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                className="flex gap-1"
+                variant={"ghost"}
+                size={"icon"}
+                onClick={dislikePost}
+              >
+                {hasDisliked ? <ThumbsDownIconFilled /> : <ThumbsDownIcon />}
+                <span>{optimisticDislikes}</span>
+              </Button>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                className="flex gap-1"
+                variant={"ghost"}
+                size={"icon"}
+                onClick={copyUrlToClipboard}
+              >
+                <Share2 />
+              </Button>
+            </div>
           </div>
-        </div>
-        <Link href={`/p/${id}`} className="w-min">
-          <Button>See More</Button>
-        </Link>
-      </CardFooter>
-    </Card>
-  );
-}
+          <Link href={`/p/${id}`} className="w-min">
+            <Button>See More</Button>
+          </Link>
+        </CardFooter>
+      </Card>
+    );
+  },
+);
+PostCard.displayName = "PostCard";
+
+export { PostCard };
 
 function HeartIcon() {
   return (
