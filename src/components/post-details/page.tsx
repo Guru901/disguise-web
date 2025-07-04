@@ -435,7 +435,9 @@ export function PostDetails({
                           onChange={handleInputChange}
                           value={inputValue}
                           ref={inputRef}
-                          onKeyDown={(e) => handleKeyDown(e, addComment)}
+                          onKeyDown={(e) =>
+                            handleKeyDown(e, () => void addComment())
+                          }
                         />
                         <MentionDropdown
                           users={filteredUsers}
