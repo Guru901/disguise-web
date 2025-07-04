@@ -383,8 +383,9 @@ export async function deleteComment(commentId: string, userId: string) {
       .delete(commentSchema)
       .where(
         and(eq(commentSchema.id, commentId), eq(commentSchema.author, userId)),
-      ).returning({ post: commentSchema.post });
-    
+      )
+      .returning({ post: commentSchema.post });
+
     await db
       .update(postSchema)
       .set({
@@ -392,7 +393,7 @@ export async function deleteComment(commentId: string, userId: string) {
         - 1`,
       })
       .where(eq(postSchema.id, comment[0]!.post!));
-      
+
     return {
       success: true,
       message: "Comment deleted successfully",
