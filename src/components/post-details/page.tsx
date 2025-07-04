@@ -69,21 +69,21 @@ export function PostDetails({
   const [hasDisliked, setHasDisliked] = useState(() =>
     disLikes.includes(user.id),
   );
+  const [mentionUsers, setMentionUsers] = useState<
+    { id: string; username: string; avatar: string }[]
+  >([]);
   const [optimisticLikes, setOptimisticLikes] = useState(likes.length);
   const [optimisticDislikes, setOptimisticDislikes] = useState(disLikes.length);
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(
     new Set(),
   );
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Get all users for mentions (you might want to fetch this from your API)
-  const { data: allUsers } = api.userRouter.getAllUsers.useQuery();
-
-  const mentionUsers =
-    allUsers?.map((user) => ({
-      id: user.id,
-      username: user.username,
-      avatar: user.avatar ?? "/placeholder.svg",
-    })) ?? [];
+  const { data: allUsers, refetch: refetchAllUsers } =
+    api.userRouter.getAllUsers.useQuery({
+      searchTerm: searchTerm,
+    });
 
   // Use mention input hook
   const {
@@ -142,6 +142,16 @@ export function PostDetails({
       }, 100);
     }
   }, [replyTo]);
+
+  useEffect(() => {
+    setMentionUsers(
+      (allUsers ?? []).map((user) => ({
+        id: user.id,
+        username: user.username,
+        avatar: user.avatar ?? "/placeholder.svg",
+      })),
+    );
+  }, [allUsers]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -432,7 +442,10 @@ export function PostDetails({
                               ? "Write your reply..."
                               : "Add a comment... (Type @ to mention users)"
                           }
-                          onChange={handleInputChange}
+                          onChange={(e) => {
+                            setSearchTerm(e.target.value ?? "");
+                            handleInputChange(e);
+                          }}
                           value={inputValue}
                           ref={inputRef}
                           onKeyDown={(e) =>

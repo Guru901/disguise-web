@@ -12,9 +12,15 @@ export const userRouter = createTRPCRouter({
     return await userDal.searchusers(input);
   }),
 
-  getAllUsers: protectedProcedure.query(async ({ ctx }) => {
-    return await userDal.getAllUsers();
-  }),
+  getAllUsers: protectedProcedure
+    .input(
+      z.object({
+        searchTerm: z.string().optional(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await userDal.getAllUsers(input.searchTerm ?? "");
+    }),
 
   getUserDataById: protectedProcedure
     .input(

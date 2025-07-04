@@ -262,6 +262,21 @@ export async function removeFriendById(userId: string, friendId: string) {
   }
 }
 
-export async function getAllUsers() {
-  return await db.select().from(userSchema).orderBy(asc(userSchema.username));
+export async function getAllUsers(searchTerm: string) {
+  searchTerm = searchTerm.split("@")[1]!;
+
+  if (!searchTerm) {
+    return await db
+      .select()
+      .from(userSchema)
+      .where(or(ilike(userSchema.username, "%" + searchTerm + "%")))
+      .orderBy(asc(userSchema.username))
+      .limit(10);
+  } else {
+    return await db
+      .select()
+      .from(userSchema)
+      .where(or(ilike(userSchema.username, "%" + searchTerm + "%")))
+      .orderBy(asc(userSchema.username));
+  }
 }
