@@ -35,7 +35,7 @@ export function MentionDropdown({
                 ? "bg-accent text-accent-foreground"
                 : "hover:bg-accent/50"
             }`}
-            onClick={() => onSelectUser(user)}
+            onMouseDown={() => onSelectUser(user)}
           >
             <Avatar className="h-8 w-8">
               <AvatarImage
