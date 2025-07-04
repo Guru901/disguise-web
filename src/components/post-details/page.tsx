@@ -1,3 +1,5 @@
+"use client";
+
 import { Card } from "../ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -11,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import * as icons from "./icons";
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
@@ -24,6 +26,8 @@ import {
 } from "../ui/dropdown-menu";
 import MediaPlayer from "../media-player";
 import { CldUploadButton } from "next-cloudinary";
+import { useMentionInput } from "@/lib/use-mention-input";
+import { MentionDropdown } from "@/components/mention-dropdown";
 
 export function PostDetails({
   author,
@@ -53,7 +57,6 @@ export function PostDetails({
   commentsCount: number;
 }) {
   const { user } = useGetUser();
-
   const [newComment, setNewComment] = useState({
     image: "",
     content: "",
@@ -63,29 +66,53 @@ export function PostDetails({
   const [replyTo, setReplyTo] = useState("");
   const [optimisticCommentsCount, setOptimisticCommentsCount] =
     useState(commentsCount);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [hasDisliked, setHasDisliked] = useState(() =>
     disLikes.includes(user.id),
   );
-
   const [optimisticLikes, setOptimisticLikes] = useState(likes.length);
   const [optimisticDislikes, setOptimisticDislikes] = useState(disLikes.length);
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(
     new Set(),
   );
 
+  // Get all users for mentions (you might want to fetch this from your API)
+  const { data: allUsers } = api.userRouter.getAllUsers.useQuery();
+
+  const mentionUsers =
+    allUsers?.map((user) => ({
+      id: user.id,
+      username: user.username,
+      avatar: user.avatar || "/placeholder.svg",
+    })) || [];
+
+  // Use mention input hook
+  const {
+    inputValue,
+    setInputValue,
+    showDropdown,
+    setShowDropdown,
+    filteredUsers,
+    selectedIndex,
+    inputRef,
+    handleInputChange,
+    selectUser,
+    handleKeyDown,
+  } = useMentionInput(mentionUsers);
+
+  // Sync mention input with comment state
+  useEffect(() => {
+    setNewComment((prev) => ({ ...prev, content: inputValue }));
+  }, [inputValue]);
+
   const likePostMutation = api.postRouter.likePost.useMutation();
   const unlikePostMutation = api.postRouter.unlikePost.useMutation();
   const likeAndUndislikePostMutation =
     api.postRouter.likeAndUndislikePost.useMutation();
-
   const deleteCommentMutation = api.postRouter.deleteComment.useMutation();
-
   const dislikePostMutation = api.postRouter.dislikePost.useMutation();
   const undislikePostMutation = api.postRouter.undislikePost.useMutation();
   const dislikeAndUnlikePostMutation =
     api.postRouter.dislikeAndUnlikePost.useMutation();
-
   const commentAddMutation = api.postRouter.addComments.useMutation();
 
   const {
@@ -104,11 +131,9 @@ export function PostDetails({
 
   useEffect(() => {
     if (replyTo && inputRef.current) {
-      // Use setTimeout to ensure DOM is updated before focusing
       setTimeout(() => {
         if (inputRef.current) {
           inputRef.current.focus();
-          // Optional: scroll input into view
           inputRef.current.scrollIntoView({
             behavior: "smooth",
             block: "center",
@@ -118,12 +143,28 @@ export function PostDetails({
     }
   }, [replyTo]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [setShowDropdown]);
+
   // Function to handle reply button click
   const handleReply = (commentId: string, username: string) => {
     setReplyTo(commentId);
     username = username.replace(" ", "_");
-    setNewComment({ content: `@${username} `, image: "" });
-
+    const replyText = `@${username} `;
+    setInputValue(replyText);
+    setNewComment({ content: replyText, image: "" });
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
@@ -173,21 +214,18 @@ export function PostDetails({
           isAReply: false,
           replyTo: replyTo,
         });
-
         setOptimisticCommentsCount((prev) => prev + 1);
       }
-
       if (data.success) {
         setNewComment({ content: "", image: "" });
+        setInputValue(""); // Clear mention input
         setReplyTo(""); // Clear the reply state
         toast("Comment added");
         void (await refetchComments());
-
         setCommentLoading(false);
       }
     } catch (error) {
       console.log(error);
-
       setCommentLoading(false);
     }
   }
@@ -221,7 +259,6 @@ export function PostDetails({
         setOptimisticDislikes((prev) => prev - 1);
         setHasDisliked(false);
       }
-
       try {
         if (wasDisliked) {
           await likeAndUndislikePostMutation.mutateAsync({ post: postID });
@@ -261,7 +298,6 @@ export function PostDetails({
         setOptimisticLikes((prev) => prev - 1);
         setHasLiked(false);
       }
-
       try {
         if (wasLiked) {
           await dislikeAndUnlikePostMutation.mutateAsync({ post: postID });
@@ -290,7 +326,10 @@ export function PostDetails({
                 <div className="flex items-start">
                   <div className="mr-4">
                     <Avatar className="h-14 w-14">
-                      <AvatarImage src={author?.avatar} alt="@user" />
+                      <AvatarImage
+                        src={author?.avatar || "/placeholder.svg"}
+                        alt="@user"
+                      />
                       <AvatarFallback>
                         {author.username.slice(0, 1)}
                       </AvatarFallback>
@@ -381,42 +420,30 @@ export function PostDetails({
                   Comments
                 </h2>
                 <div className="space-y-4">
-                  {/* Comment input with upload functionality */}
+                  {/* Comment input with mention functionality */}
                   <div className="space-y-3">
                     <div className="flex w-full items-end gap-2">
-                      <div className="flex-1">
+                      <div className="relative flex-1">
                         <Input
                           type="text"
                           className="w-full rounded-md py-5"
                           placeholder={
-                            replyTo ? "Write your reply..." : "Add a comment..."
+                            replyTo
+                              ? "Write your reply..."
+                              : "Add a comment... (Type @ to mention users)"
                           }
-                          onChange={(e) =>
-                            setNewComment({
-                              ...newComment,
-                              content: e.target.value,
-                            })
-                          }
-                          value={newComment.content}
+                          onChange={handleInputChange}
+                          value={inputValue}
                           ref={inputRef}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                              e.preventDefault();
-                              void (async () => {
-                                await addComment();
-                              })();
-                            }
-                            if (e.key === "Escape") {
-                              setReplyTo("");
-                              setNewComment({
-                                content: "",
-                                image: "",
-                              });
-                            }
-                          }}
+                          onKeyDown={(e) => handleKeyDown(e, addComment)}
+                        />
+                        <MentionDropdown
+                          users={filteredUsers}
+                          selectedIndex={selectedIndex}
+                          onSelectUser={selectUser}
+                          show={showDropdown}
                         />
                       </div>
-
                       <div className="flex items-center gap-2">
                         <CldUploadButton
                           className="w-full"
@@ -426,7 +453,6 @@ export function PostDetails({
                               // @ts-expect-error - results.info is not typed
                               results.info.secure_url,
                             );
-
                             setNewComment((prev) => ({
                               ...prev,
                               image: String(uploadedImageUrl),
@@ -454,7 +480,6 @@ export function PostDetails({
                         </Button>
                       </div>
                     </div>
-
                     {/* Image preview */}
                     {newComment.image && (
                       <div className="relative inline-block">
@@ -482,7 +507,6 @@ export function PostDetails({
                         </div>
                       </div>
                     )}
-
                     {/* Show reply indicator */}
                     {replyTo && (
                       <div className="flex items-center justify-between rounded-md bg-blue-50 p-2 dark:bg-blue-900/20">
@@ -498,6 +522,7 @@ export function PostDetails({
                               content: "",
                               image: "",
                             });
+                            setInputValue("");
                           }}
                         >
                           Cancel
@@ -505,7 +530,6 @@ export function PostDetails({
                       </div>
                     )}
                   </div>
-
                   {isCommentsLoading || isCommentsPending ? (
                     <div className="flex min-h-[300px] w-full items-center justify-center">
                       <Loader2 className="animate-spin" />
@@ -521,7 +545,6 @@ export function PostDetails({
                               reply.comments.isAReply &&
                               reply.comments.replyTo === comment.comments.id,
                           ) ?? [];
-
                         return (
                           <div key={comment.comments.id}>
                             {/* Main comment */}
@@ -606,7 +629,6 @@ export function PostDetails({
                                       <EllipsisVerticalIcon />
                                     </Button>
                                   </DropdownMenuTrigger>
-
                                   <DropdownMenuContent align="start">
                                     <DropdownMenuItem
                                       onClick={() => {
@@ -626,7 +648,6 @@ export function PostDetails({
                                               commentId: comment.comments.id,
                                             },
                                           ));
-
                                           setOptimisticCommentsCount(
                                             (prev) => prev - 1,
                                           );
@@ -639,7 +660,6 @@ export function PostDetails({
                                 </DropdownMenu>
                               </div>
                             </div>
-
                             {/* Replies section */}
                             {replies.length > 0 && (
                               <div className="border-muted mt-1 ml-18 space-y-3 border-l-2 pl-4">
@@ -655,7 +675,6 @@ export function PostDetails({
                                     ? `Hide ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`
                                     : `Show ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`}
                                 </Button>
-
                                 {expandedReplies.has(comment.comments.id) && (
                                   <div className="flex flex-col gap-4">
                                     {replies.reverse().map((reply) => (
@@ -761,7 +780,6 @@ export function PostDetails({
                                                 <EllipsisVerticalIcon className="h-4 w-4" />
                                               </Button>
                                             </DropdownMenuTrigger>
-
                                             <DropdownMenuContent align="start">
                                               <DropdownMenuItem
                                                 onSelect={(event) => {

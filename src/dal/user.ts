@@ -241,3 +241,7 @@ export async function removeFriendById(userId: string, friendId: string) {
     };
   }
 }
+
+export async function getAllUsers() {
+  return await db.select().from(userSchema).orderBy(asc(userSchema.username));
+}
