@@ -56,8 +56,10 @@ export default function Feed() {
   );
 
   useEffect(() => {
-    if (posts) {
-      setAllPosts((prev) => [...prev, ...posts]);
+    if (posts && posts.length === 0) {
+      setHasMore(false);
+    } else if (posts) {
+      setAllPosts((prevPosts) => [...prevPosts, ...posts]);
     }
   }, [posts]);
 
