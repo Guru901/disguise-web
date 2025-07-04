@@ -82,8 +82,8 @@ export function PostDetails({
     allUsers?.map((user) => ({
       id: user.id,
       username: user.username,
-      avatar: user.avatar || "/placeholder.svg",
-    })) || [];
+      avatar: user.avatar ?? "/placeholder.svg",
+    })) ?? [];
 
   // Use mention input hook
   const {
@@ -327,7 +327,7 @@ export function PostDetails({
                   <div className="mr-4">
                     <Avatar className="h-14 w-14">
                       <AvatarImage
-                        src={author?.avatar || "/placeholder.svg"}
+                        src={author?.avatar ?? "/placeholder.svg"}
                         alt="@user"
                       />
                       <AvatarFallback>
@@ -468,7 +468,7 @@ export function PostDetails({
                           className="py-5"
                           onClick={addComment}
                           disabled={
-                            commentLoading ||
+                            commentLoading ??
                             (!newComment.content.trim() && !newComment.image)
                           }
                         >

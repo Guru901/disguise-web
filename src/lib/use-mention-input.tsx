@@ -21,7 +21,7 @@ export function useMentionInput(users: User[] = []) {
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const cursorPosition = e.target.selectionStart || 0;
+    const cursorPosition = e.target.selectionStart ?? 0;
 
     setInputValue(value);
 
@@ -59,7 +59,7 @@ export function useMentionInput(users: User[] = []) {
 
     const beforeMention = inputValue.substring(0, mentionStart);
     const afterCursor = inputValue.substring(
-      inputRef.current?.selectionStart || inputValue.length,
+      inputRef.current?.selectionStart ?? inputValue.length,
     );
     const newValue = `${beforeMention}@${user.username} ${afterCursor}`;
 
