@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Video from "next-video";
 
 export default function MediaPlayer({
   url,
