@@ -172,7 +172,7 @@ export async function getUserDataById(userId: string) {
         userId,
       );
 
-    const user = await db
+    let user = await db
       .select()
       .from(userSchema)
       .where(
@@ -184,15 +184,35 @@ export async function getUserDataById(userId: string) {
       .limit(1)
       .then((res) => res[0]);
 
-    user!.password = "";
+    // If not found, and userId contains '_', try with spaces
+    if (!user && userId.includes("_")) {
+      const usernameWithSpaces = userId.replace(/_/g, " ");
+      user = await db
+        .select()
+        .from(userSchema)
+        .where(eq(userSchema.username, usernameWithSpaces))
+        .limit(1)
+        .then((res) => res[0]);
+    }
 
-    return {
-      user: user,
-      message: "User data retrieved",
-      success: true,
-      status: 200,
-      error: null,
-    };
+    if (user) {
+      user.password = "";
+      return {
+        user: user,
+        message: "User data retrieved",
+        success: true,
+        status: 200,
+        error: null,
+      };
+    } else {
+      return {
+        message: "User not found",
+        user: null,
+        success: false,
+        status: 404,
+        error: null,
+      };
+    }
   } catch (error) {
     console.error(error);
     return {
