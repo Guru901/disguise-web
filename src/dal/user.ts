@@ -1,10 +1,10 @@
 import type { TSignInSchema, TSignUpSchema } from "@/lib/schemas";
 import { db } from "@/server/db";
-import { userSchema } from "@/server/db/schema";
-import { eq, or, asc, ilike, sql } from "drizzle-orm";
+import { notificationSchema, userSchema } from "@/server/db/schema";
+import { eq, or, asc, ilike, sql, desc, and, inArray } from "drizzle-orm";
 import { hash, compare } from "bcrypt";
 
-export async function registerUser(userData: TSignUpSchema) {
+async function registerUser(userData: TSignUpSchema) {
   try {
     const userFromDb = await db
       .select()
@@ -60,7 +60,7 @@ export async function registerUser(userData: TSignUpSchema) {
   }
 }
 
-export async function loginUser(userData: TSignInSchema) {
+async function loginUser(userData: TSignInSchema) {
   try {
     const userFromDb = await db
       .select()
@@ -107,7 +107,7 @@ export async function loginUser(userData: TSignInSchema) {
   }
 }
 
-export async function getUserData(userId: string) {
+async function getUserData(userId: string) {
   try {
     const user = await db
       .select()
@@ -137,7 +137,7 @@ export async function getUserData(userId: string) {
   }
 }
 
-export async function searchusers(searchTerm: string) {
+async function searchusers(searchTerm: string) {
   try {
     const users = await db
       .select({
@@ -165,7 +165,7 @@ export async function searchusers(searchTerm: string) {
   }
 }
 
-export async function getUserDataById(userId: string) {
+async function getUserDataById(userId: string) {
   try {
     const isValidUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -225,7 +225,7 @@ export async function getUserDataById(userId: string) {
   }
 }
 
-export async function removeFriendById(userId: string, friendId: string) {
+async function removeFriendById(userId: string, friendId: string) {
   try {
     await db
       .update(userSchema)
@@ -262,7 +262,7 @@ export async function removeFriendById(userId: string, friendId: string) {
   }
 }
 
-export async function getAllUsers(searchTerm: string) {
+async function getAllUsers(searchTerm: string) {
   searchTerm = searchTerm.split("@")[1]!;
 
   if (!searchTerm) {
@@ -280,3 +280,157 @@ export async function getAllUsers(searchTerm: string) {
       .orderBy(asc(userSchema.username));
   }
 }
+
+async function getNotifications(userId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(notificationSchema)
+      .where(eq(notificationSchema.user, userId))
+      .orderBy(desc(notificationSchema.createdAt))
+      .limit(10);
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+async function getAllNotifications(userId: string) {
+  try {
+    const results = await db
+      .select({
+        id: notificationSchema.id,
+        type: notificationSchema.type,
+        content: notificationSchema.content,
+        read: notificationSchema.read,
+        createdAt: notificationSchema.createdAt,
+        byUserId: userSchema.id,
+        byUsername: userSchema.username,
+        byAvatar: userSchema.avatar,
+        message: notificationSchema.message,
+      })
+      .from(notificationSchema)
+      .leftJoin(userSchema, eq(notificationSchema.byUser, userSchema.id))
+      .where(
+        and(
+          eq(notificationSchema.user, userId),
+          eq(notificationSchema.read, false),
+        ),
+      )
+      .orderBy(desc(notificationSchema.createdAt));
+
+    return results.map((row) => ({
+      id: row.id,
+      type: row.type,
+      content: row.content,
+      read: row.read,
+      createdAt: row.createdAt,
+      message: row.message,
+      byUser: {
+        id: row.byUserId,
+        username: row.byUsername,
+        avatar: row.byAvatar,
+      },
+    }));
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+async function markNotificationAsRead(userId: string, notificationId: string) {
+  try {
+    await db
+      .update(notificationSchema)
+      .set({
+        read: true,
+      })
+      .where(
+        and(
+          eq(notificationSchema.id, notificationId),
+          eq(notificationSchema.user, userId),
+        ),
+      );
+
+    return {
+      success: true,
+      message: "Notifications marked as read",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Error marking notification as read",
+    };
+  }
+}
+
+async function markNotificationsAsRead(
+  userId: string,
+  notificationId: string[],
+) {
+  try {
+    await db
+      .update(notificationSchema)
+      .set({
+        read: true,
+      })
+      .where(
+        and(
+          eq(notificationSchema.user, userId),
+          inArray(notificationSchema.id, notificationId),
+        ),
+      );
+    return {
+      success: true,
+      message: "Notifications marked as read",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Error marking notification as read",
+    };
+  }
+}
+
+async function deleteNotification(userId: string, notificationId: string) {
+  try {
+    await db
+      .delete(notificationSchema)
+      .where(
+        and(
+          eq(notificationSchema.id, notificationId),
+          eq(notificationSchema.user, userId),
+        ),
+      );
+
+    return {
+      success: true,
+      message: "Notification deleted",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Error deleting notification",
+    };
+  }
+}
+
+export {
+  registerUser,
+  loginUser,
+  getUserData,
+  searchusers,
+  getUserDataById,
+  removeFriendById,
+  getAllUsers,
+  getNotifications,
+  getAllNotifications,
+  markNotificationAsRead,
+  deleteNotification,
+  markNotificationsAsRead,
+};

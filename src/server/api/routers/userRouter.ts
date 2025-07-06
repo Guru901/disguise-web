@@ -8,6 +8,32 @@ export const userRouter = createTRPCRouter({
     return result;
   }),
 
+  getNotifications: protectedProcedure.query(async ({ ctx }) => {
+    return await userDal.getNotifications(ctx.userId);
+  }),
+
+  getAllNotifications: protectedProcedure.query(async ({ ctx }) => {
+    return await userDal.getAllNotifications(ctx.userId);
+  }),
+
+  markNotificationsAsRead: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ input, ctx }) => {
+      return await userDal.markNotificationAsRead(ctx.userId, input);
+    }),
+
+  markAllNotificationsAsRead: protectedProcedure
+    .input(z.string().array())
+    .mutation(async ({ input, ctx }) => {
+      return await userDal.markNotificationsAsRead(ctx.userId, input);
+    }),
+
+  deleteNotification: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ input, ctx }) => {
+      return await userDal.deleteNotification(ctx.userId, input);
+    }),
+
   searchUsers: protectedProcedure.input(z.string()).query(async ({ input }) => {
     return await userDal.searchusers(input);
   }),

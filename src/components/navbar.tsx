@@ -11,11 +11,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useGetUser from "@/lib/use-get-user";
+import { api } from "@/trpc/react";
 
 export default function Navbar() {
   const { setTheme } = useTheme();
 
   const { user } = useGetUser();
+
+  const { data } = api.userRouter.getNotifications.useQuery(undefined, {
+    refetchInterval: 5000,
+  });
 
   return (
     <nav className="bg-background w-screen border-b">
@@ -28,7 +33,9 @@ export default function Navbar() {
             <Link href="/notifications" prefetch={true}>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell size={20} className="h-4" />
-                {/* <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" /> */}
+                {data && data.length > 0 && (
+                  <span className="bg-primary absolute top-2 right-2 h-2 w-2 rounded-full" />
+                )}
               </Button>
             </Link>
             <Link href="/settings" prefetch={true}>

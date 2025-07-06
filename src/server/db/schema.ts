@@ -51,3 +51,15 @@ export const commentSchema = pgTable("comments", {
   author: uuid("author").references(() => userSchema.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const notificationSchema = pgTable("notifications", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  type: text("type").notNull(),
+  content: text("content").notNull(),
+  message: text("message").notNull(),
+  byUser: uuid("by_user").references(() => userSchema.id),
+  post: uuid("post").references(() => postSchema.id),
+  user: uuid("user").references(() => userSchema.id),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

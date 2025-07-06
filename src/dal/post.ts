@@ -1,7 +1,13 @@
 import type { TCommentAddSchema, TUploadPostSchema } from "@/lib/schemas";
 import { db } from "@/server/db";
-import { commentSchema, postSchema, userSchema } from "@/server/db/schema";
+import {
+  commentSchema,
+  notificationSchema,
+  postSchema,
+  userSchema,
+} from "@/server/db/schema";
 import { and, desc, eq, sql, or } from "drizzle-orm";
+import { getUserDataById } from "./user";
 
 export async function getFeed(page: number, limit: number) {
   try {
@@ -110,7 +116,7 @@ export async function createPost(input: TUploadPostSchema) {
 
 export async function likePost(userId: string, postId: string) {
   try {
-    await db
+    const post = await db
       .update(postSchema)
       .set({
         likes: sql`array_append
@@ -119,7 +125,22 @@ export async function likePost(userId: string, postId: string) {
         ${userId}
         )`,
       })
-      .where(eq(postSchema.id, postId));
+      .where(eq(postSchema.id, postId))
+      .returning({
+        createdBy: postSchema.createdBy,
+        title: postSchema.title,
+      });
+
+    const { user } = await getUserDataById(userId);
+
+    await db.insert(notificationSchema).values({
+      type: "like",
+      content: `${user?.username} liked your post`,
+      message: `${user?.username} liked your post about '${post[0]?.title}'`,
+      byUser: userId,
+      post: postId,
+      user: post[0]?.createdBy,
+    });
 
     return {
       success: true,
