@@ -286,7 +286,12 @@ async function getNotifications(userId: string) {
     const results = await db
       .select()
       .from(notificationSchema)
-      .where(eq(notificationSchema.user, userId))
+      .where(
+        and(
+          eq(notificationSchema.user, userId),
+          eq(notificationSchema.read, false),
+        ),
+      )
       .orderBy(desc(notificationSchema.createdAt))
       .limit(10);
 

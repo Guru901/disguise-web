@@ -6,7 +6,7 @@ import {
   postSchema,
   userSchema,
 } from "@/server/db/schema";
-import { and, desc, eq, sql, or } from "drizzle-orm";
+import { and, desc, eq, sql, or, ilike } from "drizzle-orm";
 import { getUserDataById } from "./user";
 
 export async function getFeed(page: number, limit: number) {
@@ -311,6 +311,63 @@ export async function getCommentsByPostId(postId: string) {
   }
 }
 
+// Helper function to extract usernames from @ mentions
+async function extractMentionsAndNotify(
+  content: string,
+  commentAuthorId: string,
+  postId: string,
+) {
+  // Regex to match @username pattern - supports alphanumeric and underscore
+  const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+  const mentions = content.match(mentionRegex);
+
+  if (!mentions) return;
+
+  // Get unique usernames (remove @ symbol)
+  const usernames = [...new Set(mentions.map((mention) => mention.slice(1)))];
+
+  // Get comment author info for notification
+  const { user: authorUser } = await getUserDataById(commentAuthorId);
+
+  // Find each mentioned user and create notifications
+  for (const username of usernames) {
+    try {
+      // Find user by username (case-insensitive)
+      const mentionedUser = await db
+        .select()
+        .from(userSchema)
+        .where(ilike(userSchema.username, username))
+        .limit(1)
+        .then((res) => res[0]);
+
+      if (mentionedUser && mentionedUser.id !== commentAuthorId) {
+        // Get post info for better notification message
+        const post = await db
+          .select({ title: postSchema.title })
+          .from(postSchema)
+          .where(eq(postSchema.id, postId))
+          .limit(1)
+          .then((res) => res[0]);
+
+        // Create notification for mentioned user
+        await db.insert(notificationSchema).values({
+          type: "mention",
+          content: `${authorUser?.username} mentioned you in a comment`,
+          message: `${authorUser?.username} mentioned you in a comment on '${post?.title || "a post"}'`,
+          byUser: commentAuthorId,
+          post: postId,
+          user: mentionedUser.id,
+        });
+      }
+    } catch (error) {
+      console.error(
+        `Error creating mention notification for ${username}:`,
+        error,
+      );
+    }
+  }
+}
+
 export async function addComment(input: TCommentAddSchema, userId: string) {
   let comment;
 
@@ -356,6 +413,32 @@ export async function addComment(input: TCommentAddSchema, userId: string) {
       + 1`,
     })
     .where(eq(postSchema.id, input.postId));
+
+  // Get post info for notifications
+  const post = await db
+    .select()
+    .from(postSchema)
+    .where(eq(postSchema.id, input.postId))
+    .limit(1)
+    .then((res) => res[0]);
+
+  // Get comment author info for notifications
+  const { user: authorUser } = await getUserDataById(userId);
+
+  // Create notification for post author (if commenter is not the post author)
+  if (post?.createdBy && post.createdBy !== userId) {
+    await db.insert(notificationSchema).values({
+      type: "comment",
+      content: `${authorUser?.username} commented on your post`,
+      message: `${authorUser?.username} commented on your post about '${post.title}'`,
+      byUser: userId,
+      post: input.postId,
+      user: post.createdBy,
+    });
+  }
+
+  // Extract mentions and create notifications
+  await extractMentionsAndNotify(input.content, userId, input.postId);
 
   return {
     success: true,
