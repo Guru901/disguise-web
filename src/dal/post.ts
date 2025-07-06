@@ -353,7 +353,7 @@ async function extractMentionsAndNotify(
         await db.insert(notificationSchema).values({
           type: "mention",
           content: `${authorUser?.username} mentioned you in a comment`,
-          message: `${authorUser?.username} mentioned you in a comment on '${post?.title || "a post"}'`,
+          message: `${authorUser?.username} mentioned you in a comment on '${post?.title ?? "a post"}'`,
           byUser: commentAuthorId,
           post: postId,
           user: mentionedUser.id,

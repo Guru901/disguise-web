@@ -36,26 +36,26 @@ export default function NotificationsPage() {
 
   const markAsReadMutation = api.userRouter.markNotificationsAsRead.useMutation(
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success("Notification marked as read");
-        refetch();
+        await refetch();
       },
     },
   );
 
   const markAllAsReadMutation =
     api.userRouter.markAllNotificationsAsRead.useMutation({
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success("All notifications marked as read");
-        refetch();
+        await refetch();
       },
     });
 
   const deleteNotificationMutation =
     api.userRouter.deleteNotification.useMutation({
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success("Notification deleted");
-        refetch();
+        await refetch();
       },
     });
 

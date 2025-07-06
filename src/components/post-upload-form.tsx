@@ -48,7 +48,6 @@ export function PostUploadForm() {
     api.topicRouter.getAllTopics.useQuery();
 
   const imageUrl = watch("image");
-  const [_, setImage] = useState("");
 
   async function submitForm(data: TUploadPostSchema) {
     if (data.author === "") {
@@ -121,7 +120,6 @@ export function PostUploadForm() {
           onSuccess={(results) => {
             // @ts-expect-error - results.info is not typed
             const uploadImageUrl = String(results.info.secure_url);
-            setImage(uploadImageUrl);
             setValue("image", uploadImageUrl);
             toast("Image uploaded successfully");
           }}

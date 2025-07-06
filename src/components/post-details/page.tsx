@@ -80,10 +80,9 @@ export function PostDetails({
   const [searchTerm, setSearchTerm] = useState("");
 
   // Get all users for mentions (you might want to fetch this from your API)
-  const { data: allUsers, refetch: refetchAllUsers } =
-    api.userRouter.getAllUsers.useQuery({
-      searchTerm: searchTerm,
-    });
+  const { data: allUsers } = api.userRouter.getAllUsers.useQuery({
+    searchTerm: searchTerm,
+  });
 
   // Use mention input hook
   const {
@@ -141,7 +140,7 @@ export function PostDetails({
         }
       }, 100);
     }
-  }, [replyTo]);
+  }, [replyTo, inputRef]);
 
   useEffect(() => {
     setMentionUsers(
@@ -166,7 +165,7 @@ export function PostDetails({
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [setShowDropdown]);
+  }, [setShowDropdown, inputRef]);
 
   // Function to handle reply button click
   const handleReply = (commentId: string, username: string) => {
