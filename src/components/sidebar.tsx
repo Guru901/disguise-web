@@ -15,6 +15,7 @@ import {
   PenLineIcon,
 } from "lucide-react";
 import { Button } from "./ui/button";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   { label: "Home", href: "/feed", icon: Home },
@@ -27,6 +28,7 @@ const navItems = [
 
 export default function DesktopSidebar() {
   const [showSidebar, setShowSidebar] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     function handleResize() {
@@ -38,6 +40,7 @@ export default function DesktopSidebar() {
   }, []);
 
   if (!showSidebar) return null;
+  if (pathname === "/" || pathname === "/login") return null;
 
   return (
     <aside className="bg-background border-border fixed inset-y-0 z-40 flex w-64 flex-col border-r px-4 py-6">
