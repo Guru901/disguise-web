@@ -23,7 +23,7 @@ export default function Navbar() {
   });
 
   return (
-    <nav className="bg-background w-screen border-b">
+    <nav className="bg-background w-full border-b">
       <div className="flex h-16 items-center px-4">
         <div className="flex flex-1 items-center justify-between">
           <span className="text-xl font-medium">

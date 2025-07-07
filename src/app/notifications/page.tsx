@@ -66,7 +66,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="relative flex h-screen w-screen flex-col gap-3 overflow-x-hidden px-2 py-2">
+    <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
       <Navbar />
 
       <div className="flex items-center justify-between px-2">

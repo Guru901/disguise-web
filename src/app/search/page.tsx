@@ -51,7 +51,7 @@ export default function Search() {
   }
 
   return (
-    <main className="bg-background min-h-screen">
+    <main className="bg-background">
       <Navbar />
       <div className="container mx-auto max-w-2xl p-4">
         <div className="mb-6">

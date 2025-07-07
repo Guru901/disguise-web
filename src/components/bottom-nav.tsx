@@ -21,6 +21,7 @@ import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { useUserStore } from "@/lib/userStore";
+import React, { useEffect, useState } from "react";
 
 function BottomNavigation() {
   const { setUser } = useUserStore();
@@ -189,12 +190,18 @@ function BackBtn() {
 
 export default function BottomNavbar() {
   const pathname = usePathname();
+  const [isDesktop, setIsDesktop] = useState(false);
 
-  if (pathname === "/" || pathname === "/login") return;
-  return (
+  useEffect(() => {
+    setIsDesktop(window.innerWidth > 1024);
+  }, []);
+
+  if (pathname === "/" || pathname === "/login") return null;
+
+  return !isDesktop ? (
     <Card className="fixed bottom-0 z-10 flex w-screen flex-row items-center justify-between p-4">
       <BackBtn />
       <BottomNavigation />
     </Card>
-  );
+  ) : null;
 }

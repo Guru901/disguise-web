@@ -54,7 +54,7 @@ function TopicFeedContent() {
 
 export default function TopicSpecificFeed() {
   return (
-    <div className="relative flex h-screen w-screen flex-col gap-3 overflow-x-hidden px-2 py-2">
+    <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
       <Navbar />
       <Suspense fallback={<Loader />}>
         <TopicFeedContent />
