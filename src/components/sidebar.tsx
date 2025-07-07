@@ -13,9 +13,11 @@ import {
   PlusIcon,
   FolderIcon,
   PenLineIcon,
+  LogOut,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { usePathname } from "next/navigation";
+import { useUserStore } from "@/lib/userStore";
 
 const navItems = [
   { label: "Home", href: "/feed", icon: Home },
@@ -29,6 +31,8 @@ const navItems = [
 export default function DesktopSidebar() {
   const [showSidebar, setShowSidebar] = useState(false);
   const pathname = usePathname();
+
+  const { setUser } = useUserStore();
 
   useEffect(() => {
     function handleResize() {
@@ -61,6 +65,24 @@ export default function DesktopSidebar() {
               <span>{label}</span>
             </Link>
           ))}
+          <button
+            className="hover:bg-muted hover:text-primary focus:bg-muted focus:text-primary flex cursor-pointer items-center gap-4 rounded-full px-4 py-3 text-lg font-medium transition-colors"
+            onClick={async () => {
+              await fetch("/api/logout");
+              setUser({
+                avatar: "",
+                username: "",
+                posts: [],
+                friends: [],
+                createdAt: "",
+                id: "",
+              });
+              location.href = "/login";
+            }}
+          >
+            <LogOut className="h-6 w-6" />
+            <span>Logout</span>
+          </button>
         </nav>
       </div>
     </aside>
