@@ -2,7 +2,6 @@
 
 import { Loader } from "@/components/loader";
 import { PostCard } from "@/components/post-card";
-import { FetchOptions } from "./fetch-options";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Navbar from "@/components/navbar";
 import useGetUser from "@/lib/use-get-user";
@@ -68,12 +67,6 @@ export default function Feed() {
   return (
     <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
       <Navbar />
-      <div className="mt-2 flex w-screen items-center md:justify-start">
-        <FetchOptions
-          selectedOption={selectedOption}
-          setSelectedOption={setSelectedOption}
-        />
-      </div>
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="my-masonry-grid"
