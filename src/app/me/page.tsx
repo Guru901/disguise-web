@@ -13,6 +13,21 @@ import { useUserStore } from "@/lib/userStore";
 import Navbar from "@/components/navbar";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import MediaPlayer from "@/components/media-player";
+import Masonry from "react-masonry-css";
+
+const breakpointColumnsObjComments = {
+  default: 3,
+  1100: 2,
+  700: 1,
+};
+
+const breakpointColumnsObj = {
+  default: 3,
+  1600: 2,
+  1200: 1,
+  1000: 2,
+  600: 1,
+};
 
 export default function Me() {
   const [selectedOption, setSelectedOption] = useState("public");
@@ -173,175 +188,234 @@ export default function Me() {
           </div>
         </div>
         <div className="p-6 lg:p-8">
-          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {selectedOption === "public" ? (
-              isPostsLoading ? (
-                <div className="flex h-full w-full items-center justify-center">
-                  <Loader2 className="animate-spin" size={20} />
-                </div>
-              ) : (
-                userPosts?.slice().map((post) => (
-                  <Card key={post.id} className="overflow-hidden">
-                    <Link href={`/p/${post.id}`} className="h-full">
-                      <CardContent className="h-full p-0">
-                        {post.image ? (
-                          <div className="relative h-full">
-                            <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
-                              <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
-                                <h1>{post.title}</h1>
+          {selectedOption === "comments" ? (
+            isCommentsLoading ? (
+              <div className="flex h-full w-full items-center justify-center">
+                <Loader2 className="animate-spin" size={20} />
+              </div>
+            ) : (
+              <Masonry
+                breakpointCols={breakpointColumnsObjComments}
+                className="my-masonry-grid"
+                columnClassName="my-masonry-grid_column"
+              >
+                {userComments?.map((comment) => (
+                  <div key={comment.id}>
+                    <Card className="overflow-hidden">
+                      <Link
+                        href={`/p/${comment.post}?comment=${comment.id}`}
+                        className="h-full"
+                      >
+                        <CardContent className="h-full p-2">
+                          <h1>{comment.content}</h1>
+                        </CardContent>
+                      </Link>
+                    </Card>
+                  </div>
+                ))}
+              </Masonry>
+            )
+          ) : selectedOption === "public" ? (
+            isPostsLoading ? (
+              <div className="flex h-full w-full items-center justify-center">
+                <Loader2 className="animate-spin" size={20} />
+              </div>
+            ) : (
+              <Masonry
+                breakpointCols={breakpointColumnsObj}
+                className="my-masonry-grid"
+                columnClassName="my-masonry-grid_column"
+              >
+                {userPosts?.slice().map((post) => (
+                  <div key={post.id}>
+                    <Card className="overflow-hidden">
+                      <Link href={`/p/${post.id}`} className="h-full">
+                        <CardContent className="h-full p-0">
+                          {post.image ? (
+                            <div className="relative h-full">
+                              <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
+                                <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
+                                  <h1>{post.title}</h1>
+                                </div>
                               </div>
+                              <MediaPlayer
+                                url={post.image}
+                                imageProps={{
+                                  alt: "Post",
+                                  width: 500,
+                                  height: 300,
+                                  className:
+                                    "h-full w-full rounded-xl object-cover",
+                                }}
+                                videoProps={{
+                                  className:
+                                    "h-full w-full rounded-xl object-cover",
+                                }}
+                              />
                             </div>
-                            <MediaPlayer
-                              url={post.image}
-                              imageProps={{
-                                alt: "Post",
-                                width: 500,
-                                height: 300,
-                                className:
-                                  "h-full w-full rounded-xl object-cover",
-                              }}
-                              videoProps={{
-                                className:
-                                  "h-full w-full rounded-xl object-cover",
-                              }}
-                            />
-                          </div>
-                        ) : (
-                          <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
-                            <h1>{post.title}</h1>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Link>
-                  </Card>
-                ))
-              )
-            ) : selectedOption === "liked" ? (
-              isLikedPostsLoading ? (
-                <div className="flex h-full w-full items-center justify-center">
-                  <Loader2 className="animate-spin" size={20} />
-                </div>
-              ) : (
-                userLikedPosts?.slice().map((post) => (
-                  <Card key={post.id} className="overflow-hidden">
-                    <Link href={`/p/${post.id}`} className="h-full">
-                      <CardContent className="h-full p-0">
-                        {post.image ? (
-                          <div className="relative h-full">
-                            <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
-                              <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
-                                <h1>{post.title}</h1>
+                          ) : (
+                            <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
+                              <h1>{post.title}</h1>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Link>
+                    </Card>
+                  </div>
+                ))}
+              </Masonry>
+            )
+          ) : selectedOption === "liked" ? (
+            isLikedPostsLoading ? (
+              <div className="flex h-full w-full items-center justify-center">
+                <Loader2 className="animate-spin" size={20} />
+              </div>
+            ) : (
+              <Masonry
+                breakpointCols={breakpointColumnsObj}
+                className="my-masonry-grid"
+                columnClassName="my-masonry-grid_column"
+              >
+                {userLikedPosts?.slice().map((post) => (
+                  <div key={post.id}>
+                    <Card className="overflow-hidden">
+                      <Link href={`/p/${post.id}`} className="h-full">
+                        <CardContent className="h-full p-0">
+                          {post.image ? (
+                            <div className="relative h-full">
+                              <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
+                                <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
+                                  <h1>{post.title}</h1>
+                                </div>
                               </div>
+                              <MediaPlayer
+                                url={post.image}
+                                imageProps={{
+                                  alt: "Post",
+                                  width: 500,
+                                  height: 300,
+                                  className:
+                                    "h-full w-full rounded-xl object-cover",
+                                }}
+                                videoProps={{
+                                  className:
+                                    "h-full w-full rounded-xl object-cover",
+                                }}
+                              />
                             </div>
-                            <Image
-                              src={post.image}
-                              alt="Post"
-                              width={500}
-                              height={300}
-                              className="h-full w-full rounded-xl object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
-                            <h1>{post.title}</h1>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Link>
-                  </Card>
-                ))
-              )
-            ) : selectedOption === "private" ? (
-              isPrivatePostsLoading ? (
-                <div className="flex h-full w-full items-center justify-center">
-                  <Loader2 className="animate-spin" size={20} />
-                </div>
-              ) : (
-                userPrivatePosts?.slice().map((post) => (
-                  <Card key={post.id} className="overflow-hidden">
-                    <Link href={`/p/${post.id}`} className="h-full">
-                      <CardContent className="h-full p-0">
-                        {post.image ? (
-                          <div className="relative h-full">
-                            <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
-                              <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
-                                <h1>{post.title}</h1>
+                          ) : (
+                            <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
+                              <h1>{post.title}</h1>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Link>
+                    </Card>
+                  </div>
+                ))}
+              </Masonry>
+            )
+          ) : selectedOption === "private" ? (
+            isPrivatePostsLoading ? (
+              <div className="flex h-full w-full items-center justify-center">
+                <Loader2 className="animate-spin" size={20} />
+              </div>
+            ) : (
+              <Masonry
+                breakpointCols={breakpointColumnsObj}
+                className="my-masonry-grid"
+                columnClassName="my-masonry-grid_column"
+              >
+                {userPrivatePosts?.slice().map((post) => (
+                  <div key={post.id}>
+                    <Card className="overflow-hidden">
+                      <Link href={`/p/${post.id}`} className="h-full">
+                        <CardContent className="h-full p-0">
+                          {post.image ? (
+                            <div className="relative h-full">
+                              <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
+                                <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
+                                  <h1>{post.title}</h1>
+                                </div>
                               </div>
+                              <MediaPlayer
+                                url={post.image}
+                                imageProps={{
+                                  alt: "Post",
+                                  width: 500,
+                                  height: 300,
+                                  className:
+                                    "h-full w-full rounded-xl object-cover",
+                                }}
+                                videoProps={{
+                                  className:
+                                    "h-full w-full rounded-xl object-cover",
+                                }}
+                              />
                             </div>
-                            <Image
-                              src={post.image}
-                              alt="Post"
-                              width={500}
-                              height={300}
-                              className="h-full w-full rounded-xl object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
-                            <h1>{post.title}</h1>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Link>
-                  </Card>
-                ))
-              )
-            ) : selectedOption === "comments" ? (
-              isCommentsLoading ? (
-                <div className="flex h-full w-full items-center justify-center">
-                  <Loader2 className="animate-spin" size={20} />
-                </div>
-              ) : (
-                userComments?.map((comment) => (
-                  <Card key={comment.id} className="overflow-hidden">
-                    <Link
-                      href={`/p/${comment.post}?comment=${comment.id}`}
-                      className="h-full"
-                    >
-                      <CardContent className="h-full p-2">
-                        <h1>{comment.content}</h1>
-                      </CardContent>
-                    </Link>
-                  </Card>
-                ))
-              )
-            ) : selectedOption === "disLiked" ? (
-              isDisLikedPostsLoading ? (
-                <div className="flex h-full w-full items-center justify-center">
-                  <Loader2 className="animate-spin" size={20} />
-                </div>
-              ) : (
-                userDisLikedPosts?.map((post) => (
-                  <Card key={post.id} className="overflow-hidden">
-                    <Link href={`/p/${post.id}`} className="h-full">
-                      <CardContent className="h-full p-0">
-                        {post.image ? (
-                          <div className="relative h-full">
-                            <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
-                              <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
-                                <h1>{post.title}</h1>
+                          ) : (
+                            <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
+                              <h1>{post.title}</h1>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Link>
+                    </Card>
+                  </div>
+                ))}
+              </Masonry>
+            )
+          ) : selectedOption === "disLiked" ? (
+            isDisLikedPostsLoading ? (
+              <div className="flex h-full w-full items-center justify-center">
+                <Loader2 className="animate-spin" size={20} />
+              </div>
+            ) : (
+              <Masonry
+                breakpointCols={breakpointColumnsObj}
+                className="my-masonry-grid"
+                columnClassName="my-masonry-grid_column"
+              >
+                {userDisLikedPosts?.map((post) => (
+                  <div key={post.id}>
+                    <Card className="overflow-hidden">
+                      <Link href={`/p/${post.id}`} className="h-full">
+                        <CardContent className="h-full p-0">
+                          {post.image ? (
+                            <div className="relative h-full">
+                              <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
+                                <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
+                                  <h1>{post.title}</h1>
+                                </div>
                               </div>
+                              <MediaPlayer
+                                url={post.image}
+                                imageProps={{
+                                  alt: "Post",
+                                  width: 500,
+                                  height: 300,
+                                  className:
+                                    "h-full w-full rounded-xl object-cover",
+                                }}
+                                videoProps={{
+                                  className:
+                                    "h-full w-full rounded-xl object-cover",
+                                }}
+                              />
                             </div>
-                            <Image
-                              src={post.image}
-                              alt="Post"
-                              width={500}
-                              height={300}
-                              className="h-full w-full rounded-xl object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
-                            <h1>{post.title}</h1>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Link>
-                  </Card>
-                ))
-              )
-            ) : null}
-          </div>
+                          ) : (
+                            <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
+                              <h1>{post.title}</h1>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Link>
+                    </Card>
+                  </div>
+                ))}
+              </Masonry>
+            )
+          ) : null}
         </div>
       </div>
     </main>
