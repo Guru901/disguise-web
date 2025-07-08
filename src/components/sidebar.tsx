@@ -15,7 +15,7 @@ import {
   PenLineIcon,
   LogOut,
 } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { usePathname } from "next/navigation";
 import { useUserStore } from "@/lib/userStore";
 
@@ -47,26 +47,36 @@ export default function DesktopSidebar() {
   if (pathname === "/" || pathname === "/login") return null;
 
   return (
-    <aside className="bg-background border-border fixed inset-y-0 z-40 flex w-64 flex-col border-r px-4 py-6">
+    <div className="bg-background border-border fixed inset-y-0 z-40 flex w-64 flex-col border-r px-4 py-6">
       <div className="flex h-full w-full flex-col gap-2">
         <div className="mb-8 flex items-center justify-start px-2">
           <Feather className="text-primary h-8 w-8" />
-          <span className="ml-2 text-2xl font-bold tracking-tight">Social</span>
+          <span className="ml-2 text-2xl font-bold tracking-tight">
+            Disguise
+          </span>
         </div>
-        <nav className="flex flex-1 flex-col gap-1">
+        <div className="flex flex-1 flex-col gap-1">
           {navItems.map(({ label, href, icon: Icon }) => (
             <Link
               key={label}
               href={href}
-              className="hover:bg-muted hover:text-primary focus:bg-muted focus:text-primary flex items-center gap-4 rounded-full px-4 py-3 text-lg font-medium transition-colors"
+              className={buttonVariants({
+                variant: "ghost",
+                size: "lg",
+                className: `justify-start gap-4 px-4 py-6 text-[18px] font-medium transition-colors ${pathname === href ? "bg-muted text-primary" : ""}`,
+              })}
               prefetch={false}
             >
-              <Icon className="h-6 w-6" />
+              <Icon size={18} />
               <span>{label}</span>
             </Link>
           ))}
-          <button
-            className="hover:bg-muted hover:text-primary focus:bg-muted focus:text-primary flex cursor-pointer items-center gap-4 rounded-full px-4 py-3 text-lg font-medium transition-colors"
+          <Button
+            className="cursor-pointer justify-start gap-4 py-6 text-[18px] font-medium transition-colors"
+            style={{
+              paddingLeft: 18,
+            }}
+            variant="ghost"
             onClick={async () => {
               await fetch("/api/logout");
               setUser({
@@ -80,11 +90,11 @@ export default function DesktopSidebar() {
               location.href = "/login";
             }}
           >
-            <LogOut className="h-6 w-6" />
+            <LogOut size={18} />
             <span>Logout</span>
-          </button>
-        </nav>
+          </Button>
+        </div>
       </div>
-    </aside>
+    </div>
   );
 }
