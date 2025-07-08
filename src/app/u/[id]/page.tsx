@@ -200,10 +200,10 @@ export default function Me() {
                         addFriendByIdMutation.isSuccess ||
                         isNotificationSent?.success
                       }
-                      onClick={() => {
-                        addFriendByIdMutation.mutateAsync({
+                      onClick={async () => {
+                        void (await addFriendByIdMutation.mutateAsync({
                           id: id!,
-                        });
+                        }));
                       }}
                     >
                       {addFriendByIdMutation.isSuccess ||
