@@ -10,6 +10,7 @@ import Masonry from "react-masonry-css";
 import { Loader2 } from "lucide-react";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/api/root";
+import { Card } from "@/components/ui/card";
 
 const breakpointColumnsObj = {
   default: 2,
@@ -90,12 +91,9 @@ export default function Feed() {
         ))}
       </Masonry>
       {hasMore && page !== 1 && (
-        <div className="flex w-screen items-center justify-center py-8">
-          <div className="animate-fade-in flex w-full flex-col items-center gap-3 rounded-xl border px-8 py-6 shadow-md">
+        <div className="flex w-full items-center justify-center pt-8">
+          <div>
             <Loader2 className="text-primary mb-2 h-8 w-8 animate-spin" />
-            <span className="text-muted-foreground text-base font-medium">
-              Loading more posts...
-            </span>
           </div>
         </div>
       )}
