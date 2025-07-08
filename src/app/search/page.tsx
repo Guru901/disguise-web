@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import UserCard from "@/components/user-card";
 
 export default function Search() {
   const [search, setSearch] = useState("");
@@ -90,24 +91,7 @@ export default function Search() {
             <div className="flex flex-col gap-4">
               {users.users.map((user) => (
                 <Link key={user.id} href={`/u/${user.id}`}>
-                  <Card className="cursor-pointer hover:shadow-md">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={user.avatar!} alt={user.username} />
-                          <AvatarFallback className="text-sm font-medium">
-                            {user.username.slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <h3 className="font-semibold">{user.username}</h3>
-                          <p className="text-muted-foreground text-sm">
-                            Click to view profile
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <UserCard user={user} />
                 </Link>
               ))}
             </div>
