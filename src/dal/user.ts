@@ -262,6 +262,145 @@ async function removeFriendById(userId: string, friendId: string) {
   }
 }
 
+async function sendFriendRequest(userId: string, friendId: string) {
+  try {
+    const { user: toBeFriend } = await getUserDataById(friendId);
+    const { user: loggedInUser } = await getUserDataById(userId);
+
+    await db.insert(notificationSchema).values({
+      user: friendId,
+      byUser: userId,
+      type: "friend_request",
+      read: false,
+      content: "Friend request",
+      message: `Hey ${toBeFriend?.username}, ${loggedInUser?.username} wants to be friends with you`,
+    });
+
+    return {
+      success: true,
+      message: "Friend Request sent successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error sending friend request",
+    };
+  }
+}
+
+async function acceptFriendRequest(userId: string, friendId: string) {
+  try {
+    const { user: toBeFriend } = await getUserDataById(friendId);
+    const { user: loggedInUser } = await getUserDataById(userId);
+
+    await db
+      .update(userSchema)
+      .set({
+        friends: sql`array_append(
+        ${userSchema.friends},
+        ${friendId}
+      )`,
+      })
+      .where(eq(userSchema.id, userId));
+
+    await db
+      .update(userSchema)
+      .set({
+        friends: sql`array_append(
+        ${userSchema.friends},
+        ${userId}
+      )`,
+      })
+      .where(eq(userSchema.id, friendId));
+
+    await db
+      .update(notificationSchema)
+      .set({
+        read: true,
+      })
+      .where(
+        and(
+          eq(notificationSchema.user, userId),
+          eq(notificationSchema.byUser, friendId),
+          eq(notificationSchema.type, "friend_request"),
+        ),
+      );
+
+    return {
+      success: true,
+      message: "Friend Request accepted successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error accepting friend request",
+    };
+  }
+}
+
+async function isFriendNotificationSent(userId: string, friendId: string) {
+  try {
+    const data = await db
+      .select()
+      .from(notificationSchema)
+      .where(
+        and(
+          eq(notificationSchema.user, userId),
+          eq(notificationSchema.byUser, friendId),
+          eq(notificationSchema.type, "friend_request"),
+          eq(notificationSchema.read, false),
+        ),
+      );
+
+    if (data.length > 0) {
+      return {
+        success: true,
+        message: "Friend Request has been sent",
+      };
+    } else {
+      return {
+        success: false,
+        message: "Friend Request has not been sent",
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error accepting friend request",
+    };
+  }
+}
+
+async function rejectFreindRequest(userId: string, friendId: string) {
+  try {
+    const { user: toBeFriend } = await getUserDataById(friendId);
+    const { user: loggedInUser } = await getUserDataById(userId);
+
+    await db
+      .update(notificationSchema)
+      .set({
+        read: true,
+      })
+      .where(
+        and(
+          eq(notificationSchema.user, userId),
+          eq(notificationSchema.byUser, friendId),
+          eq(notificationSchema.type, "friend_request"),
+        ),
+      );
+
+    return {
+      success: true,
+      message: "Friend Request rejected successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error rejecting friend request",
+    };
+  }
+}
+
 async function getAllUsers(searchTerm: string) {
   searchTerm = searchTerm.split("@")[1]!;
 
@@ -438,4 +577,8 @@ export {
   markNotificationAsRead,
   deleteNotification,
   markNotificationsAsRead,
+  sendFriendRequest,
+  acceptFriendRequest,
+  rejectFreindRequest,
+  isFriendNotificationSent,
 };

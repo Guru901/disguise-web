@@ -11,6 +11,8 @@ import {
   Trash2,
   Check,
   AtSign,
+  UserPlus,
+  X,
 } from "lucide-react";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import Navbar from "@/components/navbar";
@@ -25,9 +27,208 @@ const getNotificationIcon = (type: string) => {
       return <MessageCircle className="h-4 w-4 text-blue-500" />;
     case "mention":
       return <AtSign className="h-4 w-4 text-purple-500" />;
+    case "friend_request":
+      return <UserPlus className="h-4 w-4 text-green-500" />;
     default:
       return <Bell className="h-4 w-4 text-gray-500" />;
   }
+};
+
+const FriendRequestNotification = ({
+  notification,
+  markAsReadMutation,
+  deleteNotificationMutation,
+  refetchNotifications,
+}: any) => {
+  const acceptFriendRequestMutation =
+    api.userRouter.acceptFriendRequest.useMutation({
+      onSuccess: async () => {
+        toast.success("Friend request accepted");
+        await refetchNotifications();
+      },
+    });
+
+  const rejectFriendRequestMutation =
+    api.userRouter.rejectFriendRequest.useMutation({
+      onSuccess: async () => {
+        toast.success("Friend request rejected");
+        await refetchNotifications();
+      },
+    });
+
+  return (
+    <Card className={`border-l-4 transition-all duration-200 hover:shadow-md`}>
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0">
+            <Avatar className="h-12 w-12">
+              <AvatarImage
+                src={notification.byUser.avatar ?? ""}
+                alt={notification.byUser.username ?? ""}
+              />
+              <AvatarFallback>
+                {notification.byUser.username!.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex items-center gap-2">
+                  {getNotificationIcon(notification.type)}
+                  <p className="truncate text-sm font-medium">
+                    {notification.content}
+                  </p>
+                  {!notification.read && (
+                    <div className="h-2 w-2 flex-shrink-0 rounded-full bg-green-500" />
+                  )}
+                </div>
+                <p className="text-muted-foreground mb-3 text-sm">
+                  {notification.message}
+                </p>
+
+                <div className="mb-2 flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    className="text-white"
+                    onClick={() => {
+                      acceptFriendRequestMutation.mutateAsync({
+                        id: notification.byUser.id,
+                      });
+                    }}
+                  >
+                    <Check className="mr-1 h-3 w-3" />
+                    Accept
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => {
+                      rejectFriendRequestMutation.mutateAsync({
+                        id: notification.byUser.id,
+                      });
+                    }}
+                  >
+                    <X className="mr-1 h-3 w-3" />
+                    Decline
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-xs">
+                    {formatTimeAgo(notification.createdAt)}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {!notification.read && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          markAsReadMutation.mutate(notification.id)
+                        }
+                        className="h-6 w-6 p-0"
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-destructive h-6 w-6 p-0"
+                      onClick={() =>
+                        deleteNotificationMutation.mutate(notification.id)
+                      }
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const RegularNotification = ({
+  notification,
+  markAsReadMutation,
+  deleteNotificationMutation,
+}: any) => {
+  return (
+    <Card
+      className={`transition-all duration-200 hover:shadow-md ${
+        !notification.read ? "ring-primary/20 ring-2" : ""
+      }`}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0">
+            <Avatar className="h-10 w-10">
+              <AvatarImage
+                src={notification.byUser.avatar ?? ""}
+                alt={notification.byUser.username ?? ""}
+              />
+              <AvatarFallback className="text-xs">
+                {notification.byUser.username!.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex items-center gap-2">
+                  {getNotificationIcon(notification.type)}
+                  <p className="truncate text-sm font-medium">
+                    {notification.content}
+                  </p>
+                  {!notification.read && (
+                    <div className="bg-primary h-2 w-2 flex-shrink-0 rounded-full" />
+                  )}
+                </div>
+                <p className="text-muted-foreground mb-2 text-sm">
+                  {notification.message}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-xs">
+                    {formatTimeAgo(notification.createdAt)}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {!notification.read && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          markAsReadMutation.mutate(notification.id)
+                        }
+                        className="h-6 w-6 p-0"
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-destructive h-6 w-6 p-0"
+                      onClick={() =>
+                        deleteNotificationMutation.mutate(notification.id)
+                      }
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default function NotificationsPage() {
@@ -61,10 +262,6 @@ export default function NotificationsPage() {
 
   const unreadCount = notifications?.filter((n) => !n.read).length;
 
-  const getCurrentNotifications = () => {
-    return notifications;
-  };
-
   return (
     <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
       <Navbar />
@@ -94,78 +291,26 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      {getCurrentNotifications()?.map((notification) => (
-        <Card
-          key={notification.id}
-          className={`transition-all duration-200 hover:shadow-md ${
-            !notification.read ? "ring-primary/20 ring-2" : ""
-          }`}
-        >
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage
-                    src={notification.byUser.avatar ?? ""}
-                    alt={notification.byUser.username ?? ""}
-                  />
-                  <AvatarFallback className="text-xs">
-                    {notification.byUser.username!.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-1 flex items-center gap-2">
-                      {getNotificationIcon(notification.type)}
-                      <p className="truncate text-sm font-medium">
-                        {notification.content}
-                      </p>
-                      {!notification.read && (
-                        <div className="bg-primary h-2 w-2 flex-shrink-0 rounded-full" />
-                      )}
-                    </div>
-                    <p className="text-muted-foreground mb-2 text-sm">
-                      {notification.message}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground text-xs">
-                        {formatTimeAgo(notification.createdAt)}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        {!notification.read && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              markAsReadMutation.mutate(notification.id)
-                            }
-                            className="h-6 w-6 p-0"
-                          >
-                            <Check className="h-3 w-3" />
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-muted-foreground hover:text-destructive h-6 w-6 p-0"
-                          onClick={() =>
-                            deleteNotificationMutation.mutate(notification.id)
-                          }
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      <div className="flex flex-col gap-3">
+        {notifications?.map((notification) => (
+          <div key={notification.id}>
+            {notification.type === "friend_request" ? (
+              <FriendRequestNotification
+                notification={notification}
+                markAsReadMutation={markAsReadMutation}
+                deleteNotificationMutation={deleteNotificationMutation}
+                refetchNotifications={refetch}
+              />
+            ) : (
+              <RegularNotification
+                notification={notification}
+                markAsReadMutation={markAsReadMutation}
+                deleteNotificationMutation={deleteNotificationMutation}
+              />
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
