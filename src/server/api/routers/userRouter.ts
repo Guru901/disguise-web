@@ -66,4 +66,44 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       return await userDal.removeFriendById(ctx.userId, input.id);
     }),
+
+  sendFriendRequest: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await userDal.sendFriendRequest(ctx.userId, input.id);
+    }),
+
+  isFriendNotificationSent: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await userDal.isFriendNotificationSent(ctx.userId, input.id);
+    }),
+
+  acceptFriendRequest: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await userDal.acceptFriendRequest(ctx.userId, input.id);
+    }),
+
+  rejectFriendRequest: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await userDal.rejectFreindRequest(ctx.userId, input.id);
+    }),
 });

@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "@/trpc/react";
 import Navbar from "@/components/navbar";
 import { usePathname } from "next/navigation";
@@ -70,6 +70,10 @@ export default function Me() {
   const removeFriendByIdMutation =
     api.userRouter.removeFriendById.useMutation();
 
+  const addFriendByIdMutation = api.userRouter.sendFriendRequest.useMutation();
+
+  const [isFriend, setIsFriend] = useState(false);
+
   const user = data?.user;
   const username = user?.username ?? "User";
   const avatar = user?.avatar ?? undefined;
@@ -78,7 +82,14 @@ export default function Me() {
   const createdAt = user?.createdAt;
 
   const isProfile = false;
-  const isFriend = friends.includes(loggedInUser.id);
+  const { data: isNotificationSent } =
+    api.userRouter.isFriendNotificationSent.useQuery({
+      id: user?.id ?? "",
+    });
+
+  useEffect(() => {
+    setIsFriend(friends.includes(loggedInUser.id));
+  }, [isNotificationSent]);
 
   if (isLoading) {
     return (
@@ -129,80 +140,89 @@ export default function Me() {
             <div className="w-full">
               {!isProfile && (
                 <div className="flex w-full gap-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button className="w-1/2" variant={"outline"}>
-                        {isFriend ? "Remove Friend" : "Add Friend"}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                      <DialogHeader className="text-center sm:text-left">
-                        <DialogTitle className="text-lg font-semibold">
+                  {isFriend ? (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="w-1/2" variant={"outline"}>
                           Remove Friend
-                        </DialogTitle>
-                        <DialogDescription className="text-muted-foreground text-sm">
-                          Are you sure you want to remove{" "}
-                          <span className="text-foreground font-semibold">
-                            {username}
-                          </span>{" "}
-                          from your friends list? This action cannot be undone.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter className="flex flex-row space-x-2">
-                        <DialogClose asChild>
-                          <Button variant="outline" className="flex-1">
-                            Cancel
-                          </Button>
-                        </DialogClose>
-                        <DialogClose asChild>
-                          <Button
-                            variant="destructive"
-                            className="flex-1"
-                            // Updated section for the remove friend button click handler
-                            onClick={async () => {
-                              try {
-                                const data =
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader className="text-center sm:text-left">
+                          <DialogTitle className="text-lg font-semibold">
+                            Remove Friend
+                          </DialogTitle>
+                          <DialogDescription className="text-muted-foreground text-sm">
+                            Are you sure you want to remove{" "}
+                            <span className="text-foreground font-semibold">
+                              {username}
+                            </span>{" "}
+                            from your friends list? This action cannot be
+                            undone.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="flex flex-row space-x-2">
+                          <DialogClose asChild>
+                            <Button variant="outline" className="flex-1">
+                              Cancel
+                            </Button>
+                          </DialogClose>
+                          <DialogClose asChild>
+                            <Button
+                              variant="destructive"
+                              className="flex-1"
+                              onClick={async () => {
+                                try {
                                   await removeFriendByIdMutation.mutateAsync({
                                     id: id!,
                                   });
-
-                                if (data.success) {
-                                  await api
-                                    .useUtils()
-                                    .userRouter.getUserDataById.invalidate({
-                                      id: id!,
-                                    });
-
-                                  if (selectedOption === "private") {
-                                    setSelectedOption("public");
-                                  }
-
-                                  toast("Friend removed successfully");
-                                  location.reload();
+                                  setIsFriend(false);
+                                } catch (error) {
+                                  console.error(
+                                    "Failed to remove friend:",
+                                    error,
+                                  );
                                 }
-                              } catch (error) {
-                                // Handle error case
-                                console.error(
-                                  "Failed to remove friend:",
-                                  error,
-                                );
-                                // You might want to show an error toast here
-                              }
-                            }}
-                          >
-                            Remove Friend
-                          </Button>
-                        </DialogClose>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-
+                              }}
+                            >
+                              Remove Friend
+                            </Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  ) : (
+                    <Button
+                      className="w-1/2"
+                      variant={"outline"}
+                      disabled={
+                        addFriendByIdMutation.isPending ||
+                        addFriendByIdMutation.isSuccess ||
+                        isNotificationSent?.success
+                      }
+                      onClick={() => {
+                        addFriendByIdMutation.mutateAsync({
+                          id: id!,
+                        });
+                      }}
+                    >
+                      {addFriendByIdMutation.isSuccess ||
+                      isNotificationSent?.success ? (
+                        "Request Sent"
+                      ) : addFriendByIdMutation.isPaused ? (
+                        <Loader2 className="animate-spin" size={20} />
+                      ) : (
+                        "Add Friend"
+                      )}
+                    </Button>
+                  )}
                   <Button disabled className="w-1/2" variant={"outline"}>
                     Message
                   </Button>
                 </div>
               )}
             </div>
+
             {isProfile ||
               (isFriend && (
                 <div className="mt-2 flex w-full flex-wrap gap-2 lg:mt-0">
