@@ -467,6 +467,26 @@ export async function getLoggedInUserLikedPosts(userId: string) {
   }
 }
 
+export async function getLoggedInUserDisLikedPosts(userId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(postSchema)
+      .where(
+        sql`${userId}
+        = ANY(
+        ${postSchema.disLikes}
+        )`,
+      )
+      .orderBy(desc(postSchema.createdAt));
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 export async function getLoggedInUserPrivatePosts(userId: string) {
   try {
     const results = await db
@@ -475,6 +495,20 @@ export async function getLoggedInUserPrivatePosts(userId: string) {
       .where(
         and(eq(postSchema.createdBy, userId), eq(postSchema.isPublic, false)),
       );
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function getLoggedInUserComments(userId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(commentSchema)
+      .where(eq(commentSchema.author, userId));
 
     return results;
   } catch (error) {
