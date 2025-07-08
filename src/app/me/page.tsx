@@ -14,6 +14,7 @@ import Navbar from "@/components/navbar";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import MediaPlayer from "@/components/media-player";
 import Masonry from "react-masonry-css";
+import UserCard from "@/components/user-card";
 
 const breakpointColumnsObjComments = {
   default: 3,
@@ -49,6 +50,9 @@ export default function Me() {
   const { data: userDisLikedPosts, isLoading: isDisLikedPostsLoading } =
     api.postRouter.getLoggedInUserDisLikedPosts.useQuery();
 
+  const { data: userFriends, isLoading: isFriendsLoading } =
+    api.postRouter.getLoggedInUserFriend.useQuery();
+
   const user = data?.user;
   const username = user?.username ?? "User";
   const avatar = user?.avatar ?? undefined;
@@ -56,9 +60,6 @@ export default function Me() {
   const friends = user?.friends ?? [];
   const createdAt = user?.createdAt;
   const id = user?.id ?? "";
-
-  const isProfile = true;
-  const isFriend = false;
 
   const { setUser } = useUserStore();
 
@@ -119,18 +120,6 @@ export default function Me() {
                 <span className="text-muted-foreground">Friends</span>
               </div>
             </div>
-            <div className="w-full">
-              {!isProfile && (
-                <div className="flex w-full gap-2">
-                  <Button className="w-1/2" variant={"outline"}>
-                    {isFriend ? "Remove Friend" : "Add Friend"}
-                  </Button>
-                  <Button disabled className="w-1/2" variant={"outline"}>
-                    Message
-                  </Button>
-                </div>
-              )}
-            </div>
             <div className="flex w-full flex-col gap-2">
               <div className="mt-2 flex w-full flex-wrap gap-2 lg:mt-0">
                 <Tabs
@@ -140,24 +129,15 @@ export default function Me() {
                   onValueChange={(e) => setSelectedOption(e)}
                 >
                   <TabsList className="w-full">
-                    <TabsTrigger
-                      value={"public"}
-                      className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
-                    >
+                    <TabsTrigger value={"public"} className={"w-1/3"}>
                       Public Posts ({userPosts?.length ?? 0})
                     </TabsTrigger>
-                    <TabsTrigger
-                      value={"liked"}
-                      className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
-                    >
+                    <TabsTrigger value={"liked"} className={"w-1/3"}>
                       Liked Posts ({userLikedPosts?.length ?? 0})
                     </TabsTrigger>
-                    {isFriend ||
-                      (isProfile && (
-                        <TabsTrigger value={"private"} className="w-1/3">
-                          Private Posts ({userPrivatePosts?.length ?? 0})
-                        </TabsTrigger>
-                      ))}
+                    <TabsTrigger value={"private"} className="w-1/3">
+                      Private Posts ({userPrivatePosts?.length ?? 0})
+                    </TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
@@ -169,17 +149,14 @@ export default function Me() {
                   onValueChange={(e) => setSelectedOption(e)}
                 >
                   <TabsList className="w-full">
-                    <TabsTrigger
-                      value={"disLiked"}
-                      className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
-                    >
+                    <TabsTrigger value={"disLiked"} className={"w-1/3"}>
                       Disliked Posts ({userDisLikedPosts?.length ?? 0})
                     </TabsTrigger>
-                    <TabsTrigger
-                      value={"comments"}
-                      className={`${!isFriend ? "w-1/2" : "w-1/3"}`}
-                    >
+                    <TabsTrigger value={"comments"} className={"w-1/3"}>
                       Comments ({userComments?.length ?? 0})
+                    </TabsTrigger>
+                    <TabsTrigger value={"friends"} className={"w-1/3"}>
+                      Friends ({friends.length ?? 0})
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
@@ -414,6 +391,19 @@ export default function Me() {
                   </div>
                 ))}
               </Masonry>
+            )
+          ) : selectedOption === "friends" ? (
+            isFriendsLoading ? (
+              <div className="flex h-full w-full items-center justify-center">
+                <Loader2 className="animate-spin" size={20} />
+              </div>
+            ) : (
+              <div>
+                {userFriends &&
+                  userFriends.friends.map((friend) => (
+                    <UserCard user={friend} />
+                  ))}
+              </div>
             )
           ) : null}
         </div>

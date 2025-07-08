@@ -31,6 +31,10 @@ export const postRouter = createTRPCRouter({
     return await postDal.getLoggedInUserDisLikedPosts(ctx.userId);
   }),
 
+  getLoggedInUserFriend: protectedProcedure.query(async ({ ctx }) => {
+    return await postDal.getLoggedInUserFriend(ctx.userId);
+  }),
+
   getLoggedInUserPrivatePosts: protectedProcedure.query(async ({ ctx }) => {
     return await postDal.getLoggedInUserPrivatePosts(ctx.userId);
   }),

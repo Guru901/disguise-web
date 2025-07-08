@@ -6,7 +6,7 @@ import {
   postSchema,
   userSchema,
 } from "@/server/db/schema";
-import { and, desc, eq, sql, or, ilike } from "drizzle-orm";
+import { and, desc, eq, sql, or, ilike, inArray } from "drizzle-orm";
 import { getUserDataById } from "./user";
 
 export async function getFeed(page: number, limit: number) {
@@ -515,6 +515,30 @@ export async function getLoggedInUserComments(userId: string) {
     console.error(error);
     return [];
   }
+}
+
+export async function getLoggedInUserFriend(userId: string) {
+  const user = await db
+    .select()
+    .from(userSchema)
+    .where(eq(userSchema.id, userId))
+    .limit(1);
+
+  if (!user[0]) {
+    return null;
+  }
+
+  const friends =
+    user[0].friends && user[0].friends.length > 0
+      ? await db
+          .select()
+          .from(userSchema)
+          .where(inArray(userSchema.id, user[0].friends))
+      : [];
+
+  return {
+    friends,
+  };
 }
 
 export async function deleteComment(commentId: string, userId: string) {
