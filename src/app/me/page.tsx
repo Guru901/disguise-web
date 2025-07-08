@@ -399,10 +399,9 @@ export default function Me() {
               </div>
             ) : (
               <div>
-                {userFriends &&
-                  userFriends.friends.map((friend) => (
-                    <UserCard user={friend} />
-                  ))}
+                {userFriends?.friends.map((friend) => (
+                  <UserCard user={friend} key={friend.id} />
+                ))}
               </div>
             )
           ) : null}
