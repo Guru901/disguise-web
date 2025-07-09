@@ -1,14 +1,11 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Search as SearchIcon, Users } from "lucide-react";
 import { api } from "@/trpc/react";
 import Navbar from "@/components/navbar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import UserCard from "@/components/user-card";
 
 export default function Search() {
@@ -32,7 +29,7 @@ export default function Search() {
     enabled: debouncedSearch.length > 0,
   });
 
-  const { data: firstTenUsers, isLoading: isFirstTenUsersLoading } =
+  const { data: firstTenUsers } =
     api.userRouter.getFirstTenUsers.useQuery();
 
   if (isError) {
@@ -91,7 +88,7 @@ export default function Search() {
             </p>
             <div className="flex flex-col gap-3">
               {users.users.map((user) => (
-                <UserCard user={user} />
+                <UserCard user={user} key={user.id} />
               ))}
             </div>
           </div>

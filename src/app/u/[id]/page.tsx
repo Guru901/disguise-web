@@ -23,7 +23,6 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
 
 export default function Me() {
   const [selectedOption, setSelectedOption] = useState("public");

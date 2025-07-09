@@ -10,7 +10,6 @@ import Masonry from "react-masonry-css";
 import { Loader2 } from "lucide-react";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/api/root";
-import { Card } from "@/components/ui/card";
 
 const breakpointColumnsObj = {
   default: 2,
@@ -24,7 +23,6 @@ type Post = NonNullable<
 
 export default function Feed() {
   const { user } = useGetUser();
-  const [selectedOption, setSelectedOption] = useState("general");
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver>(null);
   const [page, setPage] = useState(1);

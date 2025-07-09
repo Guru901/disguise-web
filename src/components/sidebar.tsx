@@ -5,10 +5,7 @@ import Link from "next/link";
 import {
   Home,
   Search,
-  Bell,
-  Mail,
   User,
-  MoreHorizontal,
   Feather,
   PlusIcon,
   FolderIcon,

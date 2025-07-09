@@ -1,12 +1,10 @@
 import Navbar from "@/components/navbar";
 import { PostUploadForm } from "@/components/post-upload-form";
-import { Card } from "@/components/ui/card";
 
 export default function Post() {
   return (
     <>
       <Navbar />
-
       <div className="mx-auto mt-2 flex min-h-screen w-[calc(100%-1rem)] flex-col gap-4 p-0">
         <div className="m-auto space-y-6 py-12">
           <div className="space-y-2 text-center">
