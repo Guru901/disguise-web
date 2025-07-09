@@ -5,7 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { formatTimeAgo } from "@/lib/format-time-ago";
-import { ImageIcon, Loader2, Share2, X } from "lucide-react";
+import { ImageIcon, Loader2, Share2, Trash, X } from "lucide-react";
 import * as icons from "./icons";
 import { useState, useEffect } from "react";
 import useGetUser from "@/lib/use-get-user";
@@ -17,6 +17,14 @@ import { CldUploadButton } from "next-cloudinary";
 import { useMentionInput } from "@/lib/use-mention-input";
 import { MentionDropdown } from "@/components/mention-dropdown";
 import Comment from "./comment";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 export function PostDetails({
   author,
@@ -46,6 +54,7 @@ export function PostDetails({
   commentsCount: number;
 }) {
   const { user } = useGetUser();
+  const router = useRouter();
   const [newComment, setNewComment] = useState({
     image: "",
     content: "",
@@ -68,12 +77,10 @@ export function PostDetails({
   );
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Get all users for mentions (you might want to fetch this from your API)
   const { data: allUsers } = api.userRouter.getAllUsers.useQuery({
     searchTerm: searchTerm,
   });
 
-  // Use mention input hook
   const {
     inputValue,
     setInputValue,
@@ -101,6 +108,13 @@ export function PostDetails({
   const dislikeAndUnlikePostMutation =
     api.postRouter.dislikeAndUnlikePost.useMutation();
   const commentAddMutation = api.postRouter.addComments.useMutation();
+
+  const deletePostByIdMutation = api.postRouter.deletePostById.useMutation({
+    onSuccess: async () => {
+      toast("Post deleted");
+      router.back();
+    },
+  });
 
   const {
     data: comments,
@@ -401,6 +415,69 @@ export function PostDetails({
                       <Share2 />
                       <span className="sr-only">Share</span>
                     </Button>
+                    {user.id === author.id && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <div className="mb-4 flex items-center gap-4">
+                            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-50">
+                              <Trash className="h-6 w-6 text-red-600" />
+                            </div>
+                            <div>
+                              <DialogTitle className="text-foreground text-lg font-semibold">
+                                Delete Post
+                              </DialogTitle>
+                              <p className="text-muted-foreground mt-1 text-sm">
+                                This action cannot be undone. The post will be
+                                permanently removed.
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="bg-muted/50 mb-6 rounded-lg p-4">
+                            <p className="text-muted-foreground text-sm">
+                              Are you sure you want to delete this post? This
+                              will remove it from your profile and all
+                              associated comments.
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                            <DialogClose>
+                              <Button
+                                variant="outline"
+                                className="w-full sm:w-auto"
+                              >
+                                Cancel
+                              </Button>
+                            </DialogClose>
+
+                            <Button
+                              variant="destructive"
+                              onClick={async () => {
+                                await deletePostByIdMutation.mutateAsync({
+                                  postId: postID,
+                                });
+                                router.back();
+                              }}
+                              size={"default"}
+                              disabled={deletePostByIdMutation.isPending}
+                              className="w-full bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 sm:w-auto"
+                            >
+                              {deletePostByIdMutation.isPending ? (
+                                <Loader2 className="animate-spin" />
+                              ) : (
+                                "Delete Post"
+                              )}
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                   </div>
                   <div className="text-muted-foreground text-sm">
                     {optimisticLikes} Likes • {optimisticDislikes} Dislikes •{" "}
