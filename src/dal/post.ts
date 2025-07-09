@@ -75,30 +75,52 @@ async function getPostById(postId: string) {
 }
 
 async function createPost(input: TUploadPostSchema) {
-  const post = await db
-    .insert(postSchema)
-    .values({
-      title: input.title,
-      content: input.content ?? null,
-      image: input.image ?? null,
-      isPublic: input.isPublic,
-      topic: input.topic ?? "",
-      createdBy: input.author,
-      likes: [],
-      disLikes: [],
-    })
-    .returning({ id: postSchema.id });
+  let post: {
+    id: string;
+    title: string;
+  }[] = [];
 
-  await db
-    .update(userSchema)
-    .set({
-      posts: sql`array_append
-      (
-      ${userSchema.posts},
-      ${post[0]!.id}
-      )`,
-    })
-    .where(eq(userSchema.id, input.author));
+  await db.transaction(async (trx) => {
+    post = await trx
+      .insert(postSchema)
+      .values({
+        title: input.title,
+        content: input.content ?? null,
+        image: input.image ?? null,
+        isPublic: input.isPublic,
+        topic: input.topic ?? "",
+        createdBy: input.author,
+        likes: [],
+        disLikes: [],
+      })
+      .returning({ id: postSchema.id, title: postSchema.title });
+
+    const author = await trx
+      .update(userSchema)
+      .set({
+        posts: sql`array_append
+        (
+        ${userSchema.posts},
+        ${post[0]!.id}
+        )`,
+      })
+      .where(eq(userSchema.id, input.author))
+      .returning({
+        friends: userSchema.friends,
+        username: userSchema.username,
+      });
+
+    author[0]?.friends?.map(async (friend) => {
+      await trx.insert(notificationSchema).values({
+        content: `${author[0]?.username} uploaded a new post`,
+        message: `${author[0]?.username} uploaded a new post about '${post[0]?.title}'`,
+        byUser: input.author,
+        post: post[0]!.id,
+        user: friend,
+        type: "upload",
+      });
+    });
+  });
 
   if (Array.isArray(post) && post.length > 0 && post[0]?.id) {
     return {
