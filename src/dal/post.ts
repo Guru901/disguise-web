@@ -110,16 +110,18 @@ async function createPost(input: TUploadPostSchema) {
         username: userSchema.username,
       });
 
-    author[0]?.friends?.map(async (friend) => {
-      await trx.insert(notificationSchema).values({
-        content: `${author[0]?.username} uploaded a new post`,
-        message: `${author[0]?.username} uploaded a new post about '${post[0]?.title}'`,
-        byUser: input.author,
-        post: post[0]!.id,
-        user: friend,
-        type: "upload",
-      });
-    });
+    await Promise.all(
+      author[0]?.friends?.map(async (friend) => {
+        await trx.insert(notificationSchema).values({
+          content: `${author[0]?.username} uploaded a new post`,
+          message: `${author[0]?.username} uploaded a new post about '${post[0]?.title}'`,
+          byUser: input.author,
+          post: post[0]!.id,
+          user: friend,
+          type: "upload",
+        });
+      }) ?? [],
+    );
   });
 
   if (Array.isArray(post) && post.length > 0 && post[0]?.id) {
