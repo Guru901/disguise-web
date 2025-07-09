@@ -23,7 +23,6 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
 
 export default function Me() {
   const [selectedOption, setSelectedOption] = useState("public");
@@ -89,7 +88,7 @@ export default function Me() {
 
   useEffect(() => {
     setIsFriend(friends.includes(loggedInUser.id));
-  }, [isNotificationSent]);
+  }, [isNotificationSent, loggedInUser.id]);
 
   if (isLoading) {
     return (

@@ -58,6 +58,7 @@ export default function Comment({
   handleReply: (commentId: string, username: string) => void;
   toggleReplies: (commentId: string) => void;
   expandedReplies: Set<string>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deleteCommentMutation: any;
 }) {
   return (
@@ -159,6 +160,7 @@ export default function Comment({
               {user.id === comment.users?.id && (
                 <DropdownMenuItem
                   onClick={async () => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
                     void (await deleteCommentMutation.mutateAsync({
                       commentId: comment.comments.id,
                     }));
@@ -285,6 +287,7 @@ export default function Comment({
                         {user.id === reply.users?.id && (
                           <DropdownMenuItem
                             onClick={async () => {
+                              // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
                               void (await deleteCommentMutation.mutateAsync({
                                 commentId: reply.comments.id,
                               }));

@@ -1,10 +1,8 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Search as SearchIcon, Users } from "lucide-react";
 import { api } from "@/trpc/react";
 import Navbar from "@/components/navbar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";

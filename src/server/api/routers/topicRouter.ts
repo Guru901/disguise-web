@@ -7,7 +7,7 @@ import { topicSchema as zodTopicSchema } from "@/lib/schemas";
 import * as topicDal from "@/dal/topic";
 
 export const topicRouter = createTRPCRouter({
-  getAllTopics: publicProcedure.query(async ({ ctx }) => {
+  getAllTopics: publicProcedure.query(async () => {
     return await topicDal.getAllTopics();
   }),
 
