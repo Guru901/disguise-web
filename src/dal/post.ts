@@ -9,7 +9,7 @@ import {
 import { and, desc, eq, sql, or, ilike, inArray } from "drizzle-orm";
 import { getUserDataById } from "./user";
 
-export async function getFeed(page: number, limit: number) {
+async function getFeed(page: number, limit: number) {
   try {
     const results = await db
       .select()
@@ -35,7 +35,7 @@ export async function getFeed(page: number, limit: number) {
   }
 }
 
-export async function getLoggedInUserPublicPost(userId: string) {
+async function getLoggedInUserPublicPost(userId: string) {
   try {
     const results = await db
       .select()
@@ -52,7 +52,7 @@ export async function getLoggedInUserPublicPost(userId: string) {
   }
 }
 
-export async function getPostById(postId: string) {
+async function getPostById(postId: string) {
   const results = await db
     .select()
     .from(postSchema)
@@ -74,7 +74,7 @@ export async function getPostById(postId: string) {
   };
 }
 
-export async function createPost(input: TUploadPostSchema) {
+async function createPost(input: TUploadPostSchema) {
   const post = await db
     .insert(postSchema)
     .values({
@@ -114,7 +114,7 @@ export async function createPost(input: TUploadPostSchema) {
   }
 }
 
-export async function likePost(userId: string, postId: string) {
+async function likePost(userId: string, postId: string) {
   try {
     const post = await db
       .update(postSchema)
@@ -155,7 +155,7 @@ export async function likePost(userId: string, postId: string) {
   }
 }
 
-export async function unlikePost(userId: string, postId: string) {
+async function unlikePost(userId: string, postId: string) {
   try {
     await db
       .update(postSchema)
@@ -181,7 +181,7 @@ export async function unlikePost(userId: string, postId: string) {
   }
 }
 
-export async function likeAndUndislikePost(userId: string, postId: string) {
+async function likeAndUndislikePost(userId: string, postId: string) {
   try {
     await db
       .update(postSchema)
@@ -212,7 +212,7 @@ export async function likeAndUndislikePost(userId: string, postId: string) {
   }
 }
 
-export async function dislikePost(userId: string, postId: string) {
+async function dislikePost(userId: string, postId: string) {
   try {
     await db
       .update(postSchema)
@@ -238,7 +238,7 @@ export async function dislikePost(userId: string, postId: string) {
   }
 }
 
-export async function undislikePost(userId: string, postId: string) {
+async function undislikePost(userId: string, postId: string) {
   try {
     await db
       .update(postSchema)
@@ -264,7 +264,7 @@ export async function undislikePost(userId: string, postId: string) {
   }
 }
 
-export async function dislikeAndUnlikePost(userId: string, postId: string) {
+async function dislikeAndUnlikePost(userId: string, postId: string) {
   try {
     await db
       .update(postSchema)
@@ -295,7 +295,7 @@ export async function dislikeAndUnlikePost(userId: string, postId: string) {
   }
 }
 
-export async function getCommentsByPostId(postId: string) {
+async function getCommentsByPostId(postId: string) {
   try {
     const results = await db
       .select()
@@ -368,7 +368,7 @@ async function extractMentionsAndNotify(
   }
 }
 
-export async function addComment(input: TCommentAddSchema, userId: string) {
+async function addComment(input: TCommentAddSchema, userId: string) {
   let comment;
 
   if (input.isAReply) {
@@ -447,7 +447,7 @@ export async function addComment(input: TCommentAddSchema, userId: string) {
   };
 }
 
-export async function getLoggedInUserLikedPosts(userId: string) {
+async function getLoggedInUserLikedPosts(userId: string) {
   try {
     const results = await db
       .select()
@@ -467,7 +467,7 @@ export async function getLoggedInUserLikedPosts(userId: string) {
   }
 }
 
-export async function getLoggedInUserDisLikedPosts(userId: string) {
+async function getLoggedInUserDisLikedPosts(userId: string) {
   try {
     const results = await db
       .select()
@@ -487,7 +487,7 @@ export async function getLoggedInUserDisLikedPosts(userId: string) {
   }
 }
 
-export async function getLoggedInUserPrivatePosts(userId: string) {
+async function getLoggedInUserPrivatePosts(userId: string) {
   try {
     const results = await db
       .select()
@@ -503,7 +503,7 @@ export async function getLoggedInUserPrivatePosts(userId: string) {
   }
 }
 
-export async function getLoggedInUserComments(userId: string) {
+async function getLoggedInUserComments(userId: string) {
   try {
     const results = await db
       .select()
@@ -517,7 +517,7 @@ export async function getLoggedInUserComments(userId: string) {
   }
 }
 
-export async function getLoggedInUserFriend(userId: string) {
+async function getLoggedInUserFriend(userId: string) {
   const user = await db
     .select()
     .from(userSchema)
@@ -541,7 +541,7 @@ export async function getLoggedInUserFriend(userId: string) {
   };
 }
 
-export async function deleteComment(commentId: string, userId: string) {
+async function deleteComment(commentId: string, userId: string) {
   try {
     const comment = await db
       .delete(commentSchema)
@@ -571,7 +571,7 @@ export async function deleteComment(commentId: string, userId: string) {
   }
 }
 
-export async function getUserPublicPostsByUserId(userId: string) {
+async function getUserPublicPostsByUserId(userId: string) {
   try {
     const results = await db
       .select()
@@ -588,7 +588,7 @@ export async function getUserPublicPostsByUserId(userId: string) {
   }
 }
 
-export async function getUserlikedPostsByUserId(
+async function getUserlikedPostsByUserId(
   userId: string,
   loggedInUserId: string,
 ) {
@@ -627,7 +627,7 @@ export async function getUserlikedPostsByUserId(
   }
 }
 
-export async function getUserPrivatePostsByUserId(
+async function getUserPrivatePostsByUserId(
   userId: string,
   loggedInUserId: string,
 ) {
@@ -669,7 +669,7 @@ export async function getUserPrivatePostsByUserId(
   }
 }
 
-export async function getTopicSpecificFeed(topicName: string) {
+async function getTopicSpecificFeed(topicName: string) {
   try {
     const results = await db
       .select()
@@ -689,3 +689,29 @@ export async function getTopicSpecificFeed(topicName: string) {
     return [];
   }
 }
+
+export {
+  getCommentsByPostId,
+  getFeed,
+  getPostById,
+  getLoggedInUserComments,
+  getLoggedInUserLikedPosts,
+  getLoggedInUserPrivatePosts,
+  getTopicSpecificFeed,
+  getUserPrivatePostsByUserId,
+  getUserPublicPostsByUserId,
+  getUserlikedPostsByUserId,
+  getUserDataById,
+  getLoggedInUserDisLikedPosts,
+  getLoggedInUserFriend,
+  getLoggedInUserPublicPost,
+  createPost,
+  unlikePost,
+  dislikeAndUnlikePost,
+  likePost,
+  likeAndUndislikePost,
+  deleteComment,
+  addComment,
+  dislikePost,
+  undislikePost,
+};
