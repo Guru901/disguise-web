@@ -4,8 +4,7 @@ import z from "zod";
 
 export const userRouter = createTRPCRouter({
   getUserData: protectedProcedure.query(async ({ ctx }) => {
-    const result = await userDal.getUserData(ctx.userId);
-    return result;
+    return await userDal.getUserData(ctx.userId);
   }),
 
   getNotifications: protectedProcedure.query(async ({ ctx }) => {
