@@ -20,7 +20,6 @@ import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { CldUploadButton } from "next-cloudinary";
-import { useState } from "react";
 
 export function PostUploadForm() {
   const router = useRouter();

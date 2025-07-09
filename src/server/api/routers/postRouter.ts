@@ -144,4 +144,14 @@ export const postRouter = createTRPCRouter({
     .query(async ({ input }) => {
       return await postDal.getTopicSpecificFeed(input.topicName);
     }),
+
+  deletePostById: protectedProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.deletePostById(input.postId, ctx.userId);
+    }),
 });

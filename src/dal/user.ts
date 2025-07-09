@@ -281,6 +281,7 @@ async function sendFriendRequest(userId: string, friendId: string) {
       message: "Friend Request sent successfully",
     };
   } catch (error) {
+    console.error(error)
     return {
       success: false,
       message: "Error sending friend request",
@@ -290,8 +291,6 @@ async function sendFriendRequest(userId: string, friendId: string) {
 
 async function acceptFriendRequest(userId: string, friendId: string) {
   try {
-    const { user: toBeFriend } = await getUserDataById(friendId);
-    const { user: loggedInUser } = await getUserDataById(userId);
 
     await db
       .update(userSchema)
@@ -331,6 +330,7 @@ async function acceptFriendRequest(userId: string, friendId: string) {
       message: "Friend Request accepted successfully",
     };
   } catch (error) {
+    console.error(error)
     return {
       success: false,
       message: "Error accepting friend request",
@@ -364,6 +364,7 @@ async function isFriendNotificationSent(userId: string, friendId: string) {
       };
     }
   } catch (error) {
+    console.error(error)
     return {
       success: false,
       message: "Error accepting friend request",
@@ -373,9 +374,6 @@ async function isFriendNotificationSent(userId: string, friendId: string) {
 
 async function rejectFreindRequest(userId: string, friendId: string) {
   try {
-    const { user: toBeFriend } = await getUserDataById(friendId);
-    const { user: loggedInUser } = await getUserDataById(userId);
-
     await db
       .update(notificationSchema)
       .set({
@@ -394,6 +392,7 @@ async function rejectFreindRequest(userId: string, friendId: string) {
       message: "Friend Request rejected successfully",
     };
   } catch (error) {
+    console.error(error)
     return {
       success: false,
       message: "Error rejecting friend request",

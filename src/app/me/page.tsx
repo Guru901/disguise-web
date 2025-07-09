@@ -1,12 +1,10 @@
 "use client";
 
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { api } from "@/trpc/react";
 import { useUserStore } from "@/lib/userStore";

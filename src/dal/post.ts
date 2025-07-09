@@ -690,6 +690,45 @@ async function getTopicSpecificFeed(topicName: string) {
   }
 }
 
+async function deletePostById(postId: string, userId: string) {
+  try {
+    return await db.transaction(async (tx) => {
+      await tx.delete(commentSchema).where(eq(commentSchema.post, postId));
+      await tx
+        .delete(notificationSchema)
+        .where(eq(notificationSchema.post, postId));
+
+      await tx
+        .update(userSchema)
+        .set({
+          posts: sql`array_remove(${userSchema.posts}, ${postId})`,
+        })
+        .where(eq(userSchema.id, userId));
+
+      const deletedPost = await tx
+        .delete(postSchema)
+        .where(and(eq(postSchema.id, postId), eq(postSchema.createdBy, userId)))
+        .returning();
+
+      if (deletedPost.length === 0) {
+        throw new Error("Post not found or unauthorized");
+      }
+
+      return {
+        success: true,
+        message: "Post deleted successfully",
+      };
+    });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return {
+      success: false,
+      message: "Failed to delete post",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
 export {
   getCommentsByPostId,
   getFeed,
@@ -714,4 +753,5 @@ export {
   addComment,
   dislikePost,
   undislikePost,
+  deletePostById,
 };
