@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { CheckCircle, InfoIcon, Loader2, XCircle } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -20,7 +20,6 @@ import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { CldUploadButton } from "next-cloudinary";
-import { useState } from "react";
 
 export function PostUploadForm() {
   const router = useRouter();
@@ -48,6 +47,7 @@ export function PostUploadForm() {
     api.topicRouter.getAllTopics.useQuery();
 
   const imageUrl = watch("image");
+  const visibility = watch("isPublic");
 
   async function submitForm(data: TUploadPostSchema) {
     if (data.author === "") {
@@ -81,7 +81,7 @@ export function PostUploadForm() {
               type="text"
               required
               placeholder="Enter a title for your post"
-              className="h-10"
+              className="h-10 py-6"
               {...field}
             />
           )}
@@ -101,7 +101,7 @@ export function PostUploadForm() {
             <Textarea
               id="body"
               placeholder="Write the content of your post"
-              rows={5}
+              rows={1}
               {...field}
             />
           )}
@@ -149,6 +149,16 @@ export function PostUploadForm() {
         <Label htmlFor="visibility" className="text-lg">
           Visibility
         </Label>
+
+        <div className="flex items-center gap-1">
+          <InfoIcon size={15} />
+          {visibility ? (
+            <p className="text-xs">Visible to everyone</p>
+          ) : (
+            <p className="text-xs">Only visible to you and your friends</p>
+          )}
+        </div>
+
         <Controller
           name="isPublic"
           control={control}
@@ -182,7 +192,7 @@ export function PostUploadForm() {
           render={({ field }) => (
             <Select onValueChange={field.onChange} value={field.value}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Topic" />
+                <SelectValue placeholder="Topic" defaultValue={"General"} />
               </SelectTrigger>
               <SelectContent>
                 {isLoadingTopics ? (
