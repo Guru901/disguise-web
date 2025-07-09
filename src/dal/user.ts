@@ -454,6 +454,7 @@ async function getAllNotifications(userId: string) {
         byUsername: userSchema.username,
         byAvatar: userSchema.avatar,
         message: notificationSchema.message,
+        post: notificationSchema.post,
       })
       .from(notificationSchema)
       .leftJoin(userSchema, eq(notificationSchema.byUser, userSchema.id))
@@ -472,6 +473,7 @@ async function getAllNotifications(userId: string) {
       read: row.read,
       createdAt: row.createdAt,
       message: row.message,
+      post: row.post,
       byUser: {
         id: row.byUserId,
         username: row.byUsername,

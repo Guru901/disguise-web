@@ -19,6 +19,7 @@ import { formatTimeAgo } from "@/lib/format-time-ago";
 import Navbar from "@/components/navbar";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
@@ -192,80 +193,83 @@ const RegularNotification = ({
       username: string | null;
       avatar: string | null;
     };
+    post: string | null;
   };
   markAsReadMutation: { mutate: (id: string) => Promise<void> };
   deleteNotificationMutation: { mutate: (id: string) => Promise<void> };
 }) => {
   return (
-    <Card
-      className={`transition-all duration-200 hover:shadow-md ${
-        !notification.read ? "ring-primary/20 ring-2" : ""
-      }`}
-    >
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0">
-            <Avatar className="h-10 w-10">
-              <AvatarImage
-                src={notification.byUser.avatar ?? ""}
-                alt={notification.byUser.username ?? ""}
-              />
-              <AvatarFallback className="text-xs">
-                {notification.byUser.username!.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </div>
+    <Link href={`/p/${notification.post ?? ""}`}>
+      <Card
+        className={`transition-all duration-200 hover:shadow-md ${
+          !notification.read ? "ring-primary/20 ring-2" : ""
+        }`}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <Avatar className="h-10 w-10">
+                <AvatarImage
+                  src={notification.byUser.avatar ?? ""}
+                  alt={notification.byUser.username ?? ""}
+                />
+                <AvatarFallback className="text-xs">
+                  {notification.byUser.username!.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <div className="mb-1 flex items-center gap-2">
-                  {getNotificationIcon(notification.type)}
-                  <p className="truncate text-sm font-medium">
-                    {notification.content}
-                  </p>
-                  {!notification.read && (
-                    <div className="bg-primary h-2 w-2 flex-shrink-0 rounded-full" />
-                  )}
-                </div>
-                <p className="text-muted-foreground mb-2 text-sm">
-                  {notification.message}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-xs">
-                    {formatTimeAgo(notification.createdAt)}
-                  </span>
-                  <div className="flex items-center gap-1">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center gap-2">
+                    {getNotificationIcon(notification.type)}
+                    <p className="truncate text-sm font-medium">
+                      {notification.content}
+                    </p>
                     {!notification.read && (
+                      <div className="bg-primary h-2 w-2 flex-shrink-0 rounded-full" />
+                    )}
+                  </div>
+                  <p className="text-muted-foreground mb-2 text-sm">
+                    {notification.message}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground text-xs">
+                      {formatTimeAgo(notification.createdAt)}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      {!notification.read && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            markAsReadMutation.mutate(notification.id)
+                          }
+                          className="h-6 w-6 p-0"
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
+                        className="text-muted-foreground hover:text-destructive h-6 w-6 p-0"
                         onClick={() =>
-                          markAsReadMutation.mutate(notification.id)
+                          deleteNotificationMutation.mutate(notification.id)
                         }
-                        className="h-6 w-6 p-0"
                       >
-                        <Check className="h-3 w-3" />
+                        <Trash2 className="h-3 w-3" />
                       </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-muted-foreground hover:text-destructive h-6 w-6 p-0"
-                      onClick={() =>
-                        deleteNotificationMutation.mutate(notification.id)
-                      }
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 };
 
