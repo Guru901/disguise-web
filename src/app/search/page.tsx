@@ -6,7 +6,6 @@ import Navbar from "@/components/navbar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import UserCard from "@/components/user-card";
 
 export default function Search() {
@@ -29,6 +28,9 @@ export default function Search() {
   } = api.userRouter.searchUsers.useQuery(debouncedSearch, {
     enabled: debouncedSearch.length > 0,
   });
+
+  const { data: firstTenUsers } =
+    api.userRouter.getFirstTenUsers.useQuery();
 
   if (isError) {
     return (
@@ -54,7 +56,7 @@ export default function Search() {
       <Navbar />
       <div className="container mx-auto max-w-2xl p-4">
         <div className="mb-6">
-          <h1 className="mb-2 text-xl font-normal">Search Users</h1>
+          <h1 className="mb-2 text-2xl font-normal">Search Users</h1>
         </div>
 
         <div className="relative mb-6">
@@ -63,17 +65,15 @@ export default function Search() {
             placeholder="Search for users..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
+            className="py-6 pl-10 text-xl"
           />
         </div>
 
         {search.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Users className="text-muted-foreground mb-4 h-12 w-12" />
-            <h3 className="mb-2 text-lg font-medium">Start searching</h3>
-            <p className="text-muted-foreground">
-              Enter a username to find users
-            </p>
+          <div className="flex flex-col gap-3">
+            {firstTenUsers?.users?.map((user) => (
+              <UserCard user={user} key={user.id} />
+            ))}
           </div>
         ) : isLoading ? (
           <div className="flex flex-col items-center justify-center py-12">
@@ -86,11 +86,9 @@ export default function Search() {
               Found {users.users.length} user
               {users.users.length !== 1 ? "s" : ""}
             </p>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {users.users.map((user) => (
-                <Link key={user.id} href={`/u/${user.id}`}>
-                  <UserCard user={user} />
-                </Link>
+                <UserCard user={user} key={user.id} />
               ))}
             </div>
           </div>

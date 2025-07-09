@@ -165,6 +165,32 @@ async function searchusers(searchTerm: string) {
   }
 }
 
+async function getFirstTenUsers() {
+  try {
+    const users = await db
+      .select({
+        id: userSchema.id,
+        username: userSchema.username,
+        avatar: userSchema.avatar,
+      })
+      .from(userSchema)
+      .limit(10);
+
+    return {
+      users,
+      success: true,
+      message: "Users retrieved successfully",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      users: null,
+      success: false,
+      message: "Error retrieving users",
+    };
+  }
+}
+
 async function getUserDataById(userId: string) {
   try {
     const isValidUuid =
@@ -582,4 +608,5 @@ export {
   acceptFriendRequest,
   rejectFreindRequest,
   isFriendNotificationSent,
+  getFirstTenUsers,
 };
