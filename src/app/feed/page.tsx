@@ -10,6 +10,7 @@ import Masonry from "react-masonry-css";
 import { Loader2 } from "lucide-react";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/api/root";
+import FeedLoader from "@/components/loaders/feed-loading";
 
 const breakpointColumnsObj = {
   default: 2,
@@ -61,33 +62,36 @@ export default function Feed() {
     }
   }, [posts]);
 
-  if (isPostsLoading && page === 1) return <Loader />;
-
   return (
     <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
       <Navbar />
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="my-masonry-grid"
-        columnClassName="my-masonry-grid_column"
-      >
-        {allPosts?.map((post) => (
-          <PostCard
-            avatar={post.createdBy?.avatar ?? ""}
-            username={post.createdBy?.username ?? "User"}
-            title={post.title}
-            image={post.image}
-            createdAt={post.createdAt}
-            content={post.content}
-            id={post.id}
-            likes={post.likes ?? []}
-            disLikes={post.disLikes ?? []}
-            userId={user.id}
-            key={post.id}
-            ref={lastPostRef}
-          />
-        ))}
-      </Masonry>
+      {isPostsLoading && page === 1 ? (
+        <FeedLoader />
+      ) : (
+        <Masonry
+          breakpointCols={breakpointColumnsObj}
+          className="my-masonry-grid"
+          columnClassName="my-masonry-grid_column"
+        >
+          {allPosts?.map((post) => (
+            <PostCard
+              avatar={post.createdBy?.avatar ?? ""}
+              username={post.createdBy?.username ?? "User"}
+              title={post.title}
+              image={post.image}
+              createdAt={post.createdAt}
+              content={post.content}
+              id={post.id}
+              likes={post.likes ?? []}
+              disLikes={post.disLikes ?? []}
+              userId={user.id}
+              key={post.id}
+              ref={lastPostRef}
+            />
+          ))}
+        </Masonry>
+      )}
+
       {hasMore && page !== 1 && (
         <div className="flex w-full items-center justify-center pt-8">
           <div>

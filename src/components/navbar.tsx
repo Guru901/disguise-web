@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Moon, Settings, Sun } from "lucide-react";
+import { Bell, Loader2, Moon, Settings, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import { api } from "@/trpc/react";
 export default function Navbar() {
   const { setTheme } = useTheme();
 
-  const { user } = useGetUser();
+  const { user, loading } = useGetUser();
 
   const { data } = api.userRouter.getNotifications.useQuery(undefined, {
     refetchInterval: 5000,
@@ -27,7 +27,13 @@ export default function Navbar() {
       <div className="flex h-16 items-center px-4">
         <div className="flex flex-1 items-center justify-between">
           <span className="text-xl font-medium">
-            Hi, {user?.username || "User"}
+            {user?.username ? (
+              `Hi, ${user.username}`
+            ) : loading ? (
+              <Loader2 className="inline h-4 w-4 animate-spin" />
+            ) : (
+              "Hi, User"
+            )}
           </span>
           <div className="flex items-center gap-4">
             <Link href="/notifications" prefetch={true}>

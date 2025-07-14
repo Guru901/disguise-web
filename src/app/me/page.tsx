@@ -13,6 +13,7 @@ import { formatTimeAgo } from "@/lib/format-time-ago";
 import MediaPlayer from "@/components/media-player";
 import Masonry from "react-masonry-css";
 import UserCard from "@/components/user-card";
+import UserPostLoader from "@/components/loaders/profile-loading";
 
 const breakpointColumnsObjComments = {
   default: 3,
@@ -72,52 +73,45 @@ export default function Me() {
     });
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="animate-spin" size={32} />
-      </div>
-    );
-  }
-
-  if (isError || !user) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <p>Failed to load profile.</p>
-      </div>
-    );
-  }
-
   return (
     <main>
       <Navbar />
       <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[430px_1fr]">
         <div className="bg-muted/40 border-r p-6 lg:p-8">
           <div className="flex flex-col items-center gap-4">
-            <Avatar className="h-44 w-44">
-              <AvatarImage src={avatar} alt={username} />
-              <AvatarFallback className="text-xl font-bold">
-                {username.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-1 text-center">
-              <h2 className="text-xl font-semibold">{username}</h2>
-              <div className="flex flex-col items-center text-sm">
-                <span className="text-primary text-sm">
-                  Joined {formatTimeAgo(createdAt!)}
-                </span>
+            {isLoading ? (
+              <div className="flex h-[308px] w-full items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin" />
               </div>
-            </div>
-            <div className="bg-background flex w-full items-center justify-around rounded-lg p-4 text-sm font-medium">
-              <div className="flex flex-col items-center">
-                <span className="text-xl font-bold">{posts.length}</span>
-                <span className="text-muted-foreground">Posts</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-xl font-bold">{friends.length}</span>
-                <span className="text-muted-foreground">Friends</span>
-              </div>
-            </div>
+            ) : (
+              <>
+                <Avatar className="h-44 w-44">
+                  <AvatarImage src={avatar} alt={username} />
+                  <AvatarFallback className="text-xl font-bold">
+                    {username.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-1 text-center">
+                  <h2 className="text-xl font-semibold">{username}</h2>
+                  <div className="flex flex-col items-center text-sm">
+                    <span className="text-primary text-sm">
+                      Joined {formatTimeAgo(createdAt!)}
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-background flex w-full items-center justify-around rounded-lg p-4 text-sm font-medium">
+                  <div className="flex flex-col items-center">
+                    <span className="text-xl font-bold">{posts.length}</span>
+                    <span className="text-muted-foreground">Posts</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-xl font-bold">{friends.length}</span>
+                    <span className="text-muted-foreground">Friends</span>
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className="flex w-full flex-col gap-2">
               <div className="mt-2 flex w-full flex-wrap gap-2 lg:mt-0">
                 <Tabs
@@ -192,9 +186,7 @@ export default function Me() {
             )
           ) : selectedOption === "public" ? (
             isPostsLoading ? (
-              <div className="flex h-full w-full items-center justify-center">
-                <Loader2 className="animate-spin" size={20} />
-              </div>
+              <UserPostLoader />
             ) : (
               <Masonry
                 breakpointCols={breakpointColumnsObj}
@@ -242,9 +234,7 @@ export default function Me() {
             )
           ) : selectedOption === "liked" ? (
             isLikedPostsLoading ? (
-              <div className="flex h-full w-full items-center justify-center">
-                <Loader2 className="animate-spin" size={20} />
-              </div>
+              <UserPostLoader />
             ) : (
               <Masonry
                 breakpointCols={breakpointColumnsObj}
@@ -292,9 +282,7 @@ export default function Me() {
             )
           ) : selectedOption === "private" ? (
             isPrivatePostsLoading ? (
-              <div className="flex h-full w-full items-center justify-center">
-                <Loader2 className="animate-spin" size={20} />
-              </div>
+              <UserPostLoader />
             ) : (
               <Masonry
                 breakpointCols={breakpointColumnsObj}
@@ -342,9 +330,7 @@ export default function Me() {
             )
           ) : selectedOption === "disLiked" ? (
             isDisLikedPostsLoading ? (
-              <div className="flex h-full w-full items-center justify-center">
-                <Loader2 className="animate-spin" size={20} />
-              </div>
+              <UserPostLoader />
             ) : (
               <Masonry
                 breakpointCols={breakpointColumnsObj}

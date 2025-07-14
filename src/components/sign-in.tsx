@@ -16,11 +16,14 @@ import { Controller, useForm } from "react-hook-form";
 import { signInSchema, type TSignInSchema } from "@/lib/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useUserStore } from "@/lib/userStore";
 
 type LoginResponse = { success: boolean; message?: string };
 
 export default function SignIn() {
   const router = useRouter();
+
+  const { setUser } = useUserStore();
 
   const {
     control,
@@ -41,6 +44,14 @@ export default function SignIn() {
       });
       const result = (await res.json()) as LoginResponse;
       if (result.success) {
+        setUser({
+          id: "",
+          username: data.username,
+          friends: [""],
+          avatar: "",
+          posts: [],
+          createdAt: "",
+        });
         router.push("/me");
       } else {
         setError("root", { message: result.message ?? "Login failed" });

@@ -196,7 +196,10 @@ export function PostUploadForm() {
               </SelectTrigger>
               <SelectContent>
                 {isLoadingTopics ? (
-                  <p>Loading...</p>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Topic" defaultValue={"General"} />
+                    <SelectItem value="General">General</SelectItem>
+                  </SelectTrigger>
                 ) : (
                   topics?.map((topic: { id: string; name: string }) => (
                     <SelectItem key={topic.id} value={topic.name}>
