@@ -17,7 +17,7 @@ import { CldUploadButton } from "next-cloudinary";
 import { useMentionInput } from "@/lib/use-mention-input";
 import { MentionDropdown } from "@/components/mention-dropdown";
 import Comment from "./comment";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Dialog,
   DialogClose,
@@ -35,6 +35,10 @@ export function PostDetails({ postId }: { postId: string }) {
   // Fetch the post data here
   const { data: post, isLoading: isPostLoading } =
     api.postRouter.getPostById.useQuery({ postId });
+
+  const searchParams = useSearchParams();
+
+  const isImage = searchParams.get("image");
 
   // Use post fields for all logic below
   const [newComment, setNewComment] = useState({
@@ -369,28 +373,30 @@ export function PostDetails({ postId }: { postId: string }) {
                     <p className="text-xl font-semibold">{post.title}</p>
                   )}
                 </div>
-                {isPostLoading || !post ? (
-                  <div className="mt-4">
-                    <Skeleton className="h-[300px] w-full max-w-[500px] rounded-md" />
-                  </div>
-                ) : (
-                  post.image && (
+                {isImage === "true" &&
+                  (isPostLoading || !post ? (
                     <div className="mt-4">
-                      <MediaPlayer
-                        url={post.image}
-                        imageProps={{
-                          alt: "Post Image",
-                          width: 500,
-                          height: 500,
-                          className: "h-full w-full rounded-md object-cover",
-                        }}
-                        videoProps={{
-                          className: "h-full w-full rounded-md object-cover",
-                        }}
-                      />
+                      <Skeleton className="h-[300px] w-full max-w-[500px] rounded-md" />
                     </div>
-                  )
-                )}
+                  ) : (
+                    post.image && (
+                      <div className="mt-4">
+                        <MediaPlayer
+                          url={post.image}
+                          imageProps={{
+                            alt: "Post Image",
+                            width: 500,
+                            height: 500,
+                            className: "h-full w-full rounded-md object-cover",
+                          }}
+                          videoProps={{
+                            className: "h-full w-full rounded-md object-cover",
+                          }}
+                        />
+                      </div>
+                    )
+                  ))}
+
                 <div className="mt-3 break-words">
                   {isPostLoading || !post ? (
                     <div className="space-y-2">

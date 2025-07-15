@@ -227,7 +227,7 @@ const PostCard = React.forwardRef<
               </Button>
             </div>
           </div>
-          <Link href={`/p/${id}`} className="w-min">
+          <Link href={`/p/${id}?image=${image!.length > 0}`} className="w-min">
             <Button>See More</Button>
           </Link>
         </CardFooter>
