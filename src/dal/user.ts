@@ -210,6 +210,8 @@ async function getUserDataById(userId: string) {
       .limit(1)
       .then((res) => res[0]);
 
+    user!.password = "";
+
     // If not found, and userId contains '_', try with spaces
     if (!user && userId.includes("_")) {
       const usernameWithSpaces = userId.replace(/_/g, " ");
@@ -307,7 +309,7 @@ async function sendFriendRequest(userId: string, friendId: string) {
       message: "Friend Request sent successfully",
     };
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return {
       success: false,
       message: "Error sending friend request",
@@ -317,7 +319,6 @@ async function sendFriendRequest(userId: string, friendId: string) {
 
 async function acceptFriendRequest(userId: string, friendId: string) {
   try {
-
     await db
       .update(userSchema)
       .set({
@@ -356,7 +357,7 @@ async function acceptFriendRequest(userId: string, friendId: string) {
       message: "Friend Request accepted successfully",
     };
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return {
       success: false,
       message: "Error accepting friend request",
@@ -390,7 +391,7 @@ async function isFriendNotificationSent(userId: string, friendId: string) {
       };
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return {
       success: false,
       message: "Error accepting friend request",
@@ -418,7 +419,7 @@ async function rejectFreindRequest(userId: string, friendId: string) {
       message: "Friend Request rejected successfully",
     };
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return {
       success: false,
       message: "Error rejecting friend request",
@@ -431,14 +432,30 @@ async function getAllUsers(searchTerm: string) {
 
   if (!searchTerm) {
     return await db
-      .select()
+      .select({
+        id: userSchema.id,
+        username: userSchema.username,
+        avatar: userSchema.avatar,
+        posts: userSchema.posts,
+        friends: userSchema.friends,
+        createdAt: userSchema.createdAt,
+        lastOnline: userSchema.lastOnline,
+      })
       .from(userSchema)
       .where(or(ilike(userSchema.username, "%" + searchTerm + "%")))
       .orderBy(asc(userSchema.username))
       .limit(10);
   } else {
     return await db
-      .select()
+      .select({
+        id: userSchema.id,
+        username: userSchema.username,
+        avatar: userSchema.avatar,
+        posts: userSchema.posts,
+        friends: userSchema.friends,
+        createdAt: userSchema.createdAt,
+        lastOnline: userSchema.lastOnline,
+      })
       .from(userSchema)
       .where(or(ilike(userSchema.username, "%" + searchTerm + "%")))
       .orderBy(asc(userSchema.username));
