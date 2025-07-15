@@ -25,53 +25,42 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import { PostCommentsLoading } from "../loaders/post-loading";
+import { Skeleton } from "../ui/skeleton";
 
-export function PostDetails({
-  author,
-  title,
-  content,
-  image,
-  createdAt,
-  likes = [],
-  disLikes = [],
-  topic = "General",
-  postID,
-  commentsCount,
-}: {
-  author: {
-    id: string;
-    username: string;
-    avatar: string;
-  };
-  title: string;
-  content: string;
-  image: string;
-  createdAt: Date;
-  likes: string[];
-  disLikes: string[];
-  topic: string;
-  postID: string;
-  commentsCount: number;
-}) {
+export function PostDetails({ postId }: { postId: string }) {
   const { user } = useGetUser();
   const router = useRouter();
+
+  // Fetch the post data here
+  const { data: post, isLoading: isPostLoading } =
+    api.postRouter.getPostById.useQuery({ postId });
+
+  // Use post fields for all logic below
   const [newComment, setNewComment] = useState({
     image: "",
     content: "",
   });
   const [commentLoading, setCommentLoading] = useState(false);
-  const [hasLiked, setHasLiked] = useState(() => likes.includes(user.id));
+  const [hasLiked, setHasLiked] = useState(() =>
+    post?.likes?.includes(user.id),
+  );
   const [replyTo, setReplyTo] = useState("");
-  const [optimisticCommentsCount, setOptimisticCommentsCount] =
-    useState(commentsCount);
+  const [optimisticCommentsCount, setOptimisticCommentsCount] = useState(
+    post?.commentsCount ?? 0,
+  );
   const [hasDisliked, setHasDisliked] = useState(() =>
-    disLikes.includes(user.id),
+    post?.disLikes?.includes(user.id),
   );
   const [mentionUsers, setMentionUsers] = useState<
     { id: string; username: string; avatar: string }[]
   >([]);
-  const [optimisticLikes, setOptimisticLikes] = useState(likes.length);
-  const [optimisticDislikes, setOptimisticDislikes] = useState(disLikes.length);
+  const [optimisticLikes, setOptimisticLikes] = useState(
+    post?.likes?.length ?? 0,
+  );
+  const [optimisticDislikes, setOptimisticDislikes] = useState(
+    post?.disLikes?.length ?? 0,
+  );
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(
     new Set(),
   );
@@ -123,7 +112,7 @@ export function PostDetails({
     refetch: refetchComments,
   } = api.postRouter.getCommentsByPostId.useQuery(
     {
-      postId: postID,
+      postId: postId,
     },
     {
       refetchInterval: 1000,
@@ -210,7 +199,7 @@ export function PostDetails({
         data = await commentAddMutation.mutateAsync({
           content: newComment.content,
           image: newComment.image,
-          postId: postID,
+          postId: postId,
           isAReply: true,
           replyTo: replyTo,
         });
@@ -218,7 +207,7 @@ export function PostDetails({
         data = await commentAddMutation.mutateAsync({
           content: newComment.content,
           image: newComment.image,
-          postId: postID,
+          postId: postId,
           isAReply: false,
           replyTo: replyTo,
         });
@@ -252,7 +241,7 @@ export function PostDetails({
       setOptimisticLikes((prev) => prev - 1);
       setHasLiked(false);
       try {
-        await unlikePostMutation.mutateAsync({ post: postID });
+        await unlikePostMutation.mutateAsync({ post: postId });
       } catch (error) {
         console.error(error);
         setOptimisticLikes((prev) => prev + 1);
@@ -268,9 +257,9 @@ export function PostDetails({
       }
       try {
         if (wasDisliked) {
-          await likeAndUndislikePostMutation.mutateAsync({ post: postID });
+          await likeAndUndislikePostMutation.mutateAsync({ post: postId });
         } else {
-          await likePostMutation.mutateAsync({ post: postID });
+          await likePostMutation.mutateAsync({ post: postId });
         }
       } catch (error) {
         console.error(error);
@@ -290,7 +279,7 @@ export function PostDetails({
       setOptimisticDislikes((prev) => prev - 1);
       setHasDisliked(false);
       try {
-        await undislikePostMutation.mutateAsync({ post: postID });
+        await undislikePostMutation.mutateAsync({ post: postId });
       } catch (error) {
         console.error(error);
         setOptimisticDislikes((prev) => prev + 1);
@@ -307,9 +296,9 @@ export function PostDetails({
       }
       try {
         if (wasLiked) {
-          await dislikeAndUnlikePostMutation.mutateAsync({ post: postID });
+          await dislikeAndUnlikePostMutation.mutateAsync({ post: postId });
         } else {
-          await dislikePostMutation.mutateAsync({ post: postID });
+          await dislikePostMutation.mutateAsync({ post: postId });
         }
       } catch (error) {
         console.error(error);
@@ -330,54 +319,87 @@ export function PostDetails({
           <div className="bg-card overflow-hidden rounded-lg">
             <div className="flex flex-col px-[6px] pb-[6px] md:min-w-[60vw] md:flex-row md:py-[6px]">
               <div className="py-6 sm:w-3/4 sm:p-6">
-                <div className="flex items-start">
-                  <div className="mr-4">
-                    <Avatar className="h-14 w-14">
-                      <AvatarImage
-                        src={author?.avatar ?? "/placeholder.svg"}
-                        alt="@user"
-                      />
-                      <AvatarFallback>
-                        {author.username.slice(0, 1)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                  <div>
-                    <div className="text-lg font-semibold">
-                      <Link href={`/u/${author.id}`} className="underline">
-                        {author.username}
-                      </Link>
+                {isPostLoading || !post ? (
+                  <div className="flex items-start">
+                    <div className="mr-4">
+                      <Skeleton className="h-14 w-14 rounded-full" />
                     </div>
-                    <div className="text-muted-foreground text-xs font-semibold">
-                      {formatTimeAgo(createdAt)}
-                    </div>
-                    <div className="text-muted-foreground text-xs font-semibold">
-                      {topic.charAt(0).toUpperCase() + topic.slice(1)}
+                    <div className="flex-1">
+                      <Skeleton className="mb-2 h-5 w-32" />
+                      <Skeleton className="mb-1 h-3 w-20" />
+                      <Skeleton className="h-3 w-16" />
                     </div>
                   </div>
-                </div>
-                <div className="mt-4">
-                  <p className="text-xl font-semibold">{title}</p>
-                </div>
-                {image && (
-                  <div className="mt-4">
-                    <MediaPlayer
-                      url={image}
-                      imageProps={{
-                        alt: "Post Image",
-                        width: 500,
-                        height: 500,
-                        className: "h-full w-full rounded-md object-cover",
-                      }}
-                      videoProps={{
-                        className: "h-full w-full rounded-md object-cover",
-                      }}
-                    />
+                ) : (
+                  <div className="flex items-start">
+                    <div className="mr-4">
+                      <Avatar className="h-14 w-14">
+                        <AvatarImage
+                          src={post.createdBy?.avatar ?? "/placeholder.svg"}
+                          alt="@user"
+                        />
+                        <AvatarFallback>
+                          {post.createdBy?.username.slice(0, 1)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <div>
+                      <div className="text-lg font-semibold">
+                        <Link
+                          href={`/u/${post.createdBy?.id}`}
+                          className="underline"
+                        >
+                          {post.createdBy?.username}
+                        </Link>
+                      </div>
+                      <div className="text-muted-foreground text-xs font-semibold">
+                        {formatTimeAgo(post.createdAt)}
+                      </div>
+                      <div className="text-muted-foreground text-xs font-semibold">
+                        {post.topic.charAt(0).toUpperCase() +
+                          post.topic.slice(1)}
+                      </div>
+                    </div>
                   </div>
                 )}
+                <div className="mt-4">
+                  {isPostLoading || !post ? (
+                    <Skeleton className="h-7 w-3/4 max-w-md" />
+                  ) : (
+                    <p className="text-xl font-semibold">{post.title}</p>
+                  )}
+                </div>
+                {isPostLoading || !post ? (
+                  <div className="mt-4">
+                    <Skeleton className="h-[300px] w-full max-w-[500px] rounded-md" />
+                  </div>
+                ) : (
+                  post.image && (
+                    <div className="mt-4">
+                      <MediaPlayer
+                        url={post.image}
+                        imageProps={{
+                          alt: "Post Image",
+                          width: 500,
+                          height: 500,
+                          className: "h-full w-full rounded-md object-cover",
+                        }}
+                        videoProps={{
+                          className: "h-full w-full rounded-md object-cover",
+                        }}
+                      />
+                    </div>
+                  )
+                )}
                 <div className="mt-3 break-words">
-                  {content?.includes("\n") ? (
-                    content
+                  {isPostLoading || !post ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                      <Skeleton className="h-4 w-4/5" />
+                    </div>
+                  ) : post.content?.includes("\n") ? (
+                    post.content
                       .split("\n")
                       .filter((x) => x !== "")
                       .map((y) => (
@@ -386,9 +408,10 @@ export function PostDetails({
                         </p>
                       ))
                   ) : (
-                    <p className="text-md">{content}</p>
+                    <p className="text-md">{post.content}</p>
                   )}
                 </div>
+
                 <div className="mt-4 flex items-center gap-12 sm:justify-between sm:gap-0">
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" onClick={likePost}>
@@ -415,7 +438,7 @@ export function PostDetails({
                       <Share2 />
                       <span className="sr-only">Share</span>
                     </Button>
-                    {user.id === author.id && (
+                    {user.id === post?.createdBy?.id && (
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -460,7 +483,7 @@ export function PostDetails({
                               variant="destructive"
                               onClick={async () => {
                                 await deletePostByIdMutation.mutateAsync({
-                                  postId: postID,
+                                  postId: postId,
                                 });
                                 router.back();
                               }}
@@ -606,9 +629,7 @@ export function PostDetails({
                     )}
                   </div>
                   {isCommentsLoading || isCommentsPending ? (
-                    <div className="flex min-h-[300px] w-full items-center justify-center">
-                      <Loader2 className="animate-spin" />
-                    </div>
+                    <PostCommentsLoading />
                   ) : (
                     comments
                       ?.filter((comment) => !comment.comments.isAReply)
