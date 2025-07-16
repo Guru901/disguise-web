@@ -155,7 +155,7 @@ const PostCard = React.forwardRef<
     }
 
     return (
-      <Card className="h-max overflow-hidden py-6" ref={ref}>
+      <Card className="h-max overflow-hidden py-3" ref={ref}>
         <CardHeader className="flex items-center gap-4 px-4 py-3">
           <Avatar className="h-14 w-14">
             <AvatarImage
