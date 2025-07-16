@@ -10,9 +10,13 @@ export type User = {
   createdAt: string;
 };
 
+export type Font = "inter" | "spline" | "roboto" | "fira" | "ubuntu";
+
 type UserStore = {
   user: User;
   setUser: (user: User) => void;
+  font: Font;
+  setFont: (font: Font) => void;
 };
 
 export const useUserStore = create<UserStore>()(
@@ -27,6 +31,8 @@ export const useUserStore = create<UserStore>()(
         createdAt: "",
       },
       setUser: (user: User) => set({ user }),
+      font: "inter",
+      setFont: (font: Font) => set({ font }),
     }),
     {
       name: "user-storage",

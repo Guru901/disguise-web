@@ -8,10 +8,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
+import { useUserStore } from "@/lib/userStore";
 
 export default function Navbar() {
   const { setTheme } = useTheme();
@@ -21,6 +24,17 @@ export default function Navbar() {
   const { data } = api.userRouter.getNotifications.useQuery(undefined, {
     refetchInterval: 5000,
   });
+
+  const font = useUserStore((s) => s.font);
+  const setFont = useUserStore((s) => s.setFont);
+
+  const fonts = [
+    { label: "Inter", value: "inter" },
+    { label: "Spline Sans", value: "spline" },
+    { label: "Roboto", value: "roboto" },
+    { label: "Fira", value: "fira" },
+    { label: "Ubuntu", value: "ubuntu" },
+  ];
 
   return (
     <nav className="bg-background w-full border-b">
@@ -77,6 +91,25 @@ export default function Navbar() {
                 <DropdownMenuItem onClick={() => setTheme("t3-chat")}>
                   Pink
                 </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  {fonts.find((f) => f.value === font)?.label}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuRadioGroup
+                  value={font}
+                  onValueChange={(v) => setFont(v as any)}
+                >
+                  {fonts.map((f) => (
+                    <DropdownMenuRadioItem key={f.value} value={f.value}>
+                      {f.label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
