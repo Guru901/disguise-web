@@ -32,7 +32,7 @@ const breakpointColumnsObj = {
 export default function Me() {
   const [selectedOption, setSelectedOption] = useState("public");
 
-  const { data, isLoading, isError } = api.userRouter.getUserData.useQuery();
+  const { data, isLoading } = api.userRouter.getUserData.useQuery();
 
   const { data: userPosts, isLoading: isPostsLoading } =
     api.postRouter.getLoggedInUserPublicPosts.useQuery();

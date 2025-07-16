@@ -1,6 +1,5 @@
 import Masonry from "react-masonry-css";
 import { Skeleton } from "../ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 const breakpointColumnsObj = {
   default: 3,

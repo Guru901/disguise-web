@@ -144,7 +144,7 @@ export function PostDetails({ postId }: { postId: string }) {
 
     setHasDisliked(post?.disLikes?.includes(user.id));
     setHasLiked(post?.likes?.includes(user.id));
-  }, [post]);
+  }, [post, user.id]);
 
   useEffect(() => {
     setMentionUsers(

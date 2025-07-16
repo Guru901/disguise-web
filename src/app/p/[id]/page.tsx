@@ -2,8 +2,6 @@
 
 import Navbar from "@/components/navbar";
 import { PostDetails } from "@/components/post-details/page";
-import { api } from "@/trpc/react";
-import { Loader2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export default function Feed() {

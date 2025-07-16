@@ -1,6 +1,5 @@
 "use client";
 
-import { Loader } from "@/components/loader";
 import { PostCard } from "@/components/post-card";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Navbar from "@/components/navbar";

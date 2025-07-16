@@ -67,7 +67,7 @@ async function getPostById(postId: string) {
     .where(eq(userSchema.id, post.createdBy!));
 
   const user = userResults[0] ?? null;
-  user!["password"] = "";
+  user!.password = "";
 
   return {
     ...post,
@@ -364,7 +364,7 @@ async function extractMentionsAndNotify(
         .where(ilike(userSchema.username, username))
         .limit(1)
         .then((res) => res[0]);
-      mentionedUser!["password"] = "";
+      mentionedUser!.password = "";
 
       if (mentionedUser && mentionedUser.id !== commentAuthorId) {
         // Get post info for better notification message
@@ -548,16 +548,17 @@ async function getLoggedInUserFriend(userId: string) {
     .select()
     .from(userSchema)
     .where(eq(userSchema.id, userId))
-    .limit(1);
+    .limit(1)
+    .then(res => res[0])
 
-  if (!user[0]) {
+  if (!user) {
     return null;
   }
 
-  user[0]!["password"] = "";
+  user.password = "";
 
   const friends =
-    user[0].friends && user[0].friends.length > 0
+    user.friends && user.friends.length > 0
       ? await db
           .select({
             id: userSchema.id,
@@ -569,7 +570,7 @@ async function getLoggedInUserFriend(userId: string) {
             lastOnline: userSchema.lastOnline,
           })
           .from(userSchema)
-          .where(inArray(userSchema.id, user[0].friends))
+          .where(inArray(userSchema.id, user.friends))
       : [];
 
   return {
