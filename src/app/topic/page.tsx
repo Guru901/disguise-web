@@ -46,6 +46,7 @@ function TopicFeedContent() {
           disLikes={post.disLikes ?? []}
           userId={user.id}
           key={post.id}
+          loggedInUser={user.username}
         />
       ))}
     </Masonry>
