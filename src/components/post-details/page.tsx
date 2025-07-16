@@ -138,6 +138,15 @@ export function PostDetails({ postId }: { postId: string }) {
   }, [replyTo, inputRef]);
 
   useEffect(() => {
+    setOptimisticCommentsCount(post?.commentsCount ?? 0);
+    setOptimisticLikes(post?.likes?.length ?? 0);
+    setOptimisticDislikes(post?.disLikes?.length ?? 0);
+
+    setHasDisliked(post?.disLikes?.includes(user.id));
+    setHasLiked(post?.likes?.includes(user.id));
+  }, [post]);
+
+  useEffect(() => {
     setMentionUsers(
       (allUsers ?? []).map((user) => ({
         id: user.id,
@@ -509,8 +518,14 @@ export function PostDetails({ postId }: { postId: string }) {
                     )}
                   </div>
                   <div className="text-muted-foreground text-sm">
-                    {optimisticLikes} Likes • {optimisticDislikes} Dislikes •{" "}
-                    {optimisticCommentsCount} Comments
+                    {isPostLoading ? (
+                      <Skeleton className="h-[20px] w-[213px]" />
+                    ) : (
+                      <>
+                        {optimisticLikes} Likes • {optimisticDislikes} Dislikes
+                        • {optimisticCommentsCount} Comments
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
