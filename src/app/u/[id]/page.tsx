@@ -79,6 +79,7 @@ export default function Me() {
   const posts = data?.user?.posts ?? [];
   const friends = user?.friends ?? [];
   const createdAt = user?.createdAt;
+  const lastOnline = user?.lastOnline;
 
   const isProfile = false;
   const { data: isNotificationSent } =
@@ -122,9 +123,12 @@ export default function Me() {
             </Avatar>
             <div className="space-y-1 text-center">
               <h2 className="text-xl font-semibold">{username}</h2>
-              <span className="text-primary text-sm">
+              <p className="text-primary text-sm">
                 Joined {formatTimeAgo(createdAt!)}
-              </span>
+              </p>
+              <p className="text-primary text-sm">
+                Last online {formatTimeAgo(lastOnline!)}
+              </p>
             </div>
             <div className="bg-background flex w-full items-center justify-around rounded-lg p-4 text-sm font-medium">
               <div className="flex flex-col items-center">

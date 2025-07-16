@@ -11,6 +11,10 @@ export const userRouter = createTRPCRouter({
     return await userDal.getNotifications(ctx.userId);
   }),
 
+  updateLastOnline: protectedProcedure.query(async ({ ctx }) => {
+    return await userDal.updateLastOnline(ctx.userId);
+  }),
+
   getAllNotifications: protectedProcedure.query(async ({ ctx }) => {
     return await userDal.getAllNotifications(ctx.userId);
   }),

@@ -132,7 +132,10 @@ export const postRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
-      return await postDal.getUserlikedPostsByUserId(input.userId, ctx.userId);
+      return await postDal.getUserPrivatePostsByUserId(
+        input.userId,
+        ctx.userId,
+      );
     }),
 
   getTopicSpecificFeed: protectedProcedure

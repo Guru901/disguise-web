@@ -608,6 +608,26 @@ async function deleteNotification(userId: string, notificationId: string) {
   }
 }
 
+async function updateLastOnline(userId: string) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        lastOnline: new Date(),
+      })
+      .where(eq(userSchema.id, userId));
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+
 export {
   registerUser,
   loginUser,
@@ -626,4 +646,5 @@ export {
   rejectFreindRequest,
   isFriendNotificationSent,
   getFirstTenUsers,
+  updateLastOnline,
 };

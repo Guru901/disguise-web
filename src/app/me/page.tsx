@@ -58,6 +58,7 @@ export default function Me() {
   const posts = data?.user?.posts ?? [];
   const friends = user?.friends ?? [];
   const createdAt = user?.createdAt;
+  const lastOnline = user?.lastOnline;
   const id = user?.id ?? "";
 
   const { setUser } = useUserStore();
@@ -94,9 +95,12 @@ export default function Me() {
                 <div className="space-y-1 text-center">
                   <h2 className="text-xl font-semibold">{username}</h2>
                   <div className="flex flex-col items-center text-sm">
-                    <span className="text-primary text-sm">
+                    <p className="text-primary text-sm">
                       Joined {formatTimeAgo(createdAt!)}
-                    </span>
+                    </p>
+                    <p className="text-primary text-sm">
+                      Last Online {formatTimeAgo(lastOnline!)}
+                    </p>
                   </div>
                 </div>
                 <div className="bg-background flex w-full items-center justify-around rounded-lg p-4 text-sm font-medium">

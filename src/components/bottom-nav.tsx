@@ -22,9 +22,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { useUserStore } from "@/lib/userStore";
 import React, { useEffect, useState } from "react";
+import { api } from "@/trpc/react";
 
 function BottomNavigation() {
   const { setUser } = useUserStore();
+
+  api.userRouter.updateLastOnline.useQuery(undefined, {
+    refetchInterval: 5000,
+  });
 
   return (
     <Drawer>
