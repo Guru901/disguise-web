@@ -28,6 +28,7 @@ const PostCard = React.forwardRef<
     likes: string[];
     disLikes: string[];
     userId: string;
+    loggedInUser: string;
   }
 >(
   (
@@ -42,6 +43,7 @@ const PostCard = React.forwardRef<
       likes,
       disLikes,
       userId,
+      loggedInUser,
     },
     ref,
   ) => {
@@ -227,7 +229,10 @@ const PostCard = React.forwardRef<
               </Button>
             </div>
           </div>
-          <Link href={`/p/${id}?image=${image!.length > 0}`} className="w-min">
+          <Link
+            href={`/p/${id}?image=${image!.length > 0}&author=${username === loggedInUser}`}
+            className="w-min"
+          >
             <Button>See More</Button>
           </Link>
         </CardFooter>

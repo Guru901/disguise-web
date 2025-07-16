@@ -39,6 +39,7 @@ export function PostDetails({ postId }: { postId: string }) {
   const searchParams = useSearchParams();
 
   const isImage = searchParams.get("image");
+  const isAuthor = searchParams.get("author");
 
   // Use post fields for all logic below
   const [newComment, setNewComment] = useState({
@@ -453,7 +454,7 @@ export function PostDetails({ postId }: { postId: string }) {
                       <Share2 />
                       <span className="sr-only">Share</span>
                     </Button>
-                    {user.id === post?.createdBy?.id && (
+                    {isAuthor === "true" && (
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="ghost" size="icon">

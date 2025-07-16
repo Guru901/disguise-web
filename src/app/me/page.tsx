@@ -175,10 +175,7 @@ export default function Me() {
                 {userComments?.map((comment) => (
                   <div key={comment.id}>
                     <Card className="overflow-hidden">
-                      <Link
-                        href={`/p/${comment.post}?comment=${comment.id}`}
-                        className="h-full"
-                      >
+                      <Link href={`/p/${comment.post}`} className="h-full">
                         <CardContent className="h-full p-2">
                           <h1>{comment.content}</h1>
                         </CardContent>

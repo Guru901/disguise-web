@@ -84,6 +84,7 @@ export default function Feed() {
               likes={post.likes ?? []}
               disLikes={post.disLikes ?? []}
               userId={user.id}
+              loggedInUser={user.username}
               key={post.id}
               ref={lastPostRef}
             />
