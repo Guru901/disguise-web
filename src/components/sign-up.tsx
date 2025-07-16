@@ -23,7 +23,7 @@ import { useState } from "react";
 export default function SignUp() {
   const router = useRouter();
 
-  const [image, setImage] = useState("")
+  const [image, setImage] = useState("");
 
   const {
     control,
@@ -91,6 +91,7 @@ export default function SignUp() {
                   type="password"
                   autoComplete="new-password"
                   placeholder="Password"
+                  showPasswordToggle
                 />
               )}
               control={control}
@@ -111,6 +112,7 @@ export default function SignUp() {
                   type="password"
                   autoComplete="new-password"
                   placeholder="Confirm Password"
+                  showPasswordToggle
                 />
               )}
               control={control}
@@ -130,13 +132,17 @@ export default function SignUp() {
                 // @ts-expect-error - results.info is not typed
                 const imageUrl = String(results.info.secure_url);
                 setImage(imageUrl);
-                setValue("avatar", imageUrl); 
+                setValue("avatar", imageUrl);
                 toast("Avatar uploaded successfully");
               }}
             />
             {image && (
               <div className="mt-2">
-                <img src={image} alt="Avatar preview" className="w-16 h-16 rounded-full object-cover" />
+                <img
+                  src={image}
+                  alt="Avatar preview"
+                  className="h-16 w-16 rounded-full object-cover"
+                />
               </div>
             )}
             {errors && errors.avatar && (

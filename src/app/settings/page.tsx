@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/navbar";
 import { Card } from "@/components/ui/card";
+import { useUserStore } from "@/lib/userStore";
 import { LogOut, Bell, Settings, KeyRound, Sun } from "lucide-react";
 import Link from "next/link";
 
@@ -24,13 +25,28 @@ const options = [
     icon: <Bell className="mr-4 size-7" />,
     title: "Notifications",
   },
-  {
-    icon: <LogOut className="mr-4 size-7" />,
-    title: "Logout",
-  },
 ];
 
 export default function SettingsPage() {
+  const { setUser } = useUserStore();
+
+  async function logout() {
+    try {
+      await fetch("/api/logout");
+      setUser({
+        avatar: "",
+        username: "",
+        posts: [],
+        friends: [],
+        createdAt: "",
+        id: "",
+      });
+      location.href = "/login";
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <main>
       <Navbar />
@@ -53,6 +69,17 @@ export default function SettingsPage() {
               </Card>
             </Link>
           ))}
+          <Card
+            onClick={logout}
+            className="hover:bg-muted/40 flex cursor-pointer flex-row items-center gap-4 border-0 bg-transparent px-2 py-4 shadow-none transition-colors"
+          >
+            <LogOut />
+            <div>
+              <div className="text-foreground flex items-center pl-4 text-lg font-bold">
+                Logout
+              </div>
+            </div>
+          </Card>
         </div>
       </div>
     </main>

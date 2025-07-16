@@ -9,8 +9,10 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-* {
-  zoom: 0.99;
+@media screen and (max-width: 768px) {
+  * {
+    zoom: 0.99;
+  }
 }
 
 @theme inline {

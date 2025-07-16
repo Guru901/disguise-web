@@ -98,6 +98,7 @@ export default function SignIn() {
                   type="password"
                   required
                   placeholder="Password"
+                  showPasswordToggle
                 />
               )}
             />
