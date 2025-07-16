@@ -58,12 +58,6 @@ export default function Navbar() {
                 )}
               </Button>
             </Link>
-            <Link href="/settings" prefetch={true}>
-              <Button variant="ghost" size="icon">
-                <Settings size={200} />
-              </Button>
-            </Link>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">

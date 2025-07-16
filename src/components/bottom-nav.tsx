@@ -15,6 +15,7 @@ import {
   PenLineIcon,
   PlusIcon,
   SearchIcon,
+  Settings,
   UserRound,
 } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
@@ -114,6 +115,16 @@ function BottomNavigation() {
             </Link>
           </DrawerClose>
           <DrawerClose asChild>
+            <Link
+              href="/settings"
+              className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 pl-[1rem] text-sm font-medium transition-colors"
+              prefetch={false}
+            >
+              <Settings size={19} />
+              Settings
+            </Link>
+          </DrawerClose>
+          <DrawerClose asChild>
             <Button
               variant={"ghost"}
               onClick={async () => {
@@ -204,7 +215,12 @@ export default function BottomNavbar() {
   if (pathname === "/" || pathname === "/login") return null;
 
   return !isDesktop ? (
-    <Card className="fixed bottom-0 z-10 flex w-screen flex-row items-center justify-between p-4">
+    <Card
+      className="fixed bottom-0 z-10 flex w-screen flex-row items-center justify-between p-4"
+      style={{
+        zoom: "1.03 !important",
+      }}
+    >
       <BackBtn />
       <BottomNavigation />
     </Card>

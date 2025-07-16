@@ -11,6 +11,7 @@ import {
   FolderIcon,
   PenLineIcon,
   LogOut,
+  Settings,
 } from "lucide-react";
 import { Button, buttonVariants } from "./ui/button";
 import { usePathname } from "next/navigation";
@@ -23,6 +24,7 @@ const navItems = [
   { label: "Topics", href: "/topics", icon: FolderIcon },
   { label: "Create Topics", href: "/create-topic", icon: PenLineIcon },
   { label: "Search", href: "/search", icon: Search },
+  { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 export default function DesktopSidebar() {
