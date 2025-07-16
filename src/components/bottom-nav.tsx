@@ -86,10 +86,10 @@ function BottomNavigation() {
           <DrawerClose asChild>
             <Link
               href="/topics"
-              className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+              className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors"
               prefetch={false}
             >
-              <FolderIcon />
+              <FolderIcon size={19} />
               Topics
             </Link>
           </DrawerClose>
