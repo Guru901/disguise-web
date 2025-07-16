@@ -17,13 +17,17 @@ const spline = Spline_Sans({
   subsets: ["latin"],
 });
 
-const roboto = Roboto();
+const roboto = Roboto({
+  subsets: ["latin"],
+});
 
 const fira = Fira_Sans({
   weight: ["300", "400", "500", "600"],
+  subsets: ["latin"],
 });
 const ubuntu = Ubuntu({
   weight: ["300", "400", "500"],
+  subsets: ["latin"],
 });
 
 export function FontSelectorWrapper({

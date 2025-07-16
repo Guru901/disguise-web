@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
-import { useUserStore } from "@/lib/userStore";
+import { useUserStore, type Font } from "@/lib/userStore";
 
 export default function Navbar() {
   const { setTheme } = useTheme();
@@ -102,7 +102,7 @@ export default function Navbar() {
               <DropdownMenuContent align="end">
                 <DropdownMenuRadioGroup
                   value={font}
-                  onValueChange={(v) => setFont(v as any)}
+                  onValueChange={(v) => setFont(v as Font)}
                 >
                   {fonts.map((f) => (
                     <DropdownMenuRadioItem key={f.value} value={f.value}>
