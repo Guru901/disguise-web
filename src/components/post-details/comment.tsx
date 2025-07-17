@@ -217,7 +217,7 @@ export default function Comment({
                             {reply.users?.username ?? "User"}
                           </span>
                           {" • "}
-                          <span className="text-xs font-light">
+                          <span className="text-sm font-light">
                             {formatTimeAgo(
                               typeof reply.comments.createdAt === "string"
                                 ? new Date(reply.comments.createdAt)
