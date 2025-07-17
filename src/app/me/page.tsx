@@ -383,7 +383,7 @@ export default function Me() {
                 <Loader2 className="animate-spin" size={20} />
               </div>
             ) : (
-              <div>
+              <div className="flex flex-col gap-2">
                 {userFriends?.friends.map((friend) => (
                   <UserCard user={friend} key={friend.id} />
                 ))}

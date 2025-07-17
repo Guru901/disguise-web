@@ -28,20 +28,38 @@ export const postRouter = createTRPCRouter({
   }),
 
   getLoggedInUserDisLikedPosts: protectedProcedure.query(async ({ ctx }) => {
-    return await postDal.getLoggedInUserDisLikedPosts(ctx.userId);
+    return await postDal.getDislikedPostsByUserId(ctx.userId);
   }),
 
+  getDislikedPostByUserId: protectedProcedure
+    .input(z.string())
+    .query(async ({ input }) => {
+      return await postDal.getDislikedPostsByUserId(input);
+    }),
+
   getLoggedInUserFriend: protectedProcedure.query(async ({ ctx }) => {
-    return await postDal.getLoggedInUserFriend(ctx.userId);
+    return await postDal.getFriendsByUserId(ctx.userId);
   }),
+
+  getFriendsByUserId: protectedProcedure
+    .input(z.string())
+    .query(async ({ input }) => {
+      return await postDal.getFriendsByUserId(input);
+    }),
 
   getLoggedInUserPrivatePosts: protectedProcedure.query(async ({ ctx }) => {
     return await postDal.getLoggedInUserPrivatePosts(ctx.userId);
   }),
 
   getLoggedInUserComments: protectedProcedure.query(async ({ ctx }) => {
-    return await postDal.getLoggedInUserComments(ctx.userId);
+    return await postDal.getCommentsByUserId(ctx.userId);
   }),
+
+  getCommentsByUserId: protectedProcedure
+    .input(z.string())
+    .query(async ({ input }) => {
+      return await postDal.getCommentsByUserId(input);
+    }),
 
   getPostById: publicProcedure
     .input(

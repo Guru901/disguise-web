@@ -493,7 +493,7 @@ async function getLoggedInUserLikedPosts(userId: string) {
   }
 }
 
-async function getLoggedInUserDisLikedPosts(userId: string) {
+async function getDislikedPostsByUserId(userId: string) {
   try {
     const results = await db
       .select()
@@ -529,7 +529,7 @@ async function getLoggedInUserPrivatePosts(userId: string) {
   }
 }
 
-async function getLoggedInUserComments(userId: string) {
+async function getCommentsByUserId(userId: string) {
   try {
     const results = await db
       .select()
@@ -543,13 +543,13 @@ async function getLoggedInUserComments(userId: string) {
   }
 }
 
-async function getLoggedInUserFriend(userId: string) {
+async function getFriendsByUserId(userId: string) {
   const user = await db
     .select()
     .from(userSchema)
     .where(eq(userSchema.id, userId))
     .limit(1)
-    .then(res => res[0])
+    .then((res) => res[0]);
 
   if (!user) {
     return null;
@@ -770,7 +770,7 @@ export {
   getCommentsByPostId,
   getFeed,
   getPostById,
-  getLoggedInUserComments,
+  getCommentsByUserId,
   getLoggedInUserLikedPosts,
   getLoggedInUserPrivatePosts,
   getTopicSpecificFeed,
@@ -778,8 +778,8 @@ export {
   getUserPublicPostsByUserId,
   getUserlikedPostsByUserId,
   getUserDataById,
-  getLoggedInUserDisLikedPosts,
-  getLoggedInUserFriend,
+  getDislikedPostsByUserId,
+  getFriendsByUserId,
   getLoggedInUserPublicPost,
   createPost,
   unlikePost,
