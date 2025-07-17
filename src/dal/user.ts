@@ -628,6 +628,27 @@ async function updateLastOnline(userId: string) {
   }
 }
 
+async function editAvatar(userId: string, newAvatar: string) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        avatar: newAvatar,
+      })
+      .where(eq(userSchema.id, userId));
+
+    return {
+      success: true,
+      newAvatar,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+
 export {
   registerUser,
   loginUser,
@@ -647,4 +668,5 @@ export {
   isFriendNotificationSent,
   getFirstTenUsers,
   updateLastOnline,
+  editAvatar,
 };

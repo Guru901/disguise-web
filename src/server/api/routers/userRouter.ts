@@ -113,4 +113,14 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       return await userDal.rejectFreindRequest(ctx.userId, input.id);
     }),
+
+  editAvatar: protectedProcedure
+    .input(
+      z.object({
+        avatar: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await userDal.editAvatar(ctx.userId, input.avatar);
+    }),
 });

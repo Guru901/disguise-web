@@ -13,14 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
   User,
@@ -28,12 +20,18 @@ import {
   Bell,
   Settings,
   Smartphone,
-  Mail,
   UserX,
   Trash2,
   Camera,
+  Loader2,
 } from "lucide-react";
 import Navbar from "@/components/navbar";
+import useGetUser from "@/lib/use-get-user";
+import type { User as UserType } from "@/lib/userStore";
+import { api } from "@/trpc/react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CldUploadButton } from "next-cloudinary";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile");
@@ -84,6 +82,20 @@ export default function SettingsPage() {
 }
 
 function ProfileSettings() {
+  const {
+    data: user,
+    isLoading: isUserDataLoading,
+    refetch: refetchUserData,
+    isRefetching,
+  } = api.userRouter.getUserData.useQuery();
+
+  const editAvatarMutation = api.userRouter.editAvatar.useMutation({
+    onSuccess: async () => {
+      toast("Avatar updated successfully");
+      await refetchUserData();
+    },
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -102,17 +114,57 @@ function ProfileSettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src="/placeholder.svg?height=80&width=80" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
+            {isUserDataLoading || isRefetching ? (
+              <Skeleton className="h-20 w-20 rounded-full" />
+            ) : (
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={String(user?.user?.avatar)} />
+                <AvatarFallback>
+                  {String(user?.user?.username).slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+            )}
             <div className="flex items-center gap-2">
-              <Button size="sm">
-                <Camera className="mr-2 h-4 w-4" />
-                Change Photo
-              </Button>
-              <Button variant="outline" size="sm">
-                Remove
+              <CldUploadButton
+                uploadPreset="social-media-again"
+                className="w-full"
+                onSuccess={async (results) => {
+                  // @ts-expect-error - results.info is not typed
+                  const imageUrl = String(results.info.secure_url);
+
+                  await editAvatarMutation.mutateAsync({ avatar: imageUrl });
+                }}
+              >
+                <Button
+                  size="sm"
+                  disabled={editAvatarMutation.isPending || isUserDataLoading}
+                >
+                  <Camera className="mr-2 h-4 w-4" />
+                  Change Photo
+                </Button>
+              </CldUploadButton>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={
+                  editAvatarMutation.isPending ||
+                  user?.user?.avatar?.length === 0 ||
+                  isUserDataLoading
+                }
+                onClick={async () => {
+                  await editAvatarMutation.mutateAsync({
+                    avatar: "",
+                  });
+                }}
+              >
+                {editAvatarMutation.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="animate-spin" />
+                    Removing
+                  </div>
+                ) : (
+                  "Remove"
+                )}
               </Button>
             </div>
           </div>
