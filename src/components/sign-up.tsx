@@ -159,7 +159,10 @@ export default function SignUp() {
           )}
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
-              <Loader2 size={16} className="animate-spin" />
+              <div className="flex items-center gap-1">
+                <Loader2 size={16} className="animate-spin" />
+                Please wait
+              </div>
             ) : (
               "Create an account"
             )}
