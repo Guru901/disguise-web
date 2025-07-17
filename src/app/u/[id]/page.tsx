@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { api } from "@/trpc/react";
 import Navbar from "@/components/navbar";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import { useUserStore } from "@/lib/userStore";
 import {
@@ -50,6 +50,10 @@ export default function UserProfile() {
 
   const pathName = usePathname();
   const id = pathName.split("/")[2];
+
+  const [isProfile, setIsProfile] = useState(false);
+
+  const router = useRouter();
 
   const { data, isLoading, isError } = api.userRouter.getUserDataById.useQuery({
     id: id!,
@@ -121,6 +125,14 @@ export default function UserProfile() {
   useEffect(() => {
     setIsFriend(friends.includes(loggedInUser.id));
   }, [isNotificationSent, loggedInUser.id]);
+
+  useEffect(() => {
+    setIsProfile(user?.id === id);
+
+    if (isProfile) {
+      router.push("/me");
+    }
+  }, [isProfile]);
 
   if (isLoading) {
     return (
@@ -311,11 +323,11 @@ export default function UserProfile() {
                 className="my-masonry-grid"
                 columnClassName="my-masonry-grid_column"
               >
-                {userComments?.map((comment) => (
+                {userComments?.reverse().map((comment) => (
                   <div key={comment.id}>
                     <Card className="overflow-hidden">
                       <Link href={`/p/${comment.post}`} className="h-full">
-                        <CardContent className="h-full p-2">
+                        <CardContent className="h-full p-3">
                           <h1>{comment.content}</h1>
                         </CardContent>
                       </Link>

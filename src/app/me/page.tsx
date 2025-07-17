@@ -172,11 +172,11 @@ export default function Me() {
                 className="my-masonry-grid"
                 columnClassName="my-masonry-grid_column"
               >
-                {userComments?.map((comment) => (
+                {userComments?.reverse().map((comment) => (
                   <div key={comment.id}>
                     <Card className="overflow-hidden">
                       <Link href={`/p/${comment.post}`} className="h-full">
-                        <CardContent className="h-full p-2">
+                        <CardContent className="h-full p-3">
                           <h1>{comment.content}</h1>
                         </CardContent>
                       </Link>
