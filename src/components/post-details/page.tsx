@@ -37,9 +37,10 @@ export function PostDetails({ postId }: { postId: string }) {
     api.postRouter.getPostById.useQuery({ postId });
 
   const searchParams = useSearchParams();
+  const [isAuthor, setIsAuthor] = useState(false);
 
   const isImage = searchParams.get("image");
-  const isAuthor = searchParams.get("author");
+  const isAuthorParam = searchParams.get("author");
 
   // Use post fields for all logic below
   const [newComment, setNewComment] = useState({
@@ -137,6 +138,16 @@ export function PostDetails({ postId }: { postId: string }) {
       }, 100);
     }
   }, [replyTo, inputRef]);
+
+  useEffect(() => {
+    if (isAuthorParam === "true") {
+      setIsAuthor(true);
+    } else if (post?.createdBy?.id === user.id) {
+      setIsAuthor(true);
+    } else {
+      setIsAuthor(false);
+    }
+  }, [isAuthorParam, post]);
 
   useEffect(() => {
     setOptimisticCommentsCount(post?.commentsCount ?? 0);
@@ -454,7 +465,7 @@ export function PostDetails({ postId }: { postId: string }) {
                       <Share2 />
                       <span className="sr-only">Share</span>
                     </Button>
-                    {isAuthor === "true" && (
+                    {isAuthor && (
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -490,6 +501,7 @@ export function PostDetails({ postId }: { postId: string }) {
                               <Button
                                 variant="outline"
                                 className="w-full sm:w-auto"
+                                disabled={deletePostByIdMutation.isPending}
                               >
                                 Cancel
                               </Button>
@@ -501,7 +513,7 @@ export function PostDetails({ postId }: { postId: string }) {
                                 await deletePostByIdMutation.mutateAsync({
                                   postId: postId,
                                 });
-                                router.back();
+                                router.push("/feed");
                               }}
                               size={"default"}
                               disabled={deletePostByIdMutation.isPending}
