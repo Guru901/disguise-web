@@ -15,8 +15,8 @@ export const postRouter = createTRPCRouter({
         limit: z.number().default(10),
       }),
     )
-    .query(async ({ input }) => {
-      return await postDal.getFeed(input.page, input.limit);
+    .query(async ({ input, ctx }) => {
+      return await postDal.getFeed(input.page, input.limit, ctx.userId);
     }),
 
   getLoggedInUserPublicPosts: protectedProcedure.query(async ({ ctx }) => {

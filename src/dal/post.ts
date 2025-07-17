@@ -9,7 +9,7 @@ import {
 import { and, desc, eq, sql, or, ilike, inArray } from "drizzle-orm";
 import { getUserDataById } from "./user";
 
-async function getFeed(page: number, limit: number) {
+async function getFeed(page: number, limit: number, loggedInUserId: string) {
   try {
     const results = await db
       .select()
@@ -18,6 +18,14 @@ async function getFeed(page: number, limit: number) {
         and(
           eq(postSchema.isPublic, true),
           or(eq(postSchema.topic, "General"), eq(postSchema.topic, "")),
+          or(
+            eq(userSchema.accountType, "public"),
+            and(
+              eq(userSchema.accountType, "private"),
+              sql`${loggedInUserId} = ANY (${userSchema.friends})`,
+            ),
+            eq(postSchema.createdBy, loggedInUserId),
+          ),
         ),
       )
       .leftJoin(userSchema, and(eq(userSchema.id, postSchema.createdBy)))
