@@ -1,11 +1,22 @@
 import {
   boolean,
   integer,
+  pgEnum,
   pgTable,
   text,
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+
+const notificationEnum = pgEnum("recieveNotificationForEnum", [
+  "like",
+  "comment",
+  "friend_request",
+  "all",
+  "none",
+]);
+
+const accountTypeEnum = pgEnum("accountType", ["private", "public"]);
 
 export const userSchema = pgTable("users", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
@@ -14,6 +25,9 @@ export const userSchema = pgTable("users", {
   avatar: text("avatar"),
   posts: text("posts").notNull().array(),
   friends: text("friends").notNull().array(),
+  blockedUsers: text("blocked_users").array(),
+  recieveNotificationsFor: notificationEnum().default("all"),
+  accountType: accountTypeEnum().default("public"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastOnline: timestamp("last_online"),
 });
