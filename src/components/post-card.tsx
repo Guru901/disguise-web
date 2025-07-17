@@ -168,7 +168,9 @@ const PostCard = React.forwardRef<
             <AvatarFallback>{username.slice(0, 2)}</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <div className="font-medium">{username}</div>
+            <Link href={`/u/${userId}`} className="font-medium underline">
+              {username}
+            </Link>
             <div className="text-muted-foreground text-sm">
               {formatTimeAgo(createdAt)}
             </div>

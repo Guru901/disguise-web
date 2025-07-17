@@ -127,12 +127,12 @@ export default function UserProfile() {
   }, [isNotificationSent, loggedInUser.id]);
 
   useEffect(() => {
-    setIsProfile(user?.id === id);
+    setIsProfile(loggedInUser.id === id);
 
     if (isProfile) {
       router.push("/me");
     }
-  }, [isProfile]);
+  }, [isProfile, user, id]);
 
   if (isLoading) {
     return (
