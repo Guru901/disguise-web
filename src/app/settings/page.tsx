@@ -291,7 +291,7 @@ function PrivacySettings({
       <Card className="py-6">
         <CardHeader>
           <CardTitle>Blocked Users</CardTitle>
-          <CardDescription>Manage users you've blocked.</CardDescription>
+          <CardDescription>Manage users {"you've"} blocked.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -304,7 +304,7 @@ function PrivacySettings({
               ) : (
                 blockedUsers?.data?.map((blockedUser) => {
                   return (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3" key={blockedUser.id}>
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={String(blockedUser.avatar)} />
                         <AvatarFallback>
