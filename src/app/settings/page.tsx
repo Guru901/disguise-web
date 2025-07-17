@@ -26,12 +26,18 @@ import {
   Loader2,
 } from "lucide-react";
 import Navbar from "@/components/navbar";
-import useGetUser from "@/lib/use-get-user";
-import type { User as UserType } from "@/lib/userStore";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CldUploadButton } from "next-cloudinary";
 import { toast } from "sonner";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "@/server/api/root";
+
+type GetUserDataQueryType = ReturnType<
+  typeof api.userRouter.getUserData.useQuery
+>;
+type GetUserDataOutput =
+  inferRouterOutputs<AppRouter>["userRouter"]["getUserData"];
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile");
@@ -42,6 +48,8 @@ export default function SettingsPage() {
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "account", label: "Account", icon: Settings },
   ];
+
+  const getUserDataQuery = api.userRouter.getUserData.useQuery();
 
   return (
     <div className="bg-background min-h-screen">
@@ -71,8 +79,12 @@ export default function SettingsPage() {
 
         {/* Main Content */}
         <main className="flex w-full flex-col overflow-hidden">
-          {activeSection === "profile" && <ProfileSettings />}
-          {activeSection === "privacy" && <PrivacySettings />}
+          {activeSection === "profile" && (
+            <ProfileSettings getUserDataQuery={getUserDataQuery} />
+          )}
+          {activeSection === "privacy" && (
+            <PrivacySettings getUserDataQuery={getUserDataQuery} />
+          )}
           {activeSection === "notifications" && <NotificationSettings />}
           {activeSection === "account" && <AccountSettings />}
         </main>
@@ -81,18 +93,17 @@ export default function SettingsPage() {
   );
 }
 
-function ProfileSettings() {
-  const {
-    data: user,
-    isLoading: isUserDataLoading,
-    refetch: refetchUserData,
-    isRefetching,
-  } = api.userRouter.getUserData.useQuery();
+function ProfileSettings({
+  getUserDataQuery,
+}: {
+  getUserDataQuery: GetUserDataQueryType;
+}) {
+  const user = getUserDataQuery.data as GetUserDataOutput;
 
   const editAvatarMutation = api.userRouter.editAvatar.useMutation({
     onSuccess: async () => {
+      await getUserDataQuery.refetch();
       toast("Avatar updated successfully");
-      await refetchUserData();
     },
   });
 
@@ -114,7 +125,7 @@ function ProfileSettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
-            {isUserDataLoading || isRefetching ? (
+            {getUserDataQuery.isLoading || getUserDataQuery.isRefetching ? (
               <Skeleton className="h-20 w-20 rounded-full" />
             ) : (
               <Avatar className="h-20 w-20">
@@ -126,18 +137,41 @@ function ProfileSettings() {
             )}
             <div className="flex items-center gap-2">
               <CldUploadButton
+                options={{
+                  resourceType: "image",
+                  clientAllowedFormats: [
+                    "jpg",
+                    "jpeg",
+                    "png",
+                    "gif",
+                    "webp",
+                    "bmp",
+                    "tiff",
+                    "svg",
+                    "ico",
+                    "avif",
+                    "heic",
+                    "heif",
+                    "jxl",
+                    "jp2",
+                    "raw",
+                    "psd",
+                  ],
+                  maxFiles: 1,
+                }}
                 uploadPreset="social-media-again"
                 className="w-full"
                 onSuccess={async (results) => {
                   // @ts-expect-error - results.info is not typed
                   const imageUrl = String(results.info.secure_url);
-
                   await editAvatarMutation.mutateAsync({ avatar: imageUrl });
                 }}
               >
                 <Button
                   size="sm"
-                  disabled={editAvatarMutation.isPending || isUserDataLoading}
+                  disabled={
+                    editAvatarMutation.isPending || getUserDataQuery.isLoading
+                  }
                 >
                   <Camera className="mr-2 h-4 w-4" />
                   Change Photo
@@ -149,7 +183,7 @@ function ProfileSettings() {
                 disabled={
                   editAvatarMutation.isPending ||
                   user?.user?.avatar?.length === 0 ||
-                  isUserDataLoading
+                  getUserDataQuery.isLoading
                 }
                 onClick={async () => {
                   await editAvatarMutation.mutateAsync({
@@ -174,7 +208,20 @@ function ProfileSettings() {
   );
 }
 
-function PrivacySettings() {
+function PrivacySettings({
+  getUserDataQuery,
+}: {
+  getUserDataQuery: GetUserDataQueryType;
+}) {
+  const user = getUserDataQuery.data as GetUserDataOutput;
+
+  const accountTypeMutation = api.userRouter.changeAccountType.useMutation({
+    onSuccess: async () => {
+      await getUserDataQuery.refetch();
+      toast("Your account type has been successfully updated");
+    },
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -200,7 +247,14 @@ function PrivacySettings() {
                 Only friends can see your posts
               </p>
             </div>
-            <Switch />
+            <Switch
+              defaultChecked={Boolean(user.user?.accountType === "private")}
+              onCheckedChange={async (e) => {
+                await accountTypeMutation.mutateAsync({
+                  isPrivate: e,
+                });
+              }}
+            />
           </div>
           {/* <Separator />
           <div className="space-y-2">

@@ -578,6 +578,9 @@ export function PostDetails({ postId }: { postId: string }) {
                       </div>
                       <div className="flex items-center gap-2">
                         <CldUploadButton
+                          options={{
+                            resourceType: "image",
+                          }}
                           className="w-full"
                           uploadPreset="social-media-again"
                           onSuccess={(results) => {

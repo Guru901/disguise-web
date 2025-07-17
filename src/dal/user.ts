@@ -649,6 +649,26 @@ async function editAvatar(userId: string, newAvatar: string) {
   }
 }
 
+async function changeAccountType(userId: string, isPrivate: boolean) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        accountType: isPrivate ? "private" : "public",
+      })
+      .where(eq(userSchema.id, userId));
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+
 export {
   registerUser,
   loginUser,
@@ -669,4 +689,5 @@ export {
   getFirstTenUsers,
   updateLastOnline,
   editAvatar,
+  changeAccountType,
 };

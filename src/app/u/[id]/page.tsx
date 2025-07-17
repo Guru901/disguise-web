@@ -253,7 +253,7 @@ export default function UserProfile() {
                     {addFriendByIdMutation.isSuccess ||
                     isNotificationSent?.success ? (
                       "Request Sent"
-                    ) : addFriendByIdMutation.isPaused ? (
+                    ) : addFriendByIdMutation.isPending ? (
                       <Loader2 className="animate-spin" size={20} />
                     ) : (
                       "Add Friend"

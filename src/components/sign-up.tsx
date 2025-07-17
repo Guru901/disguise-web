@@ -126,6 +126,28 @@ export default function SignUp() {
           <div className="grid gap-2">
             <Label htmlFor="avatar">Avatar (optional)</Label>
             <CldUploadButton
+              options={{
+                resourceType: "image",
+                clientAllowedFormats: [
+                  "jpg",
+                  "jpeg",
+                  "png",
+                  "gif",
+                  "webp",
+                  "bmp",
+                  "tiff",
+                  "svg",
+                  "ico",
+                  "avif",
+                  "heic",
+                  "heif",
+                  "jxl",
+                  "jp2",
+                  "raw",
+                  "psd",
+                ],
+                maxFiles: 1,
+              }}
               uploadPreset="social-media-again"
               className="w-full"
               onSuccess={(results) => {
