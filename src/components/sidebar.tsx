@@ -46,7 +46,7 @@ export default function DesktopSidebar() {
   if (pathname === "/" || pathname === "/login") return null;
 
   return (
-    <div className="bg-background border-border fixed inset-y-0 z-40 flex w-64 flex-col border-r px-4 py-6">
+    <div className="bg-card fixed z-40 flex h-screen w-64 flex-col border border-r px-4 py-6">
       <div className="flex h-full w-full flex-col gap-2">
         <div className="mb-8 flex items-center justify-start px-2">
           <Feather className="text-primary h-8 w-8" />
