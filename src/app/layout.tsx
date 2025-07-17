@@ -48,7 +48,7 @@ export default function RootLayout({
               </div>
               <BottomNavbar />
             </TRPCReactProvider>
-            <Toaster />
+            <Toaster closeButton position="bottom-center" />
           </ThemeProvider>
         </FontSelectorWrapper>
       </body>
