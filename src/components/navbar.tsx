@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Loader2, Moon, Settings, Sun } from "lucide-react";
+import { Bell, Loader2, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
