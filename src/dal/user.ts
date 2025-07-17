@@ -669,6 +669,43 @@ async function changeAccountType(userId: string, isPrivate: boolean) {
   }
 }
 
+async function getBlockedUsers(userId: string) {
+  try {
+    const [user] = await db
+      .select({
+        blockedUsers: userSchema.blockedUsers,
+      })
+      .from(userSchema)
+      .where(eq(userSchema.id, userId));
+
+    if (!user?.blockedUsers || user.blockedUsers.length === 0) {
+      return {
+        success: true,
+        data: [],
+      };
+    }
+
+    const blockedUsersInfo = await db
+      .select({
+        id: userSchema.id,
+        username: userSchema.username,
+        avatar: userSchema.avatar,
+      })
+      .from(userSchema)
+      .where(inArray(userSchema.id, user.blockedUsers));
+
+    return {
+      success: true,
+      data: blockedUsersInfo,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+
 export {
   registerUser,
   loginUser,
@@ -690,4 +727,5 @@ export {
   updateLastOnline,
   editAvatar,
   changeAccountType,
+  getBlockedUsers,
 };

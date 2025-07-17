@@ -133,4 +133,8 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       return await userDal.changeAccountType(ctx.userId, input.isPrivate);
     }),
+
+  getBlockedUsers: protectedProcedure.query(async ({ ctx }) => {
+    return await userDal.getBlockedUsers(ctx.userId);
+  }),
 });

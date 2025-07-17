@@ -6,7 +6,7 @@ import {
   postSchema,
   userSchema,
 } from "@/server/db/schema";
-import { and, desc, eq, sql, or, ilike, inArray } from "drizzle-orm";
+import { and, desc, eq, sql, or, ilike, inArray, not } from "drizzle-orm";
 import { getUserDataById } from "./user";
 
 async function getFeed(page: number, limit: number, loggedInUserId: string) {
@@ -26,6 +26,10 @@ async function getFeed(page: number, limit: number, loggedInUserId: string) {
             ),
             eq(postSchema.createdBy, loggedInUserId),
           ),
+          not(
+            sql`${postSchema.createdBy}::text = ANY (${userSchema.blockedUsers})`,
+          ),
+          not(sql`${loggedInUserId}::text = ANY (${userSchema.blockedUsers})`),
         ),
       )
       .leftJoin(userSchema, and(eq(userSchema.id, postSchema.createdBy)))

@@ -222,6 +222,9 @@ function PrivacySettings({
     },
   });
 
+  const { data: blockedUsers, isLoading: isBlockedUsersLoading } =
+    api.userRouter.getBlockedUsers.useQuery();
+
   return (
     <div className="space-y-6">
       <div>
@@ -293,20 +296,33 @@ function PrivacySettings({
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>AB</AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium">@blockeduser</span>
-              </div>
+              {isBlockedUsersLoading ? (
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <Skeleton className="h-2 w-18" />
+                </div>
+              ) : (
+                blockedUsers?.data?.map((blockedUser) => {
+                  return (
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={String(blockedUser.avatar)} />
+                        <AvatarFallback>
+                          {blockedUser.username.slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-medium">
+                        {blockedUser.username}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
               <Button variant="outline" size="sm">
                 <UserX className="mr-2 h-4 w-4" />
                 Unblock
               </Button>
             </div>
-            <p className="text-muted-foreground text-sm">
-              No other blocked users
-            </p>
           </div>
         </CardContent>
       </Card>
