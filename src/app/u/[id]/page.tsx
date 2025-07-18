@@ -473,7 +473,10 @@ export default function UserProfile() {
                 <Loader2 className="animate-spin" size={20} />
               </div>
             ) : (
-              <FriendsGrid friends={userFriends?.friends} />
+              <FriendsGrid
+                friends={userFriends?.friends}
+                isLoading={isFriendsLoading}
+              />
             )
           ) : null}
         </div>
