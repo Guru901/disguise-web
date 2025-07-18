@@ -139,4 +139,14 @@ export const userRouter = createTRPCRouter({
   getBlockedUsers: protectedProcedure.query(async ({ ctx }) => {
     return await userDal.getBlockedUsers(ctx.userId);
   }),
+
+  unblockUser: protectedProcedure
+    .input(
+      z.object({
+        userToUnblockId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await userDal.unblockUser(ctx.userId, input.userToUnblockId);
+    }),
 });

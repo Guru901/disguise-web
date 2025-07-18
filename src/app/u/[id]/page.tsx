@@ -12,7 +12,6 @@ import { api } from "@/trpc/react";
 import Navbar from "@/components/navbar";
 import { usePathname, useRouter } from "next/navigation";
 import { formatTimeAgo } from "@/lib/format-time-ago";
-import { useUserStore } from "@/lib/userStore";
 import {
   DialogTrigger,
   Dialog,
@@ -27,6 +26,7 @@ import Masonry from "react-masonry-css";
 import UserPostLoader from "@/components/loaders/profile-loading";
 import MediaPlayer from "@/components/media-player";
 import UserCard from "@/components/user-card";
+import useGetUser from "@/lib/use-get-user";
 
 const breakpointColumnsObjComments = {
   default: 3,
@@ -46,7 +46,9 @@ export default function UserProfile() {
   const [selectedOption, setSelectedOption] = useState("public");
   const [isFriend, setIsFriend] = useState(false);
 
-  const { user: loggedInUser } = useUserStore();
+  const [isBlocked, setIsBlocked] = useState(false);
+
+  const { user: loggedInUser } = useGetUser();
 
   const pathName = usePathname();
   const id = pathName.split("/")[2];
@@ -105,6 +107,8 @@ export default function UserProfile() {
   const removeFriendByIdMutation =
     api.userRouter.removeFriendById.useMutation();
 
+  const unblockUserMutation = api.userRouter.unblockUser.useMutation();
+
   const addFriendByIdMutation = api.userRouter.sendFriendRequest.useMutation();
 
   const user = data?.user;
@@ -128,7 +132,13 @@ export default function UserProfile() {
     if (loggedInUser.id === id) {
       router.replace("/me");
     }
-  }, [user, id]);
+  }, [user, id, loggedInUser.id, router]);
+
+  useEffect(() => {
+    if (loggedInUser.blockedUsers && loggedInUser.blockedUsers.includes(id!)) {
+      setIsBlocked(true);
+    }
+  }, [id, loggedInUser.blockedUsers]);
 
   if (isLoading) {
     return (
@@ -232,33 +242,96 @@ export default function UserProfile() {
                     </DialogContent>
                   </Dialog>
                 ) : (
-                  <Button
-                    className="w-1/2"
-                    variant={"outline"}
-                    disabled={
-                      addFriendByIdMutation.isPending ||
-                      addFriendByIdMutation.isSuccess ||
-                      isNotificationSent?.success
-                    }
-                    onClick={async () => {
-                      void (await addFriendByIdMutation.mutateAsync({
-                        id: id!,
-                      }));
-                    }}
-                  >
-                    {addFriendByIdMutation.isSuccess ||
-                    isNotificationSent?.success ? (
-                      "Request Sent"
-                    ) : addFriendByIdMutation.isPending ? (
-                      <Loader2 className="animate-spin" size={20} />
-                    ) : (
-                      "Add Friend"
-                    )}
-                  </Button>
+                  !isBlocked && (
+                    <Button
+                      className="w-1/2"
+                      variant={"outline"}
+                      disabled={
+                        addFriendByIdMutation.isPending ||
+                        addFriendByIdMutation.isSuccess ||
+                        isNotificationSent?.success
+                      }
+                      onClick={async () => {
+                        void (await addFriendByIdMutation.mutateAsync({
+                          id: id!,
+                        }));
+                      }}
+                    >
+                      {addFriendByIdMutation.isSuccess ||
+                      isNotificationSent?.success ? (
+                        "Request Sent"
+                      ) : addFriendByIdMutation.isPending ? (
+                        <Loader2 className="animate-spin" size={20} />
+                      ) : (
+                        "Add Friend"
+                      )}
+                    </Button>
+                  )
                 )}
                 <Button disabled className="w-1/2" variant={"outline"}>
                   Message
                 </Button>
+                {isBlocked && (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-1/2" variant={"outline"}>
+                        Unblock
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader className="text-center sm:text-left">
+                        <DialogTitle className="text-lg font-semibold">
+                          Unblock user
+                        </DialogTitle>
+                        <DialogDescription className="text-muted-foreground text-sm">
+                          Are you sure you want to unblock{" "}
+                          <span className="text-foreground font-semibold">
+                            {username}.
+                          </span>
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter className="flex flex-row space-x-2">
+                        <DialogClose asChild>
+                          <Button
+                            variant="outline"
+                            className="flex-1"
+                            disabled={unblockUserMutation.isPending}
+                          >
+                            Cancel
+                          </Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <Button
+                            className="flex-1"
+                            disabled={unblockUserMutation.isPending}
+                            onClick={async () => {
+                              try {
+                                await unblockUserMutation.mutateAsync({
+                                  userToUnblockId: id!,
+                                });
+                                setIsBlocked(false);
+                              } catch (error) {
+                                console.error(
+                                  "Failed to remove friend:",
+                                  error,
+                                );
+                              }
+                            }}
+                          >
+                            {unblockUserMutation.isPending ? (
+                              <div className="flex items-center gap-2">
+                                <Loader2 className="animate-spin" />
+                                Please wait
+                              </div>
+                            ) : (
+                              "Unblock"
+                            )}
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </div>
             </div>
             {isFriend && (

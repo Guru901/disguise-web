@@ -749,6 +749,27 @@ async function getBlockedUsers(userId: string) {
   }
 }
 
+async function unblockUser(loggedInUserId: string, userToUnblockId: string) {
+  try {
+    await db.update(userSchema).set({
+      blockedUsers: sql`array_remove
+      (
+      ${userSchema.blockedUsers},
+      ${userToUnblockId}
+      )`,
+    });
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+
 export {
   registerUser,
   loginUser,
@@ -771,4 +792,5 @@ export {
   editAvatar,
   changeAccountType,
   getBlockedUsers,
+  unblockUser,
 };

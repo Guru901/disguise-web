@@ -59,6 +59,7 @@ export default function Me() {
   const friends = user?.friends ?? [];
   const createdAt = user?.createdAt;
   const lastOnline = user?.lastOnline;
+  const blockedUsers = user?.blockedUsers;
   const id = user?.id ?? "";
 
   const { setUser } = useUserStore();
@@ -71,6 +72,7 @@ export default function Me() {
       friends: friends,
       createdAt: createdAt?.toLocaleDateString() ?? "",
       id: id,
+      blockedUsers: blockedUsers ?? [],
     });
   }, []);
 

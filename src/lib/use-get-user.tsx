@@ -26,6 +26,7 @@ export default function useGetUser() {
         posts: data.user.posts ?? [],
         friends: data.user.friends ?? [],
         createdAt: data.user.createdAt.toLocaleDateString(),
+        blockedUsers: data.user.blockedUsers ?? [],
       });
     } else if (data && data.success === false) {
       router.replace("/login");
