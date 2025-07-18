@@ -9,13 +9,11 @@ export default function useGetUser() {
   const { user, setUser } = useUserStore();
   const router = useRouter();
 
-  const { data, isLoading, error } = api.userRouter.getUserData.useQuery(
-    undefined,
-    {
+  const { data, isLoading, error, refetch } =
+    api.userRouter.getUserData.useQuery(undefined, {
       enabled: !user?.id,
       retry: false,
-    },
-  );
+    });
 
   useEffect(() => {
     if (data?.user) {
@@ -39,5 +37,10 @@ export default function useGetUser() {
     }
   }, [error, router]);
 
-  return { user, error: error?.message ?? "", loading: isLoading };
+  return {
+    user,
+    error: error?.message ?? "",
+    loading: isLoading,
+    refetchUser: refetch,
+  };
 }

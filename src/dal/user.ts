@@ -156,7 +156,7 @@ async function searchusers(searchTerm: string, loggedInUserId: string) {
       .where(eq(userSchema.id, loggedInUserId))
       .limit(1);
 
-    const loggedInUserBlockedList = loggedInUser[0]?.blockedUsers || [];
+    const loggedInUserBlockedList = loggedInUser[0]?.blockedUsers ?? [];
 
     const users = await db
       .select({
@@ -200,7 +200,7 @@ async function getFirstTenUsers(loggedInUserId: string) {
       .where(eq(userSchema.id, loggedInUserId))
       .limit(1);
 
-    const loggedInUserBlockedList = loggedInUser[0]?.blockedUsers || [];
+    const loggedInUserBlockedList = loggedInUser[0]?.blockedUsers ?? [];
 
     const users = await db
       .select({
@@ -749,15 +749,50 @@ async function getBlockedUsers(userId: string) {
   }
 }
 
+async function blockUser(
+  loggedInUserId: string,
+  userToBlockId: string,
+  isFriend: boolean,
+) {
+  try {
+    if (isFriend) {
+      await removeFriendById(loggedInUserId, userToBlockId);
+    }
+
+    await db
+      .update(userSchema)
+      .set({
+        blockedUsers: sql`array_append
+      (
+      ${userSchema.blockedUsers},
+      ${userToBlockId}
+      )`,
+      })
+      .where(eq(userSchema.id, loggedInUserId));
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+
 async function unblockUser(loggedInUserId: string, userToUnblockId: string) {
   try {
-    await db.update(userSchema).set({
-      blockedUsers: sql`array_remove
+    await db
+      .update(userSchema)
+      .set({
+        blockedUsers: sql`array_remove
       (
       ${userSchema.blockedUsers},
       ${userToUnblockId}
       )`,
-    });
+      })
+      .where(eq(userSchema.id, loggedInUserId));
 
     return {
       success: true,
@@ -792,5 +827,6 @@ export {
   editAvatar,
   changeAccountType,
   getBlockedUsers,
+  blockUser,
   unblockUser,
 };

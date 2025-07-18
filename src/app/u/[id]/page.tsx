@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import Image from "next/image";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +26,7 @@ import UserPostLoader from "@/components/loaders/profile-loading";
 import MediaPlayer from "@/components/media-player";
 import UserCard from "@/components/user-card";
 import useGetUser from "@/lib/use-get-user";
+import { toast } from "sonner";
 
 const breakpointColumnsObjComments = {
   default: 3,
@@ -48,7 +48,7 @@ export default function UserProfile() {
 
   const [isBlocked, setIsBlocked] = useState(false);
 
-  const { user: loggedInUser } = useGetUser();
+  const { user: loggedInUser, refetchUser } = useGetUser();
 
   const pathName = usePathname();
   const id = pathName.split("/")[2];
@@ -62,7 +62,7 @@ export default function UserProfile() {
   const { data: userPosts, isLoading: isPostsLoading } =
     api.postRouter.getUserPublicPostsByUserId.useQuery(
       {
-        userId: data?.user?.id ?? "",
+        userId: id ?? "",
       },
       {
         enabled: isFriend ?? false,
@@ -72,7 +72,7 @@ export default function UserProfile() {
   const { data: userLikedPosts, isLoading: isLikedPostsLoading } =
     api.postRouter.getUserlikedPostsByUserId.useQuery(
       {
-        userId: data?.user?.id ?? "",
+        userId: id ?? "",
       },
       {
         enabled: isFriend ?? false,
@@ -82,7 +82,7 @@ export default function UserProfile() {
   const { data: userPrivatePosts, isLoading: isPrivatePostsLoading } =
     api.postRouter.getUserPrivatePostsByUserId.useQuery(
       {
-        userId: data?.user?.id ?? "",
+        userId: id ?? "",
       },
       {
         enabled: isFriend ?? false,
@@ -90,24 +90,39 @@ export default function UserProfile() {
     );
 
   const { data: userDisLikedPosts, isLoading: isDisLikedPostsLoading } =
-    api.postRouter.getDislikedPostByUserId.useQuery(data?.user?.id ?? "", {
+    api.postRouter.getDislikedPostByUserId.useQuery(id ?? "", {
       enabled: isFriend ?? false,
     });
 
   const { data: userComments, isLoading: isCommentsLoading } =
-    api.postRouter.getCommentsByUserId.useQuery(data?.user?.id ?? "", {
+    api.postRouter.getCommentsByUserId.useQuery(id ?? "", {
       enabled: isFriend ?? false,
     });
 
   const { data: userFriends, isLoading: isFriendsLoading } =
-    api.postRouter.getFriendsByUserId.useQuery(data?.user?.id ?? "", {
+    api.postRouter.getFriendsByUserId.useQuery(id ?? "", {
       enabled: isFriend ?? false,
     });
 
   const removeFriendByIdMutation =
     api.userRouter.removeFriendById.useMutation();
 
-  const unblockUserMutation = api.userRouter.unblockUser.useMutation();
+  const unblockUserMutation = api.userRouter.unblockUser.useMutation({
+    onSuccess: async () => {
+      void (await refetchUser());
+      toast("User successfully unblocked");
+      setIsBlocked(false);
+    },
+  });
+
+  const blockUserMutation = api.userRouter.blockUser.useMutation({
+    onSuccess: async () => {
+      void (await refetchUser());
+      toast("User successfully blocked");
+      setIsBlocked(true);
+      setIsFriend(false);
+    },
+  });
 
   const addFriendByIdMutation = api.userRouter.sendFriendRequest.useMutation();
 
@@ -120,13 +135,18 @@ export default function UserProfile() {
   const lastOnline = user?.lastOnline;
 
   const { data: isNotificationSent } =
-    api.userRouter.isFriendNotificationSent.useQuery({
-      id: user?.id ?? "",
-    });
+    api.userRouter.isFriendNotificationSent.useQuery(
+      {
+        id: id ?? "",
+      },
+      {
+        enabled: !isBlocked && !isFriend,
+      },
+    );
 
   useEffect(() => {
     setIsFriend(friends.includes(loggedInUser.id));
-  }, [isNotificationSent, loggedInUser.id]);
+  }, [friends, isNotificationSent, loggedInUser.id]);
 
   useEffect(() => {
     if (loggedInUser.id === id) {
@@ -135,7 +155,7 @@ export default function UserProfile() {
   }, [user, id, loggedInUser.id, router]);
 
   useEffect(() => {
-    if (loggedInUser.blockedUsers && loggedInUser.blockedUsers.includes(id!)) {
+    if (loggedInUser.blockedUsers?.includes(id!)) {
       setIsBlocked(true);
     }
   }, [id, loggedInUser.blockedUsers]);
@@ -268,20 +288,18 @@ export default function UserProfile() {
                     </Button>
                   )
                 )}
-                <Button disabled className="w-1/2" variant={"outline"}>
-                  Message
-                </Button>
-                {isBlocked && (
+
+                {isBlocked ? (
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button className="w-1/2" variant={"outline"}>
+                      <Button className="w-full" variant={"outline"}>
                         Unblock
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md">
                       <DialogHeader className="text-center sm:text-left">
                         <DialogTitle className="text-lg font-semibold">
-                          Unblock user
+                          Unblock {username}
                         </DialogTitle>
                         <DialogDescription className="text-muted-foreground text-sm">
                           Are you sure you want to unblock{" "}
@@ -309,7 +327,6 @@ export default function UserProfile() {
                                 await unblockUserMutation.mutateAsync({
                                   userToUnblockId: id!,
                                 });
-                                setIsBlocked(false);
                               } catch (error) {
                                 console.error(
                                   "Failed to remove friend:",
@@ -325,6 +342,59 @@ export default function UserProfile() {
                               </div>
                             ) : (
                               "Unblock"
+                            )}
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                ) : (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-1/2" variant={"destructive"}>
+                        Block
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader className="text-center sm:text-left">
+                        <DialogTitle className="text-lg font-semibold">
+                          Block {username}
+                        </DialogTitle>
+                        <DialogDescription className="text-muted-foreground text-sm">
+                          Are you sure you want to block{" "}
+                          <span className="text-foreground font-semibold">
+                            {username}.
+                          </span>
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter className="flex flex-row space-x-2">
+                        <DialogClose asChild>
+                          <Button
+                            variant="outline"
+                            className="flex-1"
+                            disabled={unblockUserMutation.isPending}
+                          >
+                            Cancel
+                          </Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <Button
+                            className="w-1/2"
+                            variant={"destructive"}
+                            disabled={blockUserMutation.isPending}
+                            onClick={async () => {
+                              await blockUserMutation.mutateAsync({
+                                userToBlockId: id!,
+                                isFriend: isFriend,
+                              });
+                            }}
+                          >
+                            {blockUserMutation.isPending ? (
+                              <div className="flex items-center gap-2">
+                                <Loader2 className="animate-spin" />
+                              </div>
+                            ) : (
+                              "Block User"
                             )}
                           </Button>
                         </DialogClose>
