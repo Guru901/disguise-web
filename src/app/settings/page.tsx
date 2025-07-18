@@ -411,7 +411,7 @@ function AccountSettings() {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("In 2 days");
   const [date, setDate] = useState<Date | undefined>(
-    parseDate(value) || undefined,
+    parseDate(value) ?? undefined,
   );
   const [month, setMonth] = useState<Date | undefined>(date);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -505,7 +505,7 @@ function AccountSettings() {
                   <DialogDescription className="text-muted-foreground flex flex-col gap-3 text-sm">
                     <p>
                       Are you sure, you want to deactivate your account. You
-                      won't be able to log in while it's deactivated.
+                      won&apos;t be able to log in while it&apos;s deactivated.
                     </p>
                     <div className="flex flex-col gap-3">
                       <Label htmlFor="date" className="px-1">

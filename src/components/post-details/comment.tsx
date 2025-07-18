@@ -274,7 +274,7 @@ export default function Comment({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
                         <DropdownMenuItem
-                          onSelect={(event) => {
+                          onSelect={() => {
                             handleReply(
                               comment.comments.id,
                               reply.users?.username ?? "User",

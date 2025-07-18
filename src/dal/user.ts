@@ -79,7 +79,7 @@ async function loginUser(userData: TSignInSchema) {
       .where(eq(userSchema.username, userData.username))
       .then((res) => res[0]);
 
-    const deactivatedTill = new Date(userFromDb?.deactivatedTill!);
+    const deactivatedTill = new Date(String(userFromDb?.deactivatedTill));
 
     if (userFromDb?.isDeactivated && new Date() < deactivatedTill) {
       return {
