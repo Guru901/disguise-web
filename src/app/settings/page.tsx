@@ -420,7 +420,8 @@ function AccountSettings() {
     parseDate(value) ?? undefined,
   );
   const [month, setMonth] = useState<Date | undefined>(date);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeactivatedDialogOpen, setIsDeactivatedDialogOpen] = useState(false);
+  const [isDeletedDialogOpen, setIsDeletedDialogOpen] = useState(false);
   const { setUser } = useUserStore();
 
   const { data: userData } = api.userRouter.getUserData.useQuery();
@@ -464,6 +465,23 @@ function AccountSettings() {
         location.href = "/login";
       },
     });
+
+  const deleteAccountMutation = api.userRouter.deleteAccount.useMutation({
+    onSuccess: async () => {
+      toast("Account deleted");
+      await fetch("/api/logout");
+      setUser({
+        avatar: "",
+        username: "",
+        posts: [],
+        friends: [],
+        createdAt: "",
+        id: "",
+        blockedUsers: [],
+      });
+      location.href = "/login";
+    },
+  });
 
   function formatDate(date: Date | undefined) {
     if (!date) {
@@ -611,7 +629,10 @@ function AccountSettings() {
                 Temporarily disable your account
               </p>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog
+              open={isDeactivatedDialogOpen}
+              onOpenChange={setIsDeactivatedDialogOpen}
+            >
               <DialogTrigger asChild>
                 <Button variant="outline">Deactivate</Button>
               </DialogTrigger>
@@ -691,7 +712,7 @@ function AccountSettings() {
                   <Button
                     variant="outline"
                     className="flex-1"
-                    onClick={() => setIsDialogOpen(false)}
+                    onClick={() => setIsDeactivatedDialogOpen(false)}
                     disabled={deactivateAccountMutation.isPending}
                   >
                     Cancel
@@ -729,10 +750,53 @@ function AccountSettings() {
                 Permanently delete your account and all data
               </p>
             </div>
-            <Button variant="destructive">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Account
-            </Button>
+            <Dialog
+              open={isDeletedDialogOpen}
+              onOpenChange={setIsDeletedDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button variant="destructive">
+                  <Trash2 /> Delete Account
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader className="text-center sm:text-left">
+                  <DialogTitle className="text-lg font-semibold">
+                    Deactivate
+                  </DialogTitle>
+                  <DialogDescription className="text-muted-foreground flex flex-col gap-3 text-sm">
+                    <p>Are you sure, you want to delete your account.</p>
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="flex flex-row space-x-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setIsDeletedDialogOpen(false)}
+                    disabled={deleteAccountMutation.isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    disabled={deleteAccountMutation.isPending}
+                    onClick={async () => {
+                      await deleteAccountMutation.mutateAsync();
+                    }}
+                  >
+                    {deleteAccountMutation.isPending ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="animate-spin" size={16} />
+                        Deleting...
+                      </div>
+                    ) : (
+                      "Delete"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>

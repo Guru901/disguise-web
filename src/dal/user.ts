@@ -79,6 +79,15 @@ async function loginUser(userData: TSignInSchema) {
       .where(eq(userSchema.username, userData.username))
       .then((res) => res[0]);
 
+    if (userFromDb?.isDeleted) {
+      return {
+        message: "Your account has been deleted",
+        success: false,
+        status: 401,
+        error: null,
+      };
+    }
+
     const deactivatedTill = new Date(String(userFromDb?.deactivatedTill));
 
     if (userFromDb?.isDeactivated && new Date() < deactivatedTill) {
@@ -181,6 +190,7 @@ async function searchusers(searchTerm: string, loggedInUserId: string) {
         and(
           ilike(userSchema.username, "%" + searchTerm + "%"),
           not(arrayContains(userSchema.blockedUsers, [loggedInUserId])),
+          not(eq(userSchema.isDeleted, true)),
           loggedInUserBlockedList.length > 0
             ? not(inArray(userSchema.id, loggedInUserBlockedList))
             : sql`true`,
@@ -227,6 +237,7 @@ async function getFirstTenUsers(loggedInUserId: string) {
           loggedInUserBlockedList.length > 0
             ? not(inArray(userSchema.id, loggedInUserBlockedList))
             : sql`true`,
+          eq(userSchema.isDeleted, false),
         ),
       )
       .limit(10);
@@ -259,6 +270,7 @@ async function getUserDataById(userId: string) {
       .where(
         or(
           eq(userSchema.username, userId),
+          eq(userSchema.isDeleted, false),
           ...(isValidUuid ? [eq(userSchema.id, userId)] : []),
         ),
       )
@@ -838,6 +850,28 @@ async function deactivateAccount(loggedInUserId: string, deactivateTill: Date) {
   }
 }
 
+async function deleteAccount(loggedInUserId: string) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        isDeleted: true,
+        username: "Deleted",
+        avatar: "https://c.tenor.com/nGIjFH0F7N0AAAAd/tenor.gif",
+      })
+      .where(eq(userSchema.id, loggedInUserId));
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+
 async function changePassword(
   currentPassword: string,
   newPassword: string,
@@ -910,5 +944,6 @@ export {
   blockUser,
   unblockUser,
   deactivateAccount,
+  deleteAccount,
   changePassword,
 };

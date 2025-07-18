@@ -175,6 +175,10 @@ export const userRouter = createTRPCRouter({
       return await userDal.deactivateAccount(ctx.userId, input.deactivateTill);
     }),
 
+  deleteAccount: protectedProcedure.mutation(async ({ ctx }) => {
+    return await userDal.deleteAccount(ctx.userId);
+  }),
+
   changePassword: protectedProcedure
     .input(
       z.object({

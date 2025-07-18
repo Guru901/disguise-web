@@ -32,6 +32,7 @@ export const userSchema = pgTable("users", {
   accountType: accountTypeEnum("account_type").default("public"),
   isDeactivated: boolean("is_deactivated").default(false),
   deactivatedTill: timestamp("deactivated_till"),
+  isDeleted: boolean("is_deleted").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastOnline: timestamp("last_online"),
 });

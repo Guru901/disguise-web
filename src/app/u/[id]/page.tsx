@@ -151,7 +151,11 @@ export default function UserProfile() {
     if (loggedInUser.id === id) {
       router.replace("/me");
     }
-  }, [user, id, loggedInUser.id, router]);
+
+    if (data?.user?.isDeleted) {
+      router.back();
+    }
+  }, [user, id, loggedInUser.id, router, data?.user?.isDeleted]);
 
   useEffect(() => {
     if (loggedInUser.blockedUsers?.includes(id!)) {
