@@ -5,4 +5,4 @@
 3. [x] Add the feautre to deactivate account until some date
 4. [x] When logging in check for account being deactivated or not
 5. [x] Add Feature to change the password
-6. [] Add deleted account feature like in reddit
+6. [x] Add deleted account feature like in reddit
