@@ -45,8 +45,11 @@ const breakpointColumnsObj = {
 export default function UserProfile() {
   const [selectedOption, setSelectedOption] = useState("public");
   const [isFriend, setIsFriend] = useState(false);
-
   const [isBlocked, setIsBlocked] = useState(false);
+  const [isRemoveFriendDialogOpen, setIsRemoveFriendDialogOpen] =
+    useState(false);
+  const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
+  const [isUnblockDialogOpen, setIsUnblockDialogOpen] = useState(false);
 
   const { user: loggedInUser, refetchUser } = useGetUser();
 
@@ -104,14 +107,28 @@ export default function UserProfile() {
       enabled: isFriend ?? false,
     });
 
-  const removeFriendByIdMutation =
-    api.userRouter.removeFriendById.useMutation();
+  const removeFriendByIdMutation = api.userRouter.removeFriendById.useMutation({
+    onSuccess: () => {
+      setIsFriend(false);
+      setIsRemoveFriendDialogOpen(false);
+      toast("Friend removed successfully");
+    },
+    onError: (error) => {
+      console.error("Failed to remove friend:", error);
+      toast("Failed to remove friend");
+    },
+  });
 
   const unblockUserMutation = api.userRouter.unblockUser.useMutation({
     onSuccess: async () => {
       void (await refetchUser());
       toast("User successfully unblocked");
       setIsBlocked(false);
+      setIsUnblockDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Failed to unblock user:", error);
+      toast("Failed to unblock user");
     },
   });
 
@@ -121,6 +138,11 @@ export default function UserProfile() {
       toast("User successfully blocked");
       setIsBlocked(true);
       setIsFriend(false);
+      setIsBlockDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Failed to block user:", error);
+      toast("Failed to block user");
     },
   });
 
@@ -212,7 +234,10 @@ export default function UserProfile() {
             <div className="w-full">
               <div className="flex w-full gap-2">
                 {isFriend ? (
-                  <Dialog>
+                  <Dialog
+                    open={isRemoveFriendDialogOpen}
+                    onOpenChange={setIsRemoveFriendDialogOpen}
+                  >
                     <DialogTrigger asChild>
                       <Button className="w-1/2" variant={"outline"}>
                         Remove Friend
@@ -232,32 +257,33 @@ export default function UserProfile() {
                         </DialogDescription>
                       </DialogHeader>
                       <DialogFooter className="flex flex-row space-x-2">
-                        <DialogClose asChild>
-                          <Button variant="outline" className="flex-1">
-                            Cancel
-                          </Button>
-                        </DialogClose>
-                        <DialogClose asChild>
-                          <Button
-                            variant="destructive"
-                            className="flex-1"
-                            onClick={async () => {
-                              try {
-                                await removeFriendByIdMutation.mutateAsync({
-                                  id: id!,
-                                });
-                                setIsFriend(false);
-                              } catch (error) {
-                                console.error(
-                                  "Failed to remove friend:",
-                                  error,
-                                );
-                              }
-                            }}
-                          >
-                            Remove Friend
-                          </Button>
-                        </DialogClose>
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => setIsRemoveFriendDialogOpen(false)}
+                          disabled={removeFriendByIdMutation.isPending}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          className="flex-1"
+                          disabled={removeFriendByIdMutation.isPending}
+                          onClick={async () => {
+                            await removeFriendByIdMutation.mutateAsync({
+                              id: id!,
+                            });
+                          }}
+                        >
+                          {removeFriendByIdMutation.isPending ? (
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="animate-spin" size={16} />
+                              Removing...
+                            </div>
+                          ) : (
+                            "Remove Friend"
+                          )}
+                        </Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
@@ -290,7 +316,10 @@ export default function UserProfile() {
                 )}
 
                 {isBlocked ? (
-                  <Dialog>
+                  <Dialog
+                    open={isUnblockDialogOpen}
+                    onOpenChange={setIsUnblockDialogOpen}
+                  >
                     <DialogTrigger asChild>
                       <Button className="w-full" variant={"outline"}>
                         Unblock
@@ -309,47 +338,40 @@ export default function UserProfile() {
                         </DialogDescription>
                       </DialogHeader>
                       <DialogFooter className="flex flex-row space-x-2">
-                        <DialogClose asChild>
-                          <Button
-                            variant="outline"
-                            className="flex-1"
-                            disabled={unblockUserMutation.isPending}
-                          >
-                            Cancel
-                          </Button>
-                        </DialogClose>
-                        <DialogClose asChild>
-                          <Button
-                            className="flex-1"
-                            disabled={unblockUserMutation.isPending}
-                            onClick={async () => {
-                              try {
-                                await unblockUserMutation.mutateAsync({
-                                  userToUnblockId: id!,
-                                });
-                              } catch (error) {
-                                console.error(
-                                  "Failed to remove friend:",
-                                  error,
-                                );
-                              }
-                            }}
-                          >
-                            {unblockUserMutation.isPending ? (
-                              <div className="flex items-center gap-2">
-                                <Loader2 className="animate-spin" />
-                                Please wait
-                              </div>
-                            ) : (
-                              "Unblock"
-                            )}
-                          </Button>
-                        </DialogClose>
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => setIsUnblockDialogOpen(false)}
+                          disabled={unblockUserMutation.isPending}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          className="flex-1"
+                          disabled={unblockUserMutation.isPending}
+                          onClick={async () => {
+                            await unblockUserMutation.mutateAsync({
+                              userToUnblockId: id!,
+                            });
+                          }}
+                        >
+                          {unblockUserMutation.isPending ? (
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="animate-spin" size={16} />
+                              Unblocking...
+                            </div>
+                          ) : (
+                            "Unblock"
+                          )}
+                        </Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
                 ) : (
-                  <Dialog>
+                  <Dialog
+                    open={isBlockDialogOpen}
+                    onOpenChange={setIsBlockDialogOpen}
+                  >
                     <DialogTrigger asChild>
                       <Button className="w-1/2" variant={"destructive"}>
                         Block
@@ -368,36 +390,34 @@ export default function UserProfile() {
                         </DialogDescription>
                       </DialogHeader>
                       <DialogFooter className="flex flex-row space-x-2">
-                        <DialogClose asChild>
-                          <Button
-                            variant="outline"
-                            className="flex-1"
-                            disabled={unblockUserMutation.isPending}
-                          >
-                            Cancel
-                          </Button>
-                        </DialogClose>
-                        <DialogClose asChild>
-                          <Button
-                            className="w-1/2"
-                            variant={"destructive"}
-                            disabled={blockUserMutation.isPending}
-                            onClick={async () => {
-                              await blockUserMutation.mutateAsync({
-                                userToBlockId: id!,
-                                isFriend: isFriend,
-                              });
-                            }}
-                          >
-                            {blockUserMutation.isPending ? (
-                              <div className="flex items-center gap-2">
-                                <Loader2 className="animate-spin" />
-                              </div>
-                            ) : (
-                              "Block User"
-                            )}
-                          </Button>
-                        </DialogClose>
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => setIsBlockDialogOpen(false)}
+                          disabled={blockUserMutation.isPending}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          className="flex-1"
+                          disabled={blockUserMutation.isPending}
+                          onClick={async () => {
+                            await blockUserMutation.mutateAsync({
+                              userToBlockId: id!,
+                              isFriend: isFriend,
+                            });
+                          }}
+                        >
+                          {blockUserMutation.isPending ? (
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="animate-spin" size={16} />
+                              Blocking...
+                            </div>
+                          ) : (
+                            "Block User"
+                          )}
+                        </Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
