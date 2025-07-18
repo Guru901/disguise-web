@@ -164,4 +164,14 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return await userDal.unblockUser(ctx.userId, input.userToUnblockId);
     }),
+
+  deactivateAccount: protectedProcedure
+    .input(
+      z.object({
+        deactivateTill: z.date(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await userDal.deactivateAccount(ctx.userId, input.deactivateTill);
+    }),
 });

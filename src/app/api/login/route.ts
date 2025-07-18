@@ -12,13 +12,13 @@ export async function POST(req: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, message: "Invalid input" },
+        { success: false, message: parsed.error },
         { status: 400 },
       );
     }
 
     const result = await loginUser(parsed.data);
-    
+
     if (result.success) {
       const token = jwt.sign({ id: result.data }, env.JWT_SECRET);
       const cookie = await cookies();

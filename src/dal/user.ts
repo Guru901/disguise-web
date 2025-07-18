@@ -76,12 +76,24 @@ async function loginUser(userData: TSignInSchema) {
     const userFromDb = await db
       .select()
       .from(userSchema)
-      .where(eq(userSchema.username, userData.username));
+      .where(eq(userSchema.username, userData.username))
+      .then((res) => res[0]);
 
-    if (userFromDb[0]) {
+    const deactivatedTill = new Date(userFromDb?.deactivatedTill!);
+
+    if (userFromDb?.isDeactivated && new Date() < deactivatedTill) {
+      return {
+        message: `Your account is deactivated till ${deactivatedTill.toLocaleDateString()}`,
+        success: false,
+        status: 401,
+        error: null,
+      };
+    }
+
+    if (userFromDb) {
       const passwordMatch = await compare(
         userData.password,
-        userFromDb[0].password,
+        userFromDb.password,
       );
 
       if (passwordMatch) {
@@ -89,7 +101,7 @@ async function loginUser(userData: TSignInSchema) {
           message: "User logged in",
           success: true,
           status: 200,
-          data: userFromDb[0].id,
+          data: userFromDb.id,
           error: null,
         };
       } else {
@@ -805,6 +817,27 @@ async function unblockUser(loggedInUserId: string, userToUnblockId: string) {
   }
 }
 
+async function deactivateAccount(loggedInUserId: string, deactivateTill: Date) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        isDeactivated: true,
+        deactivatedTill: deactivateTill,
+      })
+      .where(eq(userSchema.id, loggedInUserId));
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+
 export {
   registerUser,
   loginUser,
@@ -829,4 +862,5 @@ export {
   getBlockedUsers,
   blockUser,
   unblockUser,
+  deactivateAccount,
 };

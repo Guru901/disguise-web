@@ -46,6 +46,24 @@ import {
   DrawerClose,
   Drawer,
 } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogFooter,
+  DialogDescription,
+  DialogTitle,
+  DialogHeader,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { parseDate } from "chrono-node";
+import { useUserStore } from "@/lib/userStore";
 
 type GetUserDataQueryType = ReturnType<
   typeof api.userRouter.getUserData.useQuery
@@ -390,6 +408,45 @@ function NotificationSettings() {
 }
 
 function AccountSettings() {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("In 2 days");
+  const [date, setDate] = useState<Date | undefined>(
+    parseDate(value) || undefined,
+  );
+  const [month, setMonth] = useState<Date | undefined>(date);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { setUser } = useUserStore();
+
+  const deactivateAccountMutation =
+    api.userRouter.deactivateAccount.useMutation({
+      onSuccess: async () => {
+        toast(`Account deactivated till ${date?.toLocaleDateString()}`);
+        await fetch("/api/logout");
+        setUser({
+          avatar: "",
+          username: "",
+          posts: [],
+          friends: [],
+          createdAt: "",
+          id: "",
+          blockedUsers: [],
+        });
+        location.href = "/login";
+      },
+    });
+
+  function formatDate(date: Date | undefined) {
+    if (!date) {
+      return "";
+    }
+
+    return date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -436,7 +493,113 @@ function AccountSettings() {
                 Temporarily disable your account
               </p>
             </div>
-            <Button variant="outline">Deactivate</Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">Deactivate</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader className="text-center sm:text-left">
+                  <DialogTitle className="text-lg font-semibold">
+                    Deactivate
+                  </DialogTitle>
+                  <DialogDescription className="text-muted-foreground flex flex-col gap-3 text-sm">
+                    <p>
+                      Are you sure, you want to deactivate your account. You
+                      won't be able to log in while it's deactivated.
+                    </p>
+                    <div className="flex flex-col gap-3">
+                      <Label htmlFor="date" className="px-1">
+                        Activate again
+                      </Label>
+                      <div className="relative flex gap-2">
+                        <Input
+                          id="date"
+                          value={value}
+                          placeholder="Tomorrow or next week"
+                          className="bg-background pr-10"
+                          onChange={(e) => {
+                            setValue(e.target.value);
+                            const date = parseDate(e.target.value);
+                            if (date) {
+                              setDate(date);
+                              setMonth(date);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "ArrowDown") {
+                              e.preventDefault();
+                              setOpen(true);
+                            }
+                          }}
+                        />
+                        <Popover open={open} onOpenChange={setOpen}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              id="date-picker"
+                              variant="ghost"
+                              className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+                            >
+                              <CalendarIcon className="size-3.5" />
+                              <span className="sr-only">Select date</span>
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-auto overflow-hidden p-0"
+                            align="end"
+                          >
+                            <Calendar
+                              mode="single"
+                              selected={date}
+                              captionLayout="dropdown"
+                              month={month}
+                              onMonthChange={setMonth}
+                              onSelect={(date) => {
+                                setDate(date);
+                                setValue(formatDate(date));
+                                setOpen(false);
+                              }}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="text-muted-foreground px-1 text-sm">
+                        Your post will be published on{" "}
+                        <span className="font-medium">{formatDate(date)}</span>.
+                      </div>
+                    </div>
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="flex flex-row space-x-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setIsDialogOpen(false)}
+                    disabled={deactivateAccountMutation.isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    disabled={deactivateAccountMutation.isPending}
+                    onClick={async () => {
+                      await deactivateAccountMutation.mutateAsync({
+                        deactivateTill: date!,
+                      });
+                    }}
+                  >
+                    {deactivateAccountMutation.isPending ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="animate-spin" size={16} />
+                        Deactivating...
+                      </div>
+                    ) : (
+                      "Deactivate"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
           <Separator />
           <div className="flex items-center justify-between">
@@ -510,7 +673,7 @@ function SettingsSidebar({
   }[];
 }) {
   return (
-    <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-max shrink-0 md:sticky md:block">
+    <aside className="fixed top-14 z-30 hidden h-[calc(100vh-3.5rem)] w-max shrink-0 md:sticky md:block">
       <div className="h-full py-6 pr-6 lg:py-8">
         <nav className="grid items-start gap-2">
           {sections.map((section) => {

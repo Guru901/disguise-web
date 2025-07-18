@@ -26,8 +26,12 @@ export const userSchema = pgTable("users", {
   posts: text("posts").notNull().array(),
   friends: text("friends").notNull().array(),
   blockedUsers: text("blocked_users").array(),
-  recieveNotificationsFor: notificationEnum().default("all"),
-  accountType: accountTypeEnum().default("public"),
+  recieveNotificationsFor: notificationEnum(
+    "recieve_notifications_for",
+  ).default("all"),
+  accountType: accountTypeEnum("account_type").default("public"),
+  isDeactivated: boolean("is_deactivated").default(false),
+  deactivatedTill: timestamp("deactivated_till"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastOnline: timestamp("last_online"),
 });
