@@ -215,12 +215,7 @@ export default function BottomNavbar() {
   if (pathname === "/" || pathname === "/login") return null;
 
   return !isDesktop ? (
-    <Card
-      className="fixed bottom-0 z-10 flex w-screen flex-row items-center justify-between p-4"
-      style={{
-        zoom: "1.03 !important",
-      }}
-    >
+    <Card className="bottom-nav fixed bottom-0 z-10 flex w-screen flex-row items-center justify-between p-4">
       <BackBtn />
       <BottomNavigation />
     </Card>
