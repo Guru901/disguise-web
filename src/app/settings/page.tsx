@@ -420,7 +420,7 @@ function AccountSettings() {
   const deactivateAccountMutation =
     api.userRouter.deactivateAccount.useMutation({
       onSuccess: async () => {
-        toast(`Account deactivated till ${date?.toLocaleDateString()}`);
+        toast(`Account deactivated till ${date?.toDateString()}`);
         await fetch("/api/logout");
         setUser({
           avatar: "",

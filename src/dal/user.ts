@@ -83,7 +83,7 @@ async function loginUser(userData: TSignInSchema) {
 
     if (userFromDb?.isDeactivated && new Date() < deactivatedTill) {
       return {
-        message: `Your account is deactivated till ${deactivatedTill.toLocaleDateString()}`,
+        message: `Your account is deactivated till ${deactivatedTill.toDateString()}`,
         success: false,
         status: 401,
         error: null,
