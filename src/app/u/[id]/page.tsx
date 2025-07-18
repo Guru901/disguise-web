@@ -1,7 +1,5 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,28 +17,12 @@ import {
   DialogHeader,
   DialogContent,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
-import Masonry from "react-masonry-css";
-import UserPostLoader from "@/components/loaders/profile-loading";
-import MediaPlayer from "@/components/media-player";
-import UserCard from "@/components/user-card";
 import useGetUser from "@/lib/use-get-user";
 import { toast } from "sonner";
-
-const breakpointColumnsObjComments = {
-  default: 3,
-  1100: 2,
-  700: 1,
-};
-
-const breakpointColumnsObj = {
-  default: 3,
-  1600: 2,
-  1200: 1,
-  1000: 2,
-  600: 1,
-};
+import PostGrid from "@/components/grids/post-grid";
+import CommentGrid from "@/components/grids/comment-grid";
+import FriendsGrid from "@/components/grids/friends-grid";
 
 export default function UserProfile() {
   const [selectedOption, setSelectedOption] = useState("public");
@@ -63,14 +45,9 @@ export default function UserProfile() {
   });
 
   const { data: userPosts, isLoading: isPostsLoading } =
-    api.postRouter.getUserPublicPostsByUserId.useQuery(
-      {
-        userId: id ?? "",
-      },
-      {
-        enabled: isFriend ?? false,
-      },
-    );
+    api.postRouter.getUserPublicPostsByUserId.useQuery({
+      userId: id ?? "",
+    });
 
   const { data: userLikedPosts, isLoading: isLikedPostsLoading } =
     api.postRouter.getUserlikedPostsByUserId.useQuery(
@@ -472,232 +449,31 @@ export default function UserProfile() {
         </div>
         <div className="p-6 lg:p-8">
           {selectedOption === "comments" ? (
-            isCommentsLoading ? (
-              <div className="flex h-full w-full items-center justify-center">
-                <Loader2 className="animate-spin" size={20} />
-              </div>
-            ) : (
-              <Masonry
-                breakpointCols={breakpointColumnsObjComments}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-              >
-                {userComments?.reverse().map((comment) => (
-                  <div key={comment.id}>
-                    <Card className="overflow-hidden">
-                      <Link href={`/p/${comment.post}`} className="h-full">
-                        <CardContent className="h-full p-3">
-                          <h1>{comment.content}</h1>
-                        </CardContent>
-                      </Link>
-                    </Card>
-                  </div>
-                ))}
-              </Masonry>
-            )
+            <CommentGrid
+              comments={userComments}
+              isLoading={isCommentsLoading}
+            />
           ) : selectedOption === "public" ? (
-            isPostsLoading ? (
-              <UserPostLoader />
-            ) : (
-              <Masonry
-                breakpointCols={breakpointColumnsObj}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-              >
-                {userPosts?.slice().map((post) => (
-                  <div key={post.id}>
-                    <Card className="overflow-hidden">
-                      <Link href={`/p/${post.id}`} className="h-full">
-                        <CardContent className="h-full p-0">
-                          {post.image ? (
-                            <div className="relative h-full">
-                              <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
-                                <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
-                                  <h1>{post.title}</h1>
-                                </div>
-                              </div>
-                              <MediaPlayer
-                                url={post.image}
-                                imageProps={{
-                                  alt: "Post",
-                                  width: 500,
-                                  height: 300,
-                                  className:
-                                    "h-full w-full rounded-xl object-cover",
-                                }}
-                                videoProps={{
-                                  className:
-                                    "h-full w-full rounded-xl object-cover",
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
-                              <h1>{post.title}</h1>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Link>
-                    </Card>
-                  </div>
-                ))}
-              </Masonry>
-            )
+            <PostGrid posts={userPosts} isLoading={isPostsLoading} />
           ) : selectedOption === "liked" ? (
-            isLikedPostsLoading ? (
-              <UserPostLoader />
-            ) : (
-              <Masonry
-                breakpointCols={breakpointColumnsObj}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-              >
-                {userLikedPosts?.slice().map((post) => (
-                  <div key={post.id}>
-                    <Card className="overflow-hidden">
-                      <Link href={`/p/${post.id}`} className="h-full">
-                        <CardContent className="h-full p-0">
-                          {post.image ? (
-                            <div className="relative h-full">
-                              <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
-                                <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
-                                  <h1>{post.title}</h1>
-                                </div>
-                              </div>
-                              <MediaPlayer
-                                url={post.image}
-                                imageProps={{
-                                  alt: "Post",
-                                  width: 500,
-                                  height: 300,
-                                  className:
-                                    "h-full w-full rounded-xl object-cover",
-                                }}
-                                videoProps={{
-                                  className:
-                                    "h-full w-full rounded-xl object-cover",
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
-                              <h1>{post.title}</h1>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Link>
-                    </Card>
-                  </div>
-                ))}
-              </Masonry>
-            )
+            <PostGrid posts={userLikedPosts} isLoading={isLikedPostsLoading} />
           ) : selectedOption === "private" ? (
-            isPrivatePostsLoading ? (
-              <UserPostLoader />
-            ) : (
-              <Masonry
-                breakpointCols={breakpointColumnsObj}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-              >
-                {userPrivatePosts?.slice().map((post) => (
-                  <div key={post.id}>
-                    <Card className="overflow-hidden">
-                      <Link href={`/p/${post.id}`} className="h-full">
-                        <CardContent className="h-full p-0">
-                          {post.image ? (
-                            <div className="relative h-full">
-                              <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
-                                <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
-                                  <h1>{post.title}</h1>
-                                </div>
-                              </div>
-                              <MediaPlayer
-                                url={post.image}
-                                imageProps={{
-                                  alt: "Post",
-                                  width: 500,
-                                  height: 300,
-                                  className:
-                                    "h-full w-full rounded-xl object-cover",
-                                }}
-                                videoProps={{
-                                  className:
-                                    "h-full w-full rounded-xl object-cover",
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
-                              <h1>{post.title}</h1>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Link>
-                    </Card>
-                  </div>
-                ))}
-              </Masonry>
-            )
+            <PostGrid
+              posts={userPrivatePosts}
+              isLoading={isPrivatePostsLoading}
+            />
           ) : selectedOption === "disLiked" ? (
-            isDisLikedPostsLoading ? (
-              <UserPostLoader />
-            ) : (
-              <Masonry
-                breakpointCols={breakpointColumnsObj}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-              >
-                {userDisLikedPosts?.map((post) => (
-                  <div key={post.id}>
-                    <Card className="overflow-hidden">
-                      <Link href={`/p/${post.id}`} className="h-full">
-                        <CardContent className="h-full p-0">
-                          {post.image ? (
-                            <div className="relative h-full">
-                              <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
-                                <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
-                                  <h1>{post.title}</h1>
-                                </div>
-                              </div>
-                              <MediaPlayer
-                                url={post.image}
-                                imageProps={{
-                                  alt: "Post",
-                                  width: 500,
-                                  height: 300,
-                                  className:
-                                    "h-full w-full rounded-xl object-cover",
-                                }}
-                                videoProps={{
-                                  className:
-                                    "h-full w-full rounded-xl object-cover",
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">
-                              <h1>{post.title}</h1>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Link>
-                    </Card>
-                  </div>
-                ))}
-              </Masonry>
-            )
+            <PostGrid
+              posts={userDisLikedPosts}
+              isLoading={isDisLikedPostsLoading}
+            />
           ) : selectedOption === "friends" ? (
             isFriendsLoading ? (
               <div className="flex h-full w-full items-center justify-center">
                 <Loader2 className="animate-spin" size={20} />
               </div>
             ) : (
-              <div className="flex flex-col gap-2">
-                {userFriends?.friends.map((friend) => (
-                  <UserCard user={friend} key={friend.id} />
-                ))}
-              </div>
+              <FriendsGrid friends={userFriends?.friends} />
             )
           ) : null}
         </div>

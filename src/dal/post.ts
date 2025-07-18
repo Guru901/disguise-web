@@ -557,17 +557,19 @@ async function getCommentsByUserId(userId: string) {
 
 async function getFriendsByUserId(userId: string) {
   const user = await db
-    .select()
+    .select({
+      friends: userSchema.friends,
+    })
     .from(userSchema)
     .where(eq(userSchema.id, userId))
     .limit(1)
     .then((res) => res[0]);
 
   if (!user) {
-    return null;
+    return {
+      friends: [],
+    };
   }
-
-  user.password = "";
 
   const friends =
     user.friends && user.friends.length > 0
@@ -576,10 +578,6 @@ async function getFriendsByUserId(userId: string) {
             id: userSchema.id,
             username: userSchema.username,
             avatar: userSchema.avatar,
-            posts: userSchema.posts,
-            friends: userSchema.friends,
-            createdAt: userSchema.createdAt,
-            lastOnline: userSchema.lastOnline,
           })
           .from(userSchema)
           .where(inArray(userSchema.id, user.friends))
