@@ -61,22 +61,24 @@ export default function SettingsPage() {
   return (
     <div className="bg-background min-h-screen px-2 py-2">
       <Navbar />
-      <div className="flex w-full flex-1 items-start px-2 py-6 md:gap-6 lg:container lg:m-auto lg:w-[calc(100vw-20rem)] lg:gap-10 lg:px-0">
+      <div className="w-full flex-1 items-start py-6 md:flex md:gap-6 lg:container lg:m-auto lg:w-[calc(100vw-20rem)] lg:gap-10 lg:px-0">
         <SettingsNavigation
           setActiveSection={setActiveSection}
           activeSection={activeSection}
         />
-        {/* Main Content */}
-        <main className="flex w-full flex-col overflow-hidden">
-          {activeSection === "profile" && (
-            <ProfileSettings getUserDataQuery={getUserDataQuery} />
-          )}
-          {activeSection === "privacy" && (
-            <PrivacySettings getUserDataQuery={getUserDataQuery} />
-          )}
-          {activeSection === "notifications" && <NotificationSettings />}
-          {activeSection === "account" && <AccountSettings />}
-        </main>
+        <div className="w-full px-2">
+          {/* Main Content */}
+          <div className="flex w-full flex-col overflow-hidden">
+            {activeSection === "profile" && (
+              <ProfileSettings getUserDataQuery={getUserDataQuery} />
+            )}
+            {activeSection === "privacy" && (
+              <PrivacySettings getUserDataQuery={getUserDataQuery} />
+            )}
+            {activeSection === "notifications" && <NotificationSettings />}
+            {activeSection === "account" && <AccountSettings />}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -547,7 +549,7 @@ function SettingsBottomNav({
   }[];
 }) {
   return (
-    <Card className="bottom-nav fixed bottom-20 z-10 flex w-screen flex-row items-center justify-between p-4">
+    <Card className="bottom-nav fixed bottom-20 z-10 flex w-[98%] flex-row items-center justify-between p-4">
       <div></div>
       <Drawer>
         <DrawerTrigger asChild>
