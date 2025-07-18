@@ -275,7 +275,6 @@ export default function Comment({
                       <DropdownMenuContent align="start">
                         <DropdownMenuItem
                           onSelect={(event) => {
-                            event.preventDefault();
                             handleReply(
                               comment.comments.id,
                               reply.users?.username ?? "User",
