@@ -1,6 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +29,9 @@ import {
   Trash2,
   Camera,
   Loader2,
+  ChevronUp,
+  XIcon,
+  type LucideProps,
 } from "lucide-react";
 import Navbar from "@/components/navbar";
 import { api } from "@/trpc/react";
@@ -32,6 +40,12 @@ import { CldUploadButton } from "next-cloudinary";
 import { toast } from "sonner";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/api/root";
+import {
+  DrawerTrigger,
+  DrawerContent,
+  DrawerClose,
+  Drawer,
+} from "@/components/ui/drawer";
 
 type GetUserDataQueryType = ReturnType<
   typeof api.userRouter.getUserData.useQuery
@@ -42,41 +56,16 @@ type GetUserDataOutput =
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile");
 
-  const sections = [
-    { id: "profile", label: "Profile", icon: User },
-    { id: "privacy", label: "Privacy", icon: Shield },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "account", label: "Account", icon: Settings },
-  ];
-
   const getUserDataQuery = api.userRouter.getUserData.useQuery();
 
   return (
     <div className="bg-background min-h-screen px-2 py-2">
       <Navbar />
-      <div className="container m-auto flex w-[calc(100vw-20rem)] flex-1 items-start py-6 md:gap-6 lg:gap-10">
-        {/* Sidebar */}
-        <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-max shrink-0 md:sticky md:block">
-          <div className="h-full py-6 pr-6 lg:py-8">
-            <nav className="grid items-start gap-2">
-              {sections.map((section) => {
-                const Icon = section.icon;
-                return (
-                  <Button
-                    key={section.id}
-                    variant="ghost"
-                    onClick={() => setActiveSection(section.id)}
-                    className={`justify-start gap-4 font-medium transition-colors ${activeSection === section.id ? "bg-muted text-primary" : ""}`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {section.label}
-                  </Button>
-                );
-              })}
-            </nav>
-          </div>
-        </aside>
-
+      <div className="flex w-full flex-1 items-start px-2 py-6 md:gap-6 lg:container lg:m-auto lg:w-[calc(100vw-20rem)] lg:gap-10 lg:px-0">
+        <SettingsNavigation
+          setActiveSection={setActiveSection}
+          activeSection={activeSection}
+        />
         {/* Main Content */}
         <main className="flex w-full flex-col overflow-hidden">
           {activeSection === "profile" && (
@@ -465,5 +454,137 @@ function AccountSettings() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function SettingsNavigation({
+  setActiveSection,
+  activeSection,
+}: {
+  setActiveSection: (id: string) => void;
+  activeSection: string;
+}) {
+  const sections = [
+    { id: "profile", label: "Profile", icon: User },
+    { id: "privacy", label: "Privacy", icon: Shield },
+    { id: "notifications", label: "Notifications", icon: Bell },
+    { id: "account", label: "Account", icon: Settings },
+  ];
+
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  useEffect(() => {
+    setIsDesktop(window.innerWidth > 768);
+  }, []);
+
+  return !isDesktop ? (
+    <SettingsBottomNav
+      setActiveSection={setActiveSection}
+      activeSection={activeSection}
+      sections={sections}
+    />
+  ) : (
+    <SettingsSidebar
+      setActiveSection={setActiveSection}
+      activeSection={activeSection}
+      sections={sections}
+    />
+  );
+}
+
+function SettingsSidebar({
+  setActiveSection,
+  activeSection,
+  sections,
+}: {
+  setActiveSection: (id: string) => void;
+  activeSection: string;
+  sections: {
+    id: string;
+    label: string;
+    icon: ForwardRefExoticComponent<
+      Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+    >;
+  }[];
+}) {
+  return (
+    <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-max shrink-0 md:sticky md:block">
+      <div className="h-full py-6 pr-6 lg:py-8">
+        <nav className="grid items-start gap-2">
+          {sections.map((section) => {
+            const Icon = section.icon;
+            return (
+              <Button
+                key={section.id}
+                variant="ghost"
+                onClick={() => setActiveSection(section.id)}
+                className={`justify-start gap-4 font-medium transition-colors ${activeSection === section.id ? "bg-muted text-primary" : ""}`}
+              >
+                <Icon className="h-4 w-4" />
+                {section.label}
+              </Button>
+            );
+          })}
+        </nav>
+      </div>
+    </aside>
+  );
+}
+
+function SettingsBottomNav({
+  setActiveSection,
+  activeSection,
+  sections,
+}: {
+  setActiveSection: (id: string) => void;
+  activeSection: string;
+  sections: {
+    id: string;
+    label: string;
+    icon: ForwardRefExoticComponent<
+      Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+    >;
+  }[];
+}) {
+  return (
+    <Card className="bottom-nav fixed bottom-20 z-10 flex w-screen flex-row items-center justify-between p-4">
+      <div></div>
+      <Drawer>
+        <DrawerTrigger asChild>
+          <Button variant="outline" size="icon">
+            <ChevronUp className="h-6 w-6" />
+            <span className="sr-only">Toggle sidebar</span>
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent className="bg-background p-4 sm:p-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Navigation</h2>
+            <DrawerClose asChild>
+              <Button variant="ghost" size="icon">
+                <XIcon />
+                <span className="sr-only">Close sidebar</span>
+              </Button>
+            </DrawerClose>
+          </div>
+          <nav className="mt-6 space-y-2">
+            {sections.map((section) => {
+              const Icon = section.icon;
+              return (
+                <DrawerClose asChild key={section.id} className="w-full">
+                  <Button
+                    onClick={() => setActiveSection(section.id)}
+                    className={`flex cursor-pointer justify-start ${activeSection === section.id ? "bg-muted text-primary" : ""}`}
+                    variant={"ghost"}
+                  >
+                    <Icon />
+                    {section.label}
+                  </Button>
+                </DrawerClose>
+              );
+            })}
+          </nav>
+        </DrawerContent>
+      </Drawer>
+    </Card>
   );
 }
