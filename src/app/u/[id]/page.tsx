@@ -51,8 +51,6 @@ export default function UserProfile() {
   const pathName = usePathname();
   const id = pathName.split("/")[2];
 
-  const [isProfile, setIsProfile] = useState(false);
-
   const router = useRouter();
 
   const { data, isLoading, isError } = api.userRouter.getUserDataById.useQuery({
@@ -127,12 +125,10 @@ export default function UserProfile() {
   }, [isNotificationSent, loggedInUser.id]);
 
   useEffect(() => {
-    setIsProfile(loggedInUser.id === id);
-
-    if (isProfile) {
-      router.push("/me");
+    if (loggedInUser.id === id) {
+      router.replace("/me");
     }
-  }, [isProfile, user, id]);
+  }, [user, id]);
 
   if (isLoading) {
     return (

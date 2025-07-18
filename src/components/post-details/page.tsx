@@ -37,9 +37,11 @@ export function PostDetails({ postId }: { postId: string }) {
     api.postRouter.getPostById.useQuery({ postId });
 
   const searchParams = useSearchParams();
-  const [isAuthor, setIsAuthor] = useState(false);
 
-  const isImage = searchParams.get("image");
+  const [isAuthor, setIsAuthor] = useState(false);
+  const [isImage, setIsImage] = useState(false);
+
+  const isImageParam = searchParams.get("image");
   const isAuthorParam = searchParams.get("author");
 
   // Use post fields for all logic below
@@ -147,7 +149,15 @@ export function PostDetails({ postId }: { postId: string }) {
     } else {
       setIsAuthor(false);
     }
-  }, [isAuthorParam, post]);
+
+    if (isImageParam === "true") {
+      setIsImage(true);
+    } else if (post?.image) {
+      setIsImage(true);
+    } else {
+      setIsImage(false);
+    }
+  }, [isAuthorParam, post, isImageParam]);
 
   useEffect(() => {
     setOptimisticCommentsCount(post?.commentsCount ?? 0);
@@ -394,10 +404,10 @@ export function PostDetails({ postId }: { postId: string }) {
                     <p className="text-xl font-semibold">{post.title}</p>
                   )}
                 </div>
-                {isImage === "true" &&
+                {isImage &&
                   (isPostLoading || !post ? (
                     <div className="mt-4">
-                      <Skeleton className="h-[300px] w-full max-w-[500px] rounded-md" />
+                      <Skeleton className="h-[300px] w-full rounded-md" />
                     </div>
                   ) : (
                     post.image && (
@@ -531,7 +541,7 @@ export function PostDetails({ postId }: { postId: string }) {
                     )}
                   </div>
                   <div className="text-muted-foreground text-sm">
-                    {isPostLoading ? (
+                    {isPostLoading || !post ? (
                       <Skeleton className="h-[20px] w-[213px]" />
                     ) : (
                       <>

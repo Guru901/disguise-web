@@ -298,30 +298,35 @@ function PrivacySettings({
             <div className="flex items-center justify-between">
               {isBlockedUsersLoading ? (
                 <div className="flex items-center gap-3">
-                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <Skeleton className="h-10 w-10 rounded-full" />
                   <Skeleton className="h-2 w-18" />
                 </div>
               ) : (
                 blockedUsers?.data?.map((blockedUser) => {
                   return (
-                    <div className="flex items-center gap-3" key={blockedUser.id}>
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={String(blockedUser.avatar)} />
-                        <AvatarFallback>
-                          {blockedUser.username.slice(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm font-medium">
-                        {blockedUser.username}
-                      </span>
-                    </div>
+                    <>
+                      <div
+                        className="flex items-center gap-3"
+                        key={blockedUser.id}
+                      >
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={String(blockedUser.avatar)} />
+                          <AvatarFallback>
+                            {blockedUser.username.slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm font-medium">
+                          {blockedUser.username}
+                        </span>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        <UserX className="mr-2 h-4 w-4" />
+                        Unblock
+                      </Button>
+                    </>
                   );
                 })
               )}
-              <Button variant="outline" size="sm">
-                <UserX className="mr-2 h-4 w-4" />
-                Unblock
-              </Button>
             </div>
           </div>
         </CardContent>

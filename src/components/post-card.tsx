@@ -20,6 +20,7 @@ const PostCard = React.forwardRef<
   {
     avatar: string;
     username: string;
+    authorId: string;
     title: string;
     image: string | null;
     createdAt: Date;
@@ -27,7 +28,7 @@ const PostCard = React.forwardRef<
     id: string;
     likes: string[];
     disLikes: string[];
-    userId: string;
+    loggedInUserId: string;
     loggedInUser: string;
   }
 >(
@@ -35,6 +36,7 @@ const PostCard = React.forwardRef<
     {
       avatar,
       username,
+      authorId,
       title,
       image,
       createdAt,
@@ -42,7 +44,7 @@ const PostCard = React.forwardRef<
       id,
       likes,
       disLikes,
-      userId,
+      loggedInUserId,
       loggedInUser,
     },
     ref,
@@ -52,9 +54,11 @@ const PostCard = React.forwardRef<
       disLikes.length,
     );
 
-    const [hasLiked, setHasLiked] = useState(() => likes.includes(userId));
+    const [hasLiked, setHasLiked] = useState(() =>
+      likes.includes(loggedInUserId),
+    );
     const [hasDisliked, setHasDisliked] = useState(() =>
-      disLikes.includes(userId),
+      disLikes.includes(loggedInUserId),
     );
 
     const likePostMutation = api.postRouter.likePost.useMutation();
@@ -168,7 +172,7 @@ const PostCard = React.forwardRef<
             <AvatarFallback>{username.slice(0, 2)}</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <Link href={`/u/${userId}`} className="font-medium underline">
+            <Link href={`/u/${authorId}`} className="font-medium underline">
               {username}
             </Link>
             <div className="text-muted-foreground text-sm">

@@ -76,6 +76,7 @@ export default function Feed() {
             <PostCard
               avatar={post.createdBy?.avatar ?? ""}
               username={post.createdBy?.username ?? "User"}
+              authorId={post.createdBy?.id ?? ""}
               title={post.title}
               image={post.image}
               createdAt={post.createdAt}
@@ -83,7 +84,7 @@ export default function Feed() {
               id={post.id}
               likes={post.likes ?? []}
               disLikes={post.disLikes ?? []}
-              userId={user.id}
+              loggedInUserId={user.id}
               loggedInUser={user.username}
               key={post.id}
               ref={lastPostRef}
