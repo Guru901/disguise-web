@@ -29,7 +29,8 @@ export default function Search() {
     enabled: debouncedSearch.length > 0,
   });
 
-  const { data: firstTenUsers } = api.userRouter.getFirstTenUsers.useQuery();
+  const { data: firstTenUsers, isLoading: isFirstTenUsersLoading } =
+    api.userRouter.getFirstTenUsers.useQuery();
 
   if (isError) {
     return (
@@ -68,7 +69,12 @@ export default function Search() {
           />
         </div>
 
-        {search.length === 0 ? (
+        {isFirstTenUsersLoading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="text-muted-foreground mb-4 h-8 w-8 animate-spin" />
+            <p className="text-muted-foreground">Please wait...</p>
+          </div>
+        ) : search.length === 0 ? (
           <div className="flex flex-col gap-3">
             {firstTenUsers?.users?.map((user) => (
               <UserCard user={user} key={user.id} />

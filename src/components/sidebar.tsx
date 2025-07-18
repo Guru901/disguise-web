@@ -62,7 +62,7 @@ export default function DesktopSidebar() {
               className={buttonVariants({
                 variant: "ghost",
                 size: "lg",
-                className: `justify-start gap-4 px-4 py-6 text-[18px] font-semibold transition-colors ${pathname === href ? "bg-muted text-primary" : ""}`,
+                className: `justify-start gap-4 px-4 py-6 text-[18px] font-medium transition-colors ${pathname === href ? "bg-muted text-primary" : ""}`,
               })}
               prefetch={false}
             >
