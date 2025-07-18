@@ -407,7 +407,7 @@ export function PostDetails({ postId }: { postId: string }) {
                 {isImage &&
                   (isPostLoading || !post ? (
                     <div className="mt-4">
-                      <Skeleton className="h-[300px] w-full max-w-[500px] rounded-md" />
+                      <Skeleton className="h-[300px] w-full rounded-md" />
                     </div>
                   ) : (
                     post.image && (
@@ -541,7 +541,7 @@ export function PostDetails({ postId }: { postId: string }) {
                     )}
                   </div>
                   <div className="text-muted-foreground text-sm">
-                    {isPostLoading ? (
+                    {isPostLoading || !post ? (
                       <Skeleton className="h-[20px] w-[213px]" />
                     ) : (
                       <>
