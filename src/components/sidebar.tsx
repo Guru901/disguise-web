@@ -85,6 +85,7 @@ export default function DesktopSidebar() {
                 friends: [],
                 createdAt: "",
                 id: "",
+                blockedUsers: [],
               });
               location.href = "/login";
             }}

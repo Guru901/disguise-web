@@ -157,7 +157,7 @@ export function PostDetails({ postId }: { postId: string }) {
     } else {
       setIsImage(false);
     }
-  }, [isAuthorParam, post, isImageParam]);
+  }, [isAuthorParam, post, isImageParam, user.id]);
 
   useEffect(() => {
     setOptimisticCommentsCount(post?.commentsCount ?? 0);

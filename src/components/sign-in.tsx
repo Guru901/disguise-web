@@ -51,6 +51,7 @@ export default function SignIn() {
           avatar: "",
           posts: [],
           createdAt: "",
+          blockedUsers: [],
         });
         router.push("/me");
       } else {

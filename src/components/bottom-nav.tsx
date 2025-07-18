@@ -136,6 +136,7 @@ function BottomNavigation() {
                   friends: [],
                   createdAt: "",
                   id: "",
+                  blockedUsers: [],
                 });
                 location.href = "/login";
               }}

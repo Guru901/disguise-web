@@ -1,7 +1,5 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,27 +8,9 @@ import { api } from "@/trpc/react";
 import { useUserStore } from "@/lib/userStore";
 import Navbar from "@/components/navbar";
 import { formatTimeAgo } from "@/lib/format-time-ago";
-import MediaPlayer from "@/components/media-player";
-import Masonry from "react-masonry-css";
-import UserCard from "@/components/user-card";
-import UserPostLoader from "@/components/loaders/profile-loading";
 import CommentGrid from "@/components/grids/comment-grid";
 import PostGrid from "@/components/grids/post-grid";
 import FriendsGrid from "@/components/grids/friends-grid";
-
-const breakpointColumnsObjComments = {
-  default: 3,
-  1100: 2,
-  700: 1,
-};
-
-const breakpointColumnsObj = {
-  default: 3,
-  1600: 2,
-  1200: 1,
-  1000: 2,
-  600: 1,
-};
 
 export default function Me() {
   const [selectedOption, setSelectedOption] = useState("public");
