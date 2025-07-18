@@ -445,11 +445,6 @@ function AccountSettings() {
     setError,
   } = useForm<TChnagePasswordSchema>({
     resolver: zodResolver(changePasswordSchema),
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      newPasswordConfirm: "",
-    },
   });
 
   const deactivateAccountMutation =
@@ -484,7 +479,10 @@ function AccountSettings() {
 
   async function onSubmit(formData: TChnagePasswordSchema) {
     try {
-      await changePasswordMutation.mutateAsync(formData);
+      await changePasswordMutation.mutateAsync({
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+      });
     } catch (error) {
       console.error(error);
       setError("root", {

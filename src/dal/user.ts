@@ -857,7 +857,7 @@ async function changePassword(
       };
     }
 
-    const passwordMatch = await compare(currentPassword, userFromDb?.password!);
+    const passwordMatch = await compare(currentPassword, userFromDb?.password);
 
     if (!passwordMatch) {
       return {
