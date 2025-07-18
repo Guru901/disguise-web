@@ -29,8 +29,7 @@ export default function Search() {
     enabled: debouncedSearch.length > 0,
   });
 
-  const { data: firstTenUsers } =
-    api.userRouter.getFirstTenUsers.useQuery();
+  const { data: firstTenUsers } = api.userRouter.getFirstTenUsers.useQuery();
 
   if (isError) {
     return (
@@ -52,7 +51,7 @@ export default function Search() {
   }
 
   return (
-    <main className="bg-background">
+    <main className="bg-background px-2 py-2">
       <Navbar />
       <div className="container mx-auto max-w-2xl p-4">
         <div className="mb-6">

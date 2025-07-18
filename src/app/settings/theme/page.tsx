@@ -43,7 +43,7 @@ export default function ThemeSettingsPage() {
   const { setTheme } = useTheme();
 
   return (
-    <main>
+    <main className="px-2 py-2">
       <Navbar />
       <div className="bg-background flex min-h-screen w-full flex-col items-center px-4 pt-8">
         <h1 className="mb-8 text-2xl font-bold">Choose Theme</h1>

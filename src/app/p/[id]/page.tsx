@@ -9,7 +9,7 @@ export default function Feed() {
   const id = pathName.split("/")[2];
 
   return (
-    <div className="relative h-screen w-full overflow-x-hidden">
+    <div className="relative h-screen w-full overflow-x-hidden px-2 py-2">
       <Navbar />
       <div className="w-[calc(100vw - 2rem)] mx-auto mt-3 flex max-w-[1080px] items-start justify-center pb-12">
         <PostDetails postId={id ?? ""} />

@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 
 export default function Post() {
   return (
-    <>
+    <main className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
       <Navbar />
       <div className="flex h-screen w-screen md:items-center">
         <Card className="mx-auto mt-[20vw] flex h-fit w-[94vw] flex-col gap-4 p-0 md:mt-0 md:w-fit md:px-6">
@@ -21,6 +21,6 @@ export default function Post() {
           </div>
         </Card>
       </div>
-    </>
+    </main>
   );
 }
