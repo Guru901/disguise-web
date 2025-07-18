@@ -1,7 +1,18 @@
 import type { TSignInSchema, TSignUpSchema } from "@/lib/schemas";
 import { db } from "@/server/db";
 import { notificationSchema, userSchema } from "@/server/db/schema";
-import { eq, or, asc, ilike, sql, desc, and, inArray } from "drizzle-orm";
+import {
+  eq,
+  or,
+  asc,
+  ilike,
+  sql,
+  desc,
+  and,
+  inArray,
+  arrayContains,
+  not,
+} from "drizzle-orm";
 import { hash, compare } from "bcrypt";
 
 async function registerUser(userData: TSignUpSchema) {
@@ -137,8 +148,16 @@ async function getUserData(userId: string) {
   }
 }
 
-async function searchusers(searchTerm: string) {
+async function searchusers(searchTerm: string, loggedInUserId: string) {
   try {
+    const loggedInUser = await db
+      .select({ blockedUsers: userSchema.blockedUsers })
+      .from(userSchema)
+      .where(eq(userSchema.id, loggedInUserId))
+      .limit(1);
+
+    const loggedInUserBlockedList = loggedInUser[0]?.blockedUsers || [];
+
     const users = await db
       .select({
         id: userSchema.id,
@@ -146,7 +165,15 @@ async function searchusers(searchTerm: string) {
         avatar: userSchema.avatar,
       })
       .from(userSchema)
-      .where(ilike(userSchema.username, "%" + searchTerm + "%"))
+      .where(
+        and(
+          ilike(userSchema.username, "%" + searchTerm + "%"),
+          not(arrayContains(userSchema.blockedUsers, [loggedInUserId])),
+          loggedInUserBlockedList.length > 0
+            ? not(inArray(userSchema.id, loggedInUserBlockedList))
+            : sql`true`,
+        ),
+      )
       .orderBy(asc(userSchema.username))
       .limit(10);
 
@@ -165,8 +192,16 @@ async function searchusers(searchTerm: string) {
   }
 }
 
-async function getFirstTenUsers() {
+async function getFirstTenUsers(loggedInUserId: string) {
   try {
+    const loggedInUser = await db
+      .select({ blockedUsers: userSchema.blockedUsers })
+      .from(userSchema)
+      .where(eq(userSchema.id, loggedInUserId))
+      .limit(1);
+
+    const loggedInUserBlockedList = loggedInUser[0]?.blockedUsers || [];
+
     const users = await db
       .select({
         id: userSchema.id,
@@ -174,6 +209,14 @@ async function getFirstTenUsers() {
         avatar: userSchema.avatar,
       })
       .from(userSchema)
+      .where(
+        and(
+          not(arrayContains(userSchema.blockedUsers, [loggedInUserId])),
+          loggedInUserBlockedList.length > 0
+            ? not(inArray(userSchema.id, loggedInUserBlockedList))
+            : sql`true`,
+        ),
+      )
       .limit(10);
 
     return {

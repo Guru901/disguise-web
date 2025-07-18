@@ -37,12 +37,14 @@ export const userRouter = createTRPCRouter({
       return await userDal.deleteNotification(ctx.userId, input);
     }),
 
-  searchUsers: protectedProcedure.input(z.string()).query(async ({ input }) => {
-    return await userDal.searchusers(input);
-  }),
+  searchUsers: protectedProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      return await userDal.searchusers(input, ctx.userId);
+    }),
 
-  getFirstTenUsers: protectedProcedure.query(async () => {
-    return await userDal.getFirstTenUsers();
+  getFirstTenUsers: protectedProcedure.query(async ({ ctx }) => {
+    return await userDal.getFirstTenUsers(ctx.userId);
   }),
 
   getAllUsers: protectedProcedure
