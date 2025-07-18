@@ -64,6 +64,12 @@ import {
 } from "@/components/ui/popover";
 import { parseDate } from "chrono-node";
 import { useUserStore } from "@/lib/userStore";
+import { Controller, useForm } from "react-hook-form";
+import {
+  changePasswordSchema,
+  type TChnagePasswordSchema,
+} from "@/lib/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type GetUserDataQueryType = ReturnType<
   typeof api.userRouter.getUserData.useQuery
@@ -417,6 +423,35 @@ function AccountSettings() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { setUser } = useUserStore();
 
+  const { data: userData } = api.userRouter.getUserData.useQuery();
+  const changePasswordMutation = api.userRouter.changePassword.useMutation({
+    onSuccess: (data) => {
+      if (data.success) {
+        toast("Password updated successfully");
+        reset();
+      } else {
+        setError("root", {
+          message: data.message,
+        });
+      }
+    },
+  });
+
+  const {
+    handleSubmit,
+    control,
+    formState: { isLoading, errors },
+    reset,
+    setError,
+  } = useForm<TChnagePasswordSchema>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      newPasswordConfirm: "",
+    },
+  });
+
   const deactivateAccountMutation =
     api.userRouter.deactivateAccount.useMutation({
       onSuccess: async () => {
@@ -447,6 +482,17 @@ function AccountSettings() {
     });
   }
 
+  async function onSubmit(formData: TChnagePasswordSchema) {
+    try {
+      await changePasswordMutation.mutateAsync(formData);
+    } catch (error) {
+      console.error(error);
+      setError("root", {
+        message: "Something went wrong on our side",
+      });
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -464,17 +510,91 @@ function AccountSettings() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
-            <Input id="username" type="text" disabled placeholder="Username" />
+            <Input
+              id="username"
+              type="text"
+              disabled
+              value={userData?.user?.username}
+              placeholder="Username"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Current Password</Label>
-            <Input id="currentPassword" type="password" showPasswordToggle />
+            <Controller
+              control={control}
+              name="currentPassword"
+              render={({ field }) => (
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  showPasswordToggle
+                  {...field}
+                />
+              )}
+            />
+            {errors.currentPassword && (
+              <p className="text-destructive text-sm">
+                {errors.currentPassword.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="newPassword">New Password</Label>
-            <Input id="newPassword" type="password" showPasswordToggle />
+            <Controller
+              control={control}
+              name="newPassword"
+              render={({ field }) => (
+                <Input
+                  id="newPassword"
+                  type="password"
+                  showPasswordToggle
+                  {...field}
+                />
+              )}
+            />
+            {errors.newPassword && (
+              <p className="text-destructive text-sm">
+                {errors.newPassword.message}
+              </p>
+            )}
           </div>
-          <Button>Update Password</Button>
+          <div className="space-y-2">
+            <Label htmlFor="newPasswordConfirm">Confirm New Password</Label>
+            <Controller
+              control={control}
+              name="newPasswordConfirm"
+              render={({ field }) => (
+                <Input
+                  id="newPasswordConfirm"
+                  type="password"
+                  showPasswordToggle
+                  {...field}
+                />
+              )}
+            />
+
+            {errors.newPasswordConfirm && (
+              <p className="text-destructive text-sm">
+                {errors.newPasswordConfirm.message}
+              </p>
+            )}
+          </div>
+          {errors.root && (
+            <p className="text-destructive text-sm">{errors.root.message}</p>
+          )}
+          <Button
+            onClick={handleSubmit(onSubmit)}
+            disabled={changePasswordMutation.isPending || isLoading}
+          >
+            {changePasswordMutation.isPending || isLoading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="animate-spin" size={16} />
+                Updating...
+              </div>
+            ) : (
+              "Update Password"
+            )}
+          </Button>
         </CardContent>
       </Card>
 

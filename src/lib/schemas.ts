@@ -52,3 +52,20 @@ export const topicSchema = z.object({
 });
 
 export type TTopicSchema = z.infer<typeof topicSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string(),
+    newPassword: z.string(),
+    newPasswordConfirm: z.string(),
+  })
+  .refine(
+    (data) => {
+      return data.newPassword === data.newPasswordConfirm;
+    },
+    {
+      message: "Passwords don't match",
+    },
+  );
+
+export type TChnagePasswordSchema = z.infer<typeof changePasswordSchema>;

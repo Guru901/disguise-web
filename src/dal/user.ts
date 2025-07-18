@@ -838,6 +838,53 @@ async function deactivateAccount(loggedInUserId: string, deactivateTill: Date) {
   }
 }
 
+async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+  loggedInUserId: string,
+) {
+  try {
+    const userFromDb = await db
+      .select()
+      .from(userSchema)
+      .where(eq(userSchema.id, loggedInUserId))
+      .then((res) => res[0]);
+
+    if (!userFromDb) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    const passwordMatch = await compare(currentPassword, userFromDb?.password!);
+
+    if (!passwordMatch) {
+      return {
+        success: false,
+        message: "The current password you entered is incorrect",
+      };
+    }
+    const newPasswordHashed = await hash(newPassword, 10);
+
+    await db
+      .update(userSchema)
+      .set({ password: newPasswordHashed })
+      .where(eq(userSchema.id, loggedInUserId))
+      .then((res) => res[0]);
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Something went wrong on our side",
+    };
+  }
+}
+
 export {
   registerUser,
   loginUser,
@@ -863,4 +910,5 @@ export {
   blockUser,
   unblockUser,
   deactivateAccount,
+  changePassword,
 };

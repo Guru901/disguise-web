@@ -174,4 +174,19 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return await userDal.deactivateAccount(ctx.userId, input.deactivateTill);
     }),
+
+  changePassword: protectedProcedure
+    .input(
+      z.object({
+        currentPassword: z.string(),
+        newPassword: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await userDal.changePassword(
+        input.currentPassword,
+        input.newPassword,
+        ctx.userId,
+      );
+    }),
 });
