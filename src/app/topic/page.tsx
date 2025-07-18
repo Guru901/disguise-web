@@ -37,6 +37,7 @@ function TopicFeedContent() {
         <PostCard
           avatar={post.createdBy?.avatar ?? ""}
           username={post.createdBy?.username ?? "User"}
+          authorId={post.createdBy?.id ?? ""}
           title={post.title}
           image={post.image}
           createdAt={post.createdAt}
@@ -44,7 +45,7 @@ function TopicFeedContent() {
           id={post.id}
           likes={post.likes ?? []}
           disLikes={post.disLikes ?? []}
-          userId={user.id}
+          loggedInUserId={user.id}
           key={post.id}
           loggedInUser={user.username}
         />

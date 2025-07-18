@@ -6,7 +6,7 @@ import Link from "next/link";
 export default async function Post() {
   const topics = await api.topicRouter.getAllTopics();
   return (
-    <>
+    <main className="px-2 py-2">
       <Navbar />
       <div className="flex flex-wrap gap-3 p-4">
         {topics.map((topic) => (
@@ -34,6 +34,6 @@ export default async function Post() {
           </Link>
         ))}
       </div>
-    </>
+    </main>
   );
 }

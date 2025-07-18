@@ -75,7 +75,7 @@ export default function Me() {
   }, []);
 
   return (
-    <main>
+    <main className="flex flex-col gap-2 px-2 py-2">
       <Navbar />
       <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[430px_1fr]">
         <div className="bg-muted/40 border-r p-6 lg:p-8">

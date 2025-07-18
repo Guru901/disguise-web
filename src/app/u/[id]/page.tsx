@@ -147,7 +147,7 @@ export default function UserProfile() {
   }
 
   return (
-    <main>
+    <main className="flex flex-col gap-3 px-2 py-2">
       <Navbar />
       <div
         className={`grid min-h-screen w-full grid-cols-1 ${isFriend ? "lg:grid-cols-[430px_1fr]" : "lg:grid-cols-[300px_1fr]"}`}

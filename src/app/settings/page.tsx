@@ -52,7 +52,7 @@ export default function SettingsPage() {
   const getUserDataQuery = api.userRouter.getUserData.useQuery();
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background min-h-screen px-2 py-2">
       <Navbar />
       <div className="container m-auto flex w-[calc(100vw-20rem)] flex-1 items-start py-6 md:gap-6 lg:gap-10">
         {/* Sidebar */}

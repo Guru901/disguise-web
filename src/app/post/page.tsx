@@ -3,7 +3,7 @@ import { PostUploadForm } from "@/components/post-upload-form";
 
 export default function Post() {
   return (
-    <>
+    <main className="px-2 py-2">
       <Navbar />
       <div className="mx-auto mt-2 flex min-h-screen w-[calc(100%-1rem)] flex-col gap-4 p-0">
         <div className="m-auto space-y-6 py-12">
@@ -16,6 +16,6 @@ export default function Post() {
           <PostUploadForm />
         </div>
       </div>
-    </>
+    </main>
   );
 }
