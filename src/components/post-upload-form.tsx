@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { type TUploadPostSchema, uploadPostSchema } from "@/lib/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter } from "next/navigation";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
@@ -32,7 +32,7 @@ export function PostUploadForm() {
     formState: { errors, isSubmitting, isLoading },
     watch,
   } = useForm<TUploadPostSchema>({
-    resolver: zodResolver(uploadPostSchema),
+    resolver: valibotResolver(uploadPostSchema),
     defaultValues: {
       title: "",
       content: "",

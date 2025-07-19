@@ -69,7 +69,7 @@ import {
   changePasswordSchema,
   type TChnagePasswordSchema,
 } from "@/lib/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 
 type GetUserDataQueryType = ReturnType<
   typeof api.userRouter.getUserData.useQuery
@@ -445,7 +445,7 @@ function AccountSettings() {
     reset,
     setError,
   } = useForm<TChnagePasswordSchema>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: valibotResolver(changePasswordSchema),
   });
 
   const deactivateAccountMutation =

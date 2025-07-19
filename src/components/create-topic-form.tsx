@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { topicSchema, type TTopicSchema } from "@/lib/schemas";
 import { api } from "@/trpc/react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
@@ -18,7 +18,7 @@ export default function CreateTopicForm() {
     handleSubmit,
     formState: { isLoading, errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(topicSchema),
+    resolver: valibotResolver(topicSchema),
   });
 
   const router = useRouter();

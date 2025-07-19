@@ -1,6 +1,6 @@
 import * as userDal from "@/dal/user";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import z from "zod";
+import * as v from "valibot";
 
 export const userRouter = createTRPCRouter({
   getUserData: protectedProcedure.query(async ({ ctx }) => {
@@ -20,25 +20,25 @@ export const userRouter = createTRPCRouter({
   }),
 
   markNotificationsAsRead: protectedProcedure
-    .input(z.string())
+    .input(v.string())
     .mutation(async ({ input, ctx }) => {
       return await userDal.markNotificationAsRead(ctx.userId, input);
     }),
 
   markAllNotificationsAsRead: protectedProcedure
-    .input(z.string().array())
+    .input(v.array(v.string()))
     .mutation(async ({ input, ctx }) => {
       return await userDal.markNotificationsAsRead(ctx.userId, input);
     }),
 
   deleteNotification: protectedProcedure
-    .input(z.string())
+    .input(v.string())
     .mutation(async ({ input, ctx }) => {
       return await userDal.deleteNotification(ctx.userId, input);
     }),
 
   searchUsers: protectedProcedure
-    .input(z.string())
+    .input(v.string())
     .query(async ({ input, ctx }) => {
       return await userDal.searchusers(input, ctx.userId);
     }),
@@ -49,8 +49,8 @@ export const userRouter = createTRPCRouter({
 
   getAllUsers: protectedProcedure
     .input(
-      z.object({
-        searchTerm: z.string().optional(),
+      v.object({
+        searchTerm: v.optional(v.string()),
       }),
     )
     .query(async ({ input }) => {
@@ -59,8 +59,8 @@ export const userRouter = createTRPCRouter({
 
   getUserDataById: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
+      v.object({
+        id: v.string(),
       }),
     )
     .query(async ({ input }) => {
@@ -68,8 +68,8 @@ export const userRouter = createTRPCRouter({
     }),
   removeFriendById: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
+      v.object({
+        id: v.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -78,8 +78,8 @@ export const userRouter = createTRPCRouter({
 
   sendFriendRequest: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
+      v.object({
+        id: v.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -88,8 +88,8 @@ export const userRouter = createTRPCRouter({
 
   isFriendNotificationSent: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
+      v.object({
+        id: v.string(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -98,8 +98,8 @@ export const userRouter = createTRPCRouter({
 
   acceptFriendRequest: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
+      v.object({
+        id: v.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -108,8 +108,8 @@ export const userRouter = createTRPCRouter({
 
   rejectFriendRequest: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
+      v.object({
+        id: v.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -118,8 +118,8 @@ export const userRouter = createTRPCRouter({
 
   editAvatar: protectedProcedure
     .input(
-      z.object({
-        avatar: z.string(),
+      v.object({
+        avatar: v.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -128,8 +128,8 @@ export const userRouter = createTRPCRouter({
 
   changeAccountType: protectedProcedure
     .input(
-      z.object({
-        isPrivate: z.boolean(),
+      v.object({
+        isPrivate: v.boolean(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -142,9 +142,9 @@ export const userRouter = createTRPCRouter({
 
   blockUser: protectedProcedure
     .input(
-      z.object({
-        isFriend: z.boolean(),
-        userToBlockId: z.string(),
+      v.object({
+        isFriend: v.boolean(),
+        userToBlockId: v.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -157,8 +157,8 @@ export const userRouter = createTRPCRouter({
 
   unblockUser: protectedProcedure
     .input(
-      z.object({
-        userToUnblockId: z.string(),
+      v.object({
+        userToUnblockId: v.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -167,8 +167,8 @@ export const userRouter = createTRPCRouter({
 
   deactivateAccount: protectedProcedure
     .input(
-      z.object({
-        deactivateTill: z.date(),
+      v.object({
+        deactivateTill: v.date(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -181,9 +181,9 @@ export const userRouter = createTRPCRouter({
 
   changePassword: protectedProcedure
     .input(
-      z.object({
-        currentPassword: z.string(),
-        newPassword: z.string(),
+      v.object({
+        currentPassword: v.string(),
+        newPassword: v.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

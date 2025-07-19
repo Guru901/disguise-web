@@ -1,6 +1,5 @@
 import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
 import jwt from "jsonwebtoken";
 import { db } from "@/server/db";
 import { cookies } from "next/headers";
@@ -20,8 +19,6 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       ...shape,
       data: {
         ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
     };
   },

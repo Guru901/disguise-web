@@ -14,7 +14,7 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { signInSchema, type TSignInSchema } from "@/lib/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/lib/userStore";
 
@@ -31,7 +31,7 @@ export default function SignIn() {
     formState: { isSubmitting, errors },
     setError,
   } = useForm<TSignInSchema>({
-    resolver: zodResolver(signInSchema),
+    resolver: valibotResolver(signInSchema),
   });
 
   async function onSubmit(data: TSignInSchema) {

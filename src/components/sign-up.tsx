@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import Link from "next/link";
 import { signUpSchema, type TSignUpSchema } from "@/lib/schemas";
 import { toast } from "sonner";
@@ -32,7 +32,7 @@ export default function SignUp() {
     setValue,
     setError,
   } = useForm<TSignUpSchema>({
-    resolver: zodResolver(signUpSchema),
+    resolver: valibotResolver(signUpSchema),
   });
 
   type RegisterResponse = { success: boolean; message?: string };

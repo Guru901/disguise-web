@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { registerUser } from "@/dal/user";
 import { signUpSchema } from "@/lib/schemas";
+import * as v from "valibot";
 import jwt from "jsonwebtoken";
 import { env } from "@/env";
 import { cookies } from "next/headers";
@@ -8,16 +9,16 @@ import { cookies } from "next/headers";
 export async function POST(req: NextRequest) {
   try {
     const body: unknown = await req.json();
-    const parsed = signUpSchema.safeParse(body);
+    const parsed = v.safeParse(signUpSchema, body);
 
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, message: "Invalid input" },
+        { success: false, message: parsed.issues },
         { status: 400 },
       );
     }
 
-    const result = await registerUser(parsed.data);
+    const result = await registerUser(parsed.output);
     if (result.success) {
       const token = jwt.sign({ id: result.data }, env.JWT_SECRET);
       const cookie = await cookies();
