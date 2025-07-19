@@ -803,7 +803,11 @@ async function blockUser(
   }
 }
 
-async function unblockUser(loggedInUserId: string, userToUnblockId: string) {
+async function unblockUser(
+  loggedInUserId: string,
+  userToUnblockId: string,
+  userToUnblockUsername: string,
+) {
   try {
     await db
       .update(userSchema)
@@ -818,6 +822,7 @@ async function unblockUser(loggedInUserId: string, userToUnblockId: string) {
 
     return {
       success: true,
+      username: userToUnblockUsername,
     };
   } catch (error) {
     console.error(error);

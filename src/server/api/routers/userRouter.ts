@@ -159,10 +159,15 @@ export const userRouter = createTRPCRouter({
     .input(
       v.object({
         userToUnblockId: v.string(),
+        userToUnblockUsername: v.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await userDal.unblockUser(ctx.userId, input.userToUnblockId);
+      return await userDal.unblockUser(
+        ctx.userId,
+        input.userToUnblockId,
+        input.userToUnblockUsername,
+      );
     }),
 
   deactivateAccount: protectedProcedure

@@ -136,10 +136,10 @@ export default function UserProfile() {
   const { data: isNotificationSent } =
     api.userRouter.isFriendNotificationSent.useQuery(
       {
-        id: id ?? "",
+        id: String(data?.user?.id),
       },
       {
-        enabled: !isBlocked && !isFriend,
+        enabled: !isBlocked && !isFriend && String(data?.user?.id).length > 0,
       },
     );
 
@@ -158,7 +158,7 @@ export default function UserProfile() {
   }, [user, id, loggedInUser.id, router, data?.user?.isDeleted]);
 
   useEffect(() => {
-    if (loggedInUser.blockedUsers?.includes(id!)) {
+    if (loggedInUser.blockedUsers?.includes(data?.user?.id!)) {
       setIsBlocked(true);
     }
   }, [id, loggedInUser.blockedUsers]);
@@ -252,7 +252,7 @@ export default function UserProfile() {
                           disabled={removeFriendByIdMutation.isPending}
                           onClick={async () => {
                             await removeFriendByIdMutation.mutateAsync({
-                              id: id!,
+                              id: data.user.id!,
                             });
                           }}
                         >
@@ -280,7 +280,7 @@ export default function UserProfile() {
                       }
                       onClick={async () => {
                         void (await addFriendByIdMutation.mutateAsync({
-                          id: id!,
+                          id: data.user.id!,
                         }));
                       }}
                     >
@@ -332,7 +332,8 @@ export default function UserProfile() {
                           disabled={unblockUserMutation.isPending}
                           onClick={async () => {
                             await unblockUserMutation.mutateAsync({
-                              userToUnblockId: id!,
+                              userToUnblockId: data.user.id!,
+                              userToUnblockUsername: data.user.username,
                             });
                           }}
                         >
@@ -385,7 +386,7 @@ export default function UserProfile() {
                           disabled={blockUserMutation.isPending}
                           onClick={async () => {
                             await blockUserMutation.mutateAsync({
-                              userToBlockId: id!,
+                              userToBlockId: data.user.username!,
                               isFriend: isFriend,
                             });
                           }}

@@ -237,8 +237,18 @@ function PrivacySettings({
     },
   });
 
-  const { data: blockedUsers, isLoading: isBlockedUsersLoading } =
-    api.userRouter.getBlockedUsers.useQuery();
+  const {
+    data: blockedUsers,
+    isLoading: isBlockedUsersLoading,
+    refetch: refetchBlockedUsers,
+  } = api.userRouter.getBlockedUsers.useQuery();
+
+  const unblockUserMutation = api.userRouter.unblockUser.useMutation({
+    onSuccess: async (data) => {
+      await refetchBlockedUsers();
+      toast(`Unblocked ${data.username} successfully`);
+    },
+  });
 
   return (
     <div className="space-y-6">
@@ -334,9 +344,25 @@ function PrivacySettings({
                           {blockedUser.username}
                         </span>
                       </div>
-                      <Button variant="outline" size="sm">
-                        <UserX className="mr-2 h-4 w-4" />
-                        Unblock
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={unblockUserMutation.isPending}
+                        onClick={async () => {
+                          await unblockUserMutation.mutateAsync({
+                            userToUnblockId: blockedUser.id,
+                            userToUnblockUsername: blockedUser.username,
+                          });
+                        }}
+                      >
+                        {unblockUserMutation.isPending ? (
+                          <Loader2 className="animate-spin" />
+                        ) : (
+                          <>
+                            <UserX className="mr-2 h-4 w-4" />
+                            Unblock
+                          </>
+                        )}
                       </Button>
                     </>
                   );
