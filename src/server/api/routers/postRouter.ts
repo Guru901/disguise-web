@@ -5,14 +5,14 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { z } from "zod";
+import * as v from "valibot";
 
 export const postRouter = createTRPCRouter({
   getFeed: protectedProcedure
     .input(
-      z.object({
-        page: z.number().default(1),
-        limit: z.number().default(10),
+      v.object({
+        page: v.fallback(v.number(), 1),
+        limit: v.fallback(v.number(), 10),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -32,7 +32,7 @@ export const postRouter = createTRPCRouter({
   }),
 
   getDislikedPostByUserId: protectedProcedure
-    .input(z.string())
+    .input(v.string())
     .query(async ({ input }) => {
       return await postDal.getDislikedPostsByUserId(input);
     }),
@@ -42,7 +42,7 @@ export const postRouter = createTRPCRouter({
   }),
 
   getFriendsByUserId: protectedProcedure
-    .input(z.string())
+    .input(v.string())
     .query(async ({ input }) => {
       return await postDal.getFriendsByUserId(input);
     }),
@@ -56,15 +56,15 @@ export const postRouter = createTRPCRouter({
   }),
 
   getCommentsByUserId: protectedProcedure
-    .input(z.string())
+    .input(v.string())
     .query(async ({ input }) => {
       return await postDal.getCommentsByUserId(input);
     }),
 
   getPostById: publicProcedure
     .input(
-      z.object({
-        postId: z.string(),
+      v.object({
+        postId: v.string(),
       }),
     )
     .query(async ({ input }) => {
@@ -78,38 +78,38 @@ export const postRouter = createTRPCRouter({
     }),
 
   likePost: protectedProcedure
-    .input(z.object({ post: z.string() }))
+    .input(v.object({ post: v.string() }))
     .mutation(async ({ input, ctx }) => {
       return await postDal.likePost(ctx.userId, input.post);
     }),
   unlikePost: protectedProcedure
-    .input(z.object({ post: z.string() }))
+    .input(v.object({ post: v.string() }))
     .mutation(async ({ input, ctx }) => {
       return await postDal.unlikePost(ctx.userId, input.post);
     }),
   likeAndUndislikePost: protectedProcedure
-    .input(z.object({ post: z.string() }))
+    .input(v.object({ post: v.string() }))
     .mutation(async ({ input, ctx }) => {
       return await postDal.likeAndUndislikePost(ctx.userId, input.post);
     }),
   dislikePost: protectedProcedure
-    .input(z.object({ post: z.string() }))
+    .input(v.object({ post: v.string() }))
     .mutation(async ({ input, ctx }) => {
       return await postDal.dislikePost(ctx.userId, input.post);
     }),
   undislikePost: protectedProcedure
-    .input(z.object({ post: z.string() }))
+    .input(v.object({ post: v.string() }))
     .mutation(async ({ input, ctx }) => {
       return await postDal.undislikePost(ctx.userId, input.post);
     }),
   dislikeAndUnlikePost: protectedProcedure
-    .input(z.object({ post: z.string() }))
+    .input(v.object({ post: v.string() }))
     .mutation(async ({ input, ctx }) => {
       return await postDal.dislikeAndUnlikePost(ctx.userId, input.post);
     }),
 
   getCommentsByPostId: protectedProcedure
-    .input(z.object({ postId: z.string() }))
+    .input(v.object({ postId: v.string() }))
     .query(async ({ input }) => {
       return await postDal.getCommentsByPostId(input.postId);
     }),
@@ -120,15 +120,15 @@ export const postRouter = createTRPCRouter({
       return await postDal.addComment(input, ctx.userId);
     }),
   deleteComment: protectedProcedure
-    .input(z.object({ commentId: z.string() }))
+    .input(v.object({ commentId: v.string() }))
     .mutation(async ({ input, ctx }) => {
       return await postDal.deleteComment(input.commentId, ctx.userId);
     }),
 
   getUserPublicPostsByUserId: protectedProcedure
     .input(
-      z.object({
-        userId: z.string(),
+      v.object({
+        userId: v.string(),
       }),
     )
     .query(async ({ input }) => {
@@ -136,8 +136,8 @@ export const postRouter = createTRPCRouter({
     }),
   getUserlikedPostsByUserId: protectedProcedure
     .input(
-      z.object({
-        userId: z.string(),
+      v.object({
+        userId: v.string(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -145,8 +145,8 @@ export const postRouter = createTRPCRouter({
     }),
   getUserPrivatePostsByUserId: protectedProcedure
     .input(
-      z.object({
-        userId: z.string(),
+      v.object({
+        userId: v.string(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -158,8 +158,8 @@ export const postRouter = createTRPCRouter({
 
   getTopicSpecificFeed: protectedProcedure
     .input(
-      z.object({
-        topicName: z.string(),
+      v.object({
+        topicName: v.string(),
       }),
     )
     .query(async ({ input }) => {
@@ -168,8 +168,8 @@ export const postRouter = createTRPCRouter({
 
   deletePostById: protectedProcedure
     .input(
-      z.object({
-        postId: z.string(),
+      v.object({
+        postId: v.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {

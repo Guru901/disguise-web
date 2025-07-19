@@ -3,7 +3,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { topicSchema as zodTopicSchema } from "@/lib/schemas";
+import { topicSchema as valibotTopicSchema } from "@/lib/schemas";
 import * as topicDal from "@/dal/topic";
 
 export const topicRouter = createTRPCRouter({
@@ -12,7 +12,7 @@ export const topicRouter = createTRPCRouter({
   }),
 
   createTopic: protectedProcedure
-    .input(zodTopicSchema)
+    .input(valibotTopicSchema)
     .mutation(async ({ input, ctx }) => {
       return await topicDal.createTopic(
         input.name,

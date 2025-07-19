@@ -1,71 +1,70 @@
-import z from "zod";
+import * as v from "valibot";
 
-export const signUpSchema = z
-  .object({
-    username: z.string().min(3).max(20).trim(),
-    password: z.string().min(8).max(20).trim(),
-    passwordConfirmation: z.string().min(8).max(20).trim(),
-    avatar: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      return data.password === data.passwordConfirmation;
-    },
-    {
-      message: "Passwords don't match",
-    },
-  );
+export const signUpSchema = v.pipe(
+  v.object({
+    username: v.pipe(v.string(), v.minLength(3), v.maxLength(20), v.trim()),
+    password: v.pipe(v.string(), v.minLength(3), v.maxLength(20), v.trim()),
+    passwordConfirmation: v.pipe(
+      v.string(),
+      v.minLength(3),
+      v.maxLength(20),
+      v.trim(),
+    ),
+    avatar: v.optional(v.string()),
+  }),
+  v.check(
+    (data) => data.password === data.passwordConfirmation,
+    "Passwords don't match",
+  ),
+);
 
-export type TSignUpSchema = z.infer<typeof signUpSchema>;
+export type TSignUpSchema = v.InferOutput<typeof signUpSchema>;
 
-export const signInSchema = z.object({
-  username: z.string(),
-  password: z.string().min(8).max(20).trim(),
+export const signInSchema = v.object({
+  username: v.string(),
+  password: v.pipe(v.string(), v.minLength(8), v.maxLength(20), v.trim()),
 });
 
-export type TSignInSchema = z.infer<typeof signInSchema>;
+export type TSignInSchema = v.InferOutput<typeof signInSchema>;
 
-export const uploadPostSchema = z.object({
-  title: z.string().min(3).max(30).trim(),
-  content: z.string().trim().optional(),
-  image: z.string().optional(),
-  isPublic: z.boolean(),
-  topic: z.string().optional(),
-  author: z.string(),
+export const uploadPostSchema = v.object({
+  title: v.pipe(v.string(), v.minLength(3), v.maxLength(30)),
+  content: v.optional(v.string()),
+  image: v.optional(v.string()),
+  isPublic: v.fallback(v.boolean(), false),
+  topic: v.fallback(v.string(), "General"),
+  author: v.string(),
 });
 
-export type TUploadPostSchema = z.infer<typeof uploadPostSchema>;
+export type TUploadPostSchema = v.InferOutput<typeof uploadPostSchema>;
 
-export const commentAddSchema = z.object({
-  content: z.string(),
-  image: z.string().optional(),
-  postId: z.string(),
-  replyTo: z.string(),
-  isAReply: z.boolean().default(false),
+export const commentAddSchema = v.object({
+  content: v.string(),
+  image: v.optional(v.string()),
+  postId: v.string(),
+  replyTo: v.string(),
+  isAReply: v.fallback(v.boolean(), false),
 });
 
-export type TCommentAddSchema = z.infer<typeof commentAddSchema>;
+export type TCommentAddSchema = v.InferOutput<typeof commentAddSchema>;
 
-export const topicSchema = z.object({
-  name: z.string().min(3).max(30).trim(),
-  description: z.string(),
+export const topicSchema = v.object({
+  name: v.pipe(v.string(), v.minLength(3), v.maxLength(30), v.trim()),
+  description: v.string(),
 });
 
-export type TTopicSchema = z.infer<typeof topicSchema>;
+export type TTopicSchema = v.InferOutput<typeof topicSchema>;
 
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string(),
-    newPassword: z.string(),
-    newPasswordConfirm: z.string(),
-  })
-  .refine(
-    (data) => {
-      return data.newPassword === data.newPasswordConfirm;
-    },
-    {
-      message: "Passwords don't match",
-    },
-  );
+export const changePasswordSchema = v.pipe(
+  v.object({
+    currentPassword: v.string(),
+    newPassword: v.string(),
+    newPasswordConfirm: v.string(),
+  }),
+  v.check(
+    (data) => data.newPassword == data.newPasswordConfirm,
+    "Passwords don't match",
+  ),
+);
 
-export type TChnagePasswordSchema = z.infer<typeof changePasswordSchema>;
+export type TChnagePasswordSchema = v.InferOutput<typeof changePasswordSchema>;

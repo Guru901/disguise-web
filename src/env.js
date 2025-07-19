@@ -1,17 +1,18 @@
 import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+import * as v from "valibot";
 
 export const env = createEnv({
   server: {
-    DATABASE_URL: z.string().url(),
-    NODE_ENV: z
-      .enum(["development", "test", "production"])
-      .default("development"),
-    JWT_SECRET: z.string(),
+    DATABASE_URL: v.pipe(v.string(), v.url()),
+    NODE_ENV: v.fallback(
+      v.picklist(["development", "test", "production"]),
+      "development",
+    ),
+    JWT_SECRET: v.string(),
   },
-  
+
   client: {
-    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string(),
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: v.string(),
   },
 
   runtimeEnv: {
