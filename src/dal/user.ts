@@ -258,28 +258,26 @@ async function getFirstTenUsers(loggedInUserId: string) {
 }
 
 async function getUserDataById(userId: string) {
+  let user;
   try {
-    const isValidUuid =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        userId,
-      );
-
-    let user = await db
+    user = await db
       .select()
       .from(userSchema)
-      .where(
-        or(
-          eq(userSchema.username, userId),
-          eq(userSchema.isDeleted, false),
-          ...(isValidUuid ? [eq(userSchema.id, userId)] : []),
-        ),
-      )
+      .where(eq(userSchema.username, userId))
       .limit(1)
       .then((res) => res[0]);
 
+    if (!user) {
+      user = await db
+        .select()
+        .from(userSchema)
+        .where(eq(userSchema.id, userId))
+        .limit(1)
+        .then((res) => res[0]);
+    }
+
     user!.password = "";
 
-    // If not found, and userId contains '_', try with spaces
     if (!user && userId.includes("_")) {
       const usernameWithSpaces = userId.replace(/_/g, " ");
       user = await db

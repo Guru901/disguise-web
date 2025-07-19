@@ -46,13 +46,13 @@ export default function UserProfile() {
 
   const { data: userPosts, isLoading: isPostsLoading } =
     api.postRouter.getUserPublicPostsByUserId.useQuery({
-      userId: id ?? "",
+      userId: data?.user?.id ?? "",
     });
 
   const { data: userLikedPosts, isLoading: isLikedPostsLoading } =
     api.postRouter.getUserlikedPostsByUserId.useQuery(
       {
-        userId: id ?? "",
+        userId: data?.user?.id ?? "",
       },
       {
         enabled: isFriend ?? false,
@@ -62,7 +62,7 @@ export default function UserProfile() {
   const { data: userPrivatePosts, isLoading: isPrivatePostsLoading } =
     api.postRouter.getUserPrivatePostsByUserId.useQuery(
       {
-        userId: id ?? "",
+        userId: data?.user?.id ?? "",
       },
       {
         enabled: isFriend ?? false,
@@ -70,17 +70,17 @@ export default function UserProfile() {
     );
 
   const { data: userDisLikedPosts, isLoading: isDisLikedPostsLoading } =
-    api.postRouter.getDislikedPostByUserId.useQuery(id ?? "", {
+    api.postRouter.getDislikedPostByUserId.useQuery(data?.user?.id ?? "", {
       enabled: isFriend ?? false,
     });
 
   const { data: userComments, isLoading: isCommentsLoading } =
-    api.postRouter.getCommentsByUserId.useQuery(id ?? "", {
+    api.postRouter.getCommentsByUserId.useQuery(data?.user?.id ?? "", {
       enabled: isFriend ?? false,
     });
 
   const { data: userFriends, isLoading: isFriendsLoading } =
-    api.postRouter.getFriendsByUserId.useQuery(id ?? "", {
+    api.postRouter.getFriendsByUserId.useQuery(data?.user?.id ?? "", {
       enabled: isFriend ?? false,
     });
 
