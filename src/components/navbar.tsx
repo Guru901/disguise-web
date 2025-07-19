@@ -37,7 +37,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-card w-full rounded-xl border">
+    <nav className="bg-card fixed top-2 left-2 z-50 mx-auto w-[97%] rounded-xl border md:static md:w-full">
       <div className="flex h-16 items-center px-4">
         <div className="flex flex-1 items-center justify-between">
           <span className="text-xl font-medium">

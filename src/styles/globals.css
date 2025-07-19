@@ -444,5 +444,6 @@ html[data-theme="ghibli"] {
 @media screen and (width <= 768px) {
   .bottom-nav {
     zoom: 1.03 !important;
+    width: 97%;
   }
 }
