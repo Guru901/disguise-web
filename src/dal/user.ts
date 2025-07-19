@@ -115,7 +115,7 @@ async function loginUser(userData: TSignInSchema) {
         };
       } else {
         return {
-          message: "Incorrect password",
+          message: "Incorrect credentials",
           success: false,
           status: 401,
           error: null,
