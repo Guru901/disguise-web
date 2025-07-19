@@ -158,10 +158,10 @@ export default function UserProfile() {
   }, [user, id, loggedInUser.id, router, data?.user?.isDeleted]);
 
   useEffect(() => {
-    if (loggedInUser.blockedUsers?.includes(data?.user?.id!)) {
+    if (loggedInUser.blockedUsers?.includes(String(data?.user?.id))) {
       setIsBlocked(true);
     }
-  }, [id, loggedInUser.blockedUsers]);
+  }, [data?.user?.id, id, loggedInUser.blockedUsers]);
 
   if (isLoading) {
     return (
@@ -252,7 +252,7 @@ export default function UserProfile() {
                           disabled={removeFriendByIdMutation.isPending}
                           onClick={async () => {
                             await removeFriendByIdMutation.mutateAsync({
-                              id: data.user.id!,
+                              id: data.user.id,
                             });
                           }}
                         >
@@ -280,7 +280,7 @@ export default function UserProfile() {
                       }
                       onClick={async () => {
                         void (await addFriendByIdMutation.mutateAsync({
-                          id: data.user.id!,
+                          id: data.user.id,
                         }));
                       }}
                     >
@@ -332,7 +332,7 @@ export default function UserProfile() {
                           disabled={unblockUserMutation.isPending}
                           onClick={async () => {
                             await unblockUserMutation.mutateAsync({
-                              userToUnblockId: data.user.id!,
+                              userToUnblockId: data.user.id,
                               userToUnblockUsername: data.user.username,
                             });
                           }}
@@ -386,7 +386,7 @@ export default function UserProfile() {
                           disabled={blockUserMutation.isPending}
                           onClick={async () => {
                             await blockUserMutation.mutateAsync({
-                              userToBlockId: data.user.username!,
+                              userToBlockId: data.user.username,
                               isFriend: isFriend,
                             });
                           }}
