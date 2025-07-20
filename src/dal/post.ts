@@ -591,19 +591,67 @@ async function getFriendsByUserId(userId: string) {
 async function deleteComment(commentId: string, userId: string) {
   try {
     const comment = await db
-      .delete(commentSchema)
+      .select()
+      .from(commentSchema)
       .where(
         and(eq(commentSchema.id, commentId), eq(commentSchema.author, userId)),
       )
-      .returning({ post: commentSchema.post });
+      .then((res) => res[0]);
+
+    if (comment?.isAReply) {
+      const comment = await db
+        .delete(commentSchema)
+        .where(
+          and(
+            eq(commentSchema.id, commentId),
+            eq(commentSchema.author, userId),
+          ),
+        )
+        .returning({ replyTo: commentSchema.replyTo, id: commentSchema.id })
+        .then((res) => res[0]);
+
+      await db
+        .update(commentSchema)
+        .set({
+          replies: sql`array_remove(${commentSchema.replies},${comment?.id})`,
+        })
+        .where(eq(commentSchema.id, String(comment?.replyTo)))
+        .returning({ replyTo: commentSchema.replyTo })
+        .then((res) => res[0]);
+    } else {
+      if (comment?.replies && comment?.replies?.length > 0) {
+        await db
+          .update(commentSchema)
+          .set({
+            content: "Comment deleted by the author",
+            isDeleted: true,
+          })
+          .where(
+            and(
+              eq(commentSchema.id, commentId),
+              eq(commentSchema.author, userId),
+            ),
+          )
+          .then((res) => res[0]);
+      } else {
+        await db
+          .delete(commentSchema)
+          .where(
+            and(
+              eq(commentSchema.id, commentId),
+              eq(commentSchema.author, userId),
+            ),
+          )
+          .returning({ post: commentSchema.post });
+      }
+    }
 
     await db
       .update(postSchema)
       .set({
-        commentsCount: sql`comments_count
-        - 1`,
+        commentsCount: sql`comments_count - 1`,
       })
-      .where(eq(postSchema.id, comment[0]!.post!));
+      .where(eq(postSchema.id, String(comment?.post)));
 
     return {
       success: true,

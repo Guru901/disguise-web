@@ -68,6 +68,7 @@ export const commentSchema = pgTable("comments", {
   replyTo: uuid("reply_to"),
   replies: text("replies").notNull().array(),
   author: uuid("author").references(() => userSchema.id),
+  isDeleted: boolean("is_deleted").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

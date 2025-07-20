@@ -36,6 +36,7 @@ export default function Comment({
       image?: string;
       isAReply?: boolean;
       replyTo?: string;
+      isDeleted: boolean;
     };
   };
   replies: Array<{
@@ -46,6 +47,7 @@ export default function Comment({
       image?: string;
       isAReply?: boolean;
       replyTo?: string;
+      isDeleted: boolean;
     };
     users?: {
       id: string;
@@ -100,7 +102,9 @@ export default function Comment({
                 </span>
               </Link>
             </div>
-            <div className="text-accent-foreground">
+            <div
+              className={`text-accent-foreground ${comment.comments.isDeleted ? "italic" : ""}`}
+            >
               {!comment.comments.content.includes("@") ? (
                 <p>{comment.comments.content}</p>
               ) : (
