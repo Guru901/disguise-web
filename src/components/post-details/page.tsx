@@ -100,7 +100,7 @@ export function PostDetails({ postId }: { postId: string }) {
   const likeAndUndislikePostMutation =
     api.postRouter.likeAndUndislikePost.useMutation();
   const deleteCommentMutation = api.postRouter.deleteComment.useMutation({
-    onMutate: (data) => {
+    onMutate: () => {
       toast("Comment Deleted");
     },
   });
@@ -255,9 +255,8 @@ export function PostDetails({ postId }: { postId: string }) {
     if (newComment.content.trim() === "") return;
     try {
       setCommentLoading(true);
-      let data;
       if (replyTo) {
-        data = await commentAddMutation.mutateAsync({
+        await commentAddMutation.mutateAsync({
           content: newComment.content,
           image: newComment.image,
           postId: postId,
@@ -265,7 +264,7 @@ export function PostDetails({ postId }: { postId: string }) {
           replyTo: replyTo,
         });
       } else {
-        data = await commentAddMutation.mutateAsync({
+        await commentAddMutation.mutateAsync({
           content: newComment.content,
           image: newComment.image,
           postId: postId,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import Link from "next/link";
@@ -45,7 +46,9 @@ type CommnetProps = {
   user: User;
   toggleReplies(commentId: string): void;
   expandedReplies: Set<string>;
-  deleteCommentMutation: any;
+  deleteCommentMutation: {
+    mutateAsync: (args: { commentId: string }) => Promise<unknown>;
+  };
 };
 
 export default function Comment({
@@ -153,7 +156,6 @@ export default function Comment({
               {user.id === comment.authorId && (
                 <DropdownMenuItem
                   onClick={async () => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
                     void (await deleteCommentMutation.mutateAsync({
                       commentId: comment.id,
                     }));
@@ -278,7 +280,6 @@ export default function Comment({
                         {user.id === reply.authorId && (
                           <DropdownMenuItem
                             onClick={async () => {
-                              // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
                               void (await deleteCommentMutation.mutateAsync({
                                 commentId: reply.id,
                               }));
