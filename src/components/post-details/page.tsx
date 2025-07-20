@@ -49,6 +49,8 @@ export function PostDetails({ postId }: { postId: string }) {
     image: "",
     content: "",
   });
+
+  const [canFetchComments, setCanFetchComments] = useState(true);
   const [commentLoading, setCommentLoading] = useState(false);
   const [hasLiked, setHasLiked] = useState(() =>
     post?.likes?.includes(user.id),
@@ -96,20 +98,40 @@ export function PostDetails({ postId }: { postId: string }) {
   }, [inputValue]);
 
   const likePostMutation = api.postRouter.likePost.useMutation();
+
   const unlikePostMutation = api.postRouter.unlikePost.useMutation();
+
   const likeAndUndislikePostMutation =
     api.postRouter.likeAndUndislikePost.useMutation();
+
   const deleteCommentMutation = api.postRouter.deleteComment.useMutation({
-    onMutate: () => {
+    onMutate: (data) => {
+      setCanFetchComments(false);
+      setOptimisticCommentsCount((prev) => prev - 1);
       toast("Comment Deleted");
+
+      const index = comments?.findIndex(
+        (comment) => comment.id === data.commentId,
+      );
+      if (index !== -1 && index !== undefined) {
+        comments?.splice(index, 1);
+      }
+    },
+    onSuccess: () => {
+      setCanFetchComments(true);
     },
   });
+
   const dislikePostMutation = api.postRouter.dislikePost.useMutation();
+
   const undislikePostMutation = api.postRouter.undislikePost.useMutation();
+
   const dislikeAndUnlikePostMutation =
     api.postRouter.dislikeAndUnlikePost.useMutation();
+
   const commentAddMutation = api.postRouter.addComments.useMutation({
     onMutate: (data) => {
+      setCanFetchComments(false);
       toast("Comment Added");
       comments?.unshift({
         authorAvatar: user.avatar ?? null,
@@ -131,6 +153,9 @@ export function PostDetails({ postId }: { postId: string }) {
       setInputValue("");
       setReplyTo("");
     },
+    onSettled: () => {
+      setCanFetchComments(true);
+    },
   });
 
   const deletePostByIdMutation = api.postRouter.deletePostById.useMutation({
@@ -149,6 +174,7 @@ export function PostDetails({ postId }: { postId: string }) {
       postId: postId,
     },
     {
+      enabled: canFetchComments,
       refetchInterval: 1000,
     },
   );
