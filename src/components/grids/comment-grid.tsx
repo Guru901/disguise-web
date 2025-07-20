@@ -2,6 +2,8 @@ import Masonry from "react-masonry-css";
 import Link from "next/link";
 import { Card, CardContent } from "../ui/card";
 import { Loader2 } from "lucide-react";
+import { formatTimeAgo } from "@/lib/format-time-ago";
+import { Badge } from "../ui/badge";
 
 const breakpointColumnsObjComments = {
   default: 3,
@@ -47,8 +49,14 @@ export default function CommentGrid({
         <div key={comment.id}>
           <Card className="overflow-hidden">
             <Link href={`/p/${comment.post}`} className="h-full">
-              <CardContent className="h-full p-3">
+              <CardContent className="flex h-full flex-col gap-2 p-3">
                 <h1>{comment.content}</h1>
+                <Badge
+                  variant={"secondary"}
+                  className="text-muted-foreground w-max text-xs"
+                >
+                  {formatTimeAgo(comment.createdAt)}
+                </Badge>
               </CardContent>
             </Link>
           </Card>
