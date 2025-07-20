@@ -335,7 +335,20 @@ async function dislikeAndUnlikePost(userId: string, postId: string) {
 async function getCommentsByPostId(postId: string) {
   try {
     const results = await db
-      .select()
+      .select({
+        id: commentSchema.id,
+        content: commentSchema.content,
+        post: commentSchema.post,
+        image: commentSchema.image,
+        isAReply: commentSchema.isAReply,
+        replyTo: commentSchema.replyTo,
+        replies: commentSchema.replies,
+        authorUsername: userSchema.username,
+        authorAvatar: userSchema.avatar,
+        authorId: userSchema.id,
+        isDeleted: commentSchema.isDeleted,
+        createdAt: commentSchema.createdAt,
+      })
       .from(commentSchema)
       .where(eq(commentSchema.post, postId))
       .orderBy(desc(commentSchema.createdAt))
@@ -447,8 +460,7 @@ async function addComment(input: TCommentAddSchema, userId: string) {
   await db
     .update(postSchema)
     .set({
-      commentsCount: sql`comments_count
-      + 1`,
+      commentsCount: sql`comments_count + 1`,
     })
     .where(eq(postSchema.id, input.postId));
 

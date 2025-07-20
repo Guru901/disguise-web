@@ -99,12 +99,39 @@ export function PostDetails({ postId }: { postId: string }) {
   const unlikePostMutation = api.postRouter.unlikePost.useMutation();
   const likeAndUndislikePostMutation =
     api.postRouter.likeAndUndislikePost.useMutation();
-  const deleteCommentMutation = api.postRouter.deleteComment.useMutation();
+  const deleteCommentMutation = api.postRouter.deleteComment.useMutation({
+    onMutate: (data) => {
+      toast("Comment Deleted");
+    },
+  });
   const dislikePostMutation = api.postRouter.dislikePost.useMutation();
   const undislikePostMutation = api.postRouter.undislikePost.useMutation();
   const dislikeAndUnlikePostMutation =
     api.postRouter.dislikeAndUnlikePost.useMutation();
-  const commentAddMutation = api.postRouter.addComments.useMutation();
+  const commentAddMutation = api.postRouter.addComments.useMutation({
+    onMutate: (data) => {
+      toast("Comment Added");
+      comments?.unshift({
+        authorAvatar: user.avatar ?? null,
+        authorId: user.id,
+        authorUsername: user.username,
+        content: data.content,
+        createdAt: new Date(),
+        id: String(Math.random() * 190),
+        image: data.image ?? null,
+        isAReply: data.isAReply,
+        isDeleted: false,
+        post: postId,
+        replies: [],
+        replyTo: null,
+      });
+      setOptimisticCommentsCount((prev) => prev + 1);
+      setCommentLoading(false);
+      setNewComment({ content: "", image: "" });
+      setInputValue("");
+      setReplyTo("");
+    },
+  });
 
   const deletePostByIdMutation = api.postRouter.deletePostById.useMutation({
     onSuccess: async () => {
@@ -117,7 +144,6 @@ export function PostDetails({ postId }: { postId: string }) {
     data: comments,
     isLoading: isCommentsLoading,
     isPending: isCommentsPending,
-    refetch: refetchComments,
   } = api.postRouter.getCommentsByPostId.useQuery(
     {
       postId: postId,
@@ -246,15 +272,6 @@ export function PostDetails({ postId }: { postId: string }) {
           isAReply: false,
           replyTo: replyTo,
         });
-        setOptimisticCommentsCount((prev) => prev + 1);
-      }
-      if (data.success) {
-        setNewComment({ content: "", image: "" });
-        setInputValue(""); // Clear mention input
-        setReplyTo(""); // Clear the reply state
-        toast("Comment added");
-        void (await refetchComments());
-        setCommentLoading(false);
       }
     } catch (error) {
       console.log(error);
@@ -679,30 +696,24 @@ export function PostDetails({ postId }: { postId: string }) {
                     <PostCommentsLoading />
                   ) : (
                     comments
-                      ?.filter((comment) => !comment.comments.isAReply)
+                      ?.filter((comment) => !comment.isAReply)
                       .map((comment) => {
                         // Get replies for this comment
                         const replies =
                           comments?.filter(
                             (reply) =>
-                              reply.comments.isAReply &&
-                              reply.comments.replyTo === comment.comments.id,
+                              reply.isAReply && reply.replyTo === comment.id,
                           ) ?? [];
                         return (
                           <Comment
-                            // @ts-expect-error fix later
                             comment={comment}
-                            // @ts-expect-error fix later
                             replies={replies}
                             handleReply={handleReply}
                             user={user}
-                            setOptimisticCommentsCount={
-                              setOptimisticCommentsCount
-                            }
                             toggleReplies={toggleReplies}
                             expandedReplies={expandedReplies}
                             deleteCommentMutation={deleteCommentMutation}
-                            key={comment.comments.id}
+                            key={comment.id}
                           />
                         );
                       })
