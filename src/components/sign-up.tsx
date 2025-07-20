@@ -19,6 +19,7 @@ import { signUpSchema, type TSignUpSchema } from "@/lib/schemas";
 import { toast } from "sonner";
 import { CldUploadButton } from "next-cloudinary";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function SignUp() {
   const router = useRouter();
@@ -160,9 +161,11 @@ export default function SignUp() {
             />
             {image && (
               <div className="mt-2">
-                <img
+                <Image
                   src={image}
                   alt="Avatar preview"
+                  width={64}
+                  height={64}
                   className="h-16 w-16 rounded-full object-cover"
                 />
               </div>

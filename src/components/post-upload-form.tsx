@@ -20,6 +20,7 @@ import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { CldUploadButton } from "next-cloudinary";
+import Image from "next/image";
 
 export function PostUploadForm() {
   const router = useRouter();
@@ -126,17 +127,21 @@ export function PostUploadForm() {
         />
         {imageUrl?.endsWith(".mp4") || imageUrl?.endsWith(".mkv") ? (
           <div className="mt-2 flex justify-center">
-            <img
+            <Image
               src={imageUrl}
               alt="Preview"
+              width={192}
+              height={192}
               className="max-h-48 rounded border object-cover"
             />
           </div>
         ) : imageUrl ? (
           <div className="mt-2 flex justify-center">
-            <img
+            <Image
               src={imageUrl}
               alt="Preview"
+              width={192}
+              height={192}
               className="max-h-48 rounded border object-cover"
             />
           </div>
