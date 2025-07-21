@@ -3,8 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { api } from "@/trpc/server";
 import Link from "next/link";
 
-export default async function Post() {
+export default async function Topics() {
   const topics = await api.topicRouter.getAllTopics();
+
   return (
     <main className="px-2 py-2">
       <Navbar />
