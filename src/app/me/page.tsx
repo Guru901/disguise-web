@@ -11,9 +11,11 @@ import { formatTimeAgo } from "@/lib/format-time-ago";
 import CommentGrid from "@/components/grids/comment-grid";
 import PostGrid from "@/components/grids/post-grid";
 import FriendsGrid from "@/components/grids/friends-grid";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export default function Me() {
-  const [selectedOption, setSelectedOption] = useState("public");
+  const selectedOption = useSearchParams().get("option") ?? "public";
 
   const { data, isLoading } = api.userRouter.getUserData.useQuery();
 
@@ -107,18 +109,32 @@ export default function Me() {
                   defaultValue="public"
                   value={selectedOption}
                   className="w-full"
-                  onValueChange={(e) => setSelectedOption(e)}
                 >
                   <TabsList className="w-full">
-                    <TabsTrigger value={"public"} className={"w-1/3"}>
-                      Public Posts ({userPosts?.length ?? 0})
-                    </TabsTrigger>
-                    <TabsTrigger value={"liked"} className={"w-1/3"}>
-                      Liked Posts ({userLikedPosts?.length ?? 0})
-                    </TabsTrigger>
-                    <TabsTrigger value={"private"} className="w-1/3">
-                      Private Posts ({userPrivatePosts?.length ?? 0})
-                    </TabsTrigger>
+                    <Link className="w-1/3" href="?option=public">
+                      <TabsTrigger
+                        value={"public"}
+                        className={"w-full cursor-pointer"}
+                      >
+                        Public Posts ({userPosts?.length ?? 0})
+                      </TabsTrigger>
+                    </Link>
+                    <Link className="w-1/3" href="?option=liked">
+                      <TabsTrigger
+                        value={"liked"}
+                        className={"w-full cursor-pointer"}
+                      >
+                        Liked Posts ({userLikedPosts?.length ?? 0})
+                      </TabsTrigger>
+                    </Link>
+                    <Link className="w-1/3" href="?option=private">
+                      <TabsTrigger
+                        value={"private"}
+                        className={"w-full cursor-pointer"}
+                      >
+                        Private Posts ({userPrivatePosts?.length ?? 0})
+                      </TabsTrigger>
+                    </Link>
                   </TabsList>
                 </Tabs>
               </div>
@@ -127,18 +143,32 @@ export default function Me() {
                   defaultValue="public"
                   value={selectedOption}
                   className="w-full"
-                  onValueChange={(e) => setSelectedOption(e)}
                 >
                   <TabsList className="w-full">
-                    <TabsTrigger value={"disLiked"} className={"w-1/3"}>
-                      Disliked Posts ({userDisLikedPosts?.length ?? 0})
-                    </TabsTrigger>
-                    <TabsTrigger value={"comments"} className={"w-1/3"}>
-                      Comments ({userComments?.length ?? 0})
-                    </TabsTrigger>
-                    <TabsTrigger value={"friends"} className={"w-1/3"}>
-                      Friends ({friends.length ?? 0})
-                    </TabsTrigger>
+                    <Link className="w-1/3" href="?option=disLiked">
+                      <TabsTrigger
+                        value={"disLiked"}
+                        className={"w-full cursor-pointer"}
+                      >
+                        Disliked Posts ({userDisLikedPosts?.length ?? 0})
+                      </TabsTrigger>
+                    </Link>
+                    <Link className="w-1/3" href="?option=comments">
+                      <TabsTrigger
+                        value={"comments"}
+                        className={"w-full cursor-pointer"}
+                      >
+                        Comments ({userComments?.length ?? 0})
+                      </TabsTrigger>
+                    </Link>
+                    <Link className="w-1/3" href="?option=friends">
+                      <TabsTrigger
+                        value={"friends"}
+                        className={"w-full cursor-pointer"}
+                      >
+                        Friends ({friends.length ?? 0})
+                      </TabsTrigger>
+                    </Link>
                   </TabsList>
                 </Tabs>
               </div>
