@@ -3,11 +3,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 
-interface User {
+type User = {
   id: string;
   username: string;
-  avatar: string;
-}
+  avatar: string | null;
+  posts: string[] | null;
+  friends: string[] | null;
+  createdAt: Date;
+  lastOnline: Date | null;
+};
 
 interface MentionDropdownProps {
   users: User[];

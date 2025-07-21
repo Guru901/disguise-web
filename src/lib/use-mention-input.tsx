@@ -1,19 +1,21 @@
 "use client";
-
 import type React from "react";
-
 import { useState, useRef } from "react";
 
-interface User {
+type User = {
   id: string;
   username: string;
-  avatar: string;
-}
+  avatar: string | null;
+  posts: string[] | null;
+  friends: string[] | null;
+  createdAt: Date;
+  lastOnline: Date | null;
+};
 
 export function useMentionInput(users: User[] = []) {
   const [inputValue, setInputValue] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [filteredUsers, setFilteredUsers] = useState(users);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [mentionStart, setMentionStart] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,7 +24,6 @@ export function useMentionInput(users: User[] = []) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const cursorPosition = e.target.selectionStart ?? 0;
-
     setInputValue(value);
 
     // Find the last @ before cursor position
@@ -36,48 +37,63 @@ export function useMentionInput(users: User[] = []) {
 
       if (!hasSpace) {
         const searchTerm = textAfterAt.toLowerCase();
-        const filtered = users.filter((user) =>
-          user.username.toLowerCase().includes(searchTerm),
-        );
+
+        // If users array is empty or undefined, don't show dropdown
+        if (!users || users.length === 0) {
+          setShowDropdown(false);
+          setFilteredUsers([]);
+          return;
+        }
+
+        // Show all users immediately when @ is typed, then filter based on search term
+        const filtered =
+          searchTerm.length === 0
+            ? users
+            : users.filter((user) =>
+                user.username.toLowerCase().includes(searchTerm),
+              );
 
         setFilteredUsers(filtered);
         setMentionStart(lastAtIndex);
-        setShowDropdown(true);
+        setShowDropdown(filtered.length > 0);
         setSelectedIndex(0);
       } else {
         setShowDropdown(false);
+        setFilteredUsers([]);
       }
     } else {
       setShowDropdown(false);
+      setFilteredUsers([]);
     }
   };
 
   // Handle user selection
   const selectUser = (user: User) => {
-    user.username = user.username.replace(" ", "_");
+    const username = user.username.replace(" ", "_");
     if (mentionStart === -1) return;
 
     const beforeMention = inputValue.substring(0, mentionStart);
     const afterCursor = inputValue.substring(
       inputRef.current?.selectionStart ?? inputValue.length,
     );
-    const newValue = `${beforeMention}@${user.username} ${afterCursor}`;
 
+    const newValue = `${beforeMention}@${username} ${afterCursor}`;
     setInputValue(newValue);
     setShowDropdown(false);
+    setFilteredUsers([]);
     setMentionStart(-1);
 
     // Focus back to input
     setTimeout(() => {
       inputRef.current?.focus();
-      const newCursorPosition = beforeMention.length + user.username.length + 2;
+      const newCursorPosition = beforeMention.length + username.length + 2;
       inputRef.current?.setSelectionRange(newCursorPosition, newCursorPosition);
     }, 0);
   };
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent, onSubmit?: () => void) => {
-    if (showDropdown) {
+    if (showDropdown && filteredUsers.length > 0) {
       switch (e.key) {
         case "ArrowDown":
           e.preventDefault();
@@ -97,6 +113,7 @@ export function useMentionInput(users: User[] = []) {
           break;
         case "Escape":
           setShowDropdown(false);
+          setFilteredUsers([]);
           break;
       }
     } else {

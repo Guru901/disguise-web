@@ -62,9 +62,7 @@ export function PostDetails({ postId }: { postId: string }) {
   const [hasDisliked, setHasDisliked] = useState(() =>
     post?.disLikes?.includes(user.id),
   );
-  const [mentionUsers, setMentionUsers] = useState<
-    { id: string; username: string; avatar: string }[]
-  >([]);
+
   const [optimisticLikes, setOptimisticLikes] = useState(
     post?.likes?.length ?? 0,
   );
@@ -91,7 +89,7 @@ export function PostDetails({ postId }: { postId: string }) {
     handleInputChange,
     selectUser,
     handleKeyDown,
-  } = useMentionInput(mentionUsers);
+  } = useMentionInput(allUsers);
 
   useEffect(() => {
     setNewComment((prev) => ({ ...prev, content: inputValue }));
@@ -219,16 +217,6 @@ export function PostDetails({ postId }: { postId: string }) {
     setHasDisliked(post?.disLikes?.includes(user.id));
     setHasLiked(post?.likes?.includes(user.id));
   }, [post, user.id]);
-
-  useEffect(() => {
-    setMentionUsers(
-      (allUsers ?? []).map((user) => ({
-        id: user.id,
-        username: user.username,
-        avatar: user.avatar ?? "/placeholder.svg",
-      })),
-    );
-  }, [allUsers]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

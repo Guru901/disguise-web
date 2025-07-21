@@ -508,8 +508,7 @@ async function getAllUsers(searchTerm: string) {
       })
       .from(userSchema)
       .where(or(ilike(userSchema.username, "%" + searchTerm + "%")))
-      .orderBy(asc(userSchema.username))
-      .limit(10);
+      .orderBy(asc(userSchema.username));
   } else {
     return await db
       .select({
