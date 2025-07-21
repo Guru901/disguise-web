@@ -46,7 +46,7 @@ export default function PostGrid({
       {posts?.map((post) => (
         <div key={post.id}>
           <Card className="overflow-hidden">
-            <Link href={`/p/${post.id}`} className="h-full">
+            <Link href={`/p?post=${post.id}`} className="h-full">
               <CardContent className="h-full p-0">
                 {post.image ? (
                   <div className="relative h-full">

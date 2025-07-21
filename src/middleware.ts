@@ -19,7 +19,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/feed",
-    "/p/:id",
+    "/p",
     "/post/",
     "/me",
     "/login",

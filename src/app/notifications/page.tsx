@@ -198,7 +198,7 @@ const RegularNotification = ({
   deleteNotificationMutation: { mutate: (id: string) => Promise<void> };
 }) => {
   return (
-    <Link href={`/p/${notification.post ?? ""}`}>
+    <Link href={`/p?post=${notification.post ?? ""}`}>
       <Card
         className={`transition-all duration-200 hover:shadow-md ${
           !notification.read ? "ring-primary/20 ring-2" : ""

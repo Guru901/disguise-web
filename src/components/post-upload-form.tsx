@@ -58,7 +58,7 @@ export function PostUploadForm() {
       const { message, success, postId } =
         await uploadPostMutation.mutateAsync(data);
       if (success) {
-        router.push(`/p/${postId}`);
+        router.push(`/p?post=${postId}`);
       } else {
         console.log(message);
       }

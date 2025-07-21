@@ -48,7 +48,7 @@ export default function CommentGrid({
       {comments?.reverse().map((comment) => (
         <div key={comment.id}>
           <Card className="overflow-hidden">
-            <Link href={`/p/${comment.post}`} className="h-full">
+            <Link href={`/p?post=${comment.post}`} className="h-full">
               <CardContent className="flex h-full flex-col gap-2 p-3">
                 <h1>{comment.content}</h1>
                 <Badge
