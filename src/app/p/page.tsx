@@ -1,9 +1,7 @@
-"use client";
-
 import Navbar from "@/components/navbar";
 import { PostDetails } from "@/components/post-details/page";
 
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function Feed(props: { searchParams: SearchParams }) {
   const postId = String((await props.searchParams).post);
