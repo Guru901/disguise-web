@@ -7,18 +7,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import UserCard from "@/components/user-card";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Search() {
-  const [search, setSearch] = useState("");
+  const query = useSearchParams().get("q") ?? "";
+  const router = useRouter();
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
+      setDebouncedSearch(query.trim());
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [query]);
 
   const {
     data: users,
@@ -62,8 +64,8 @@ export default function Search() {
           <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Search for users..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={query}
+            onChange={(e) => router.push(`?q=${e.target.value}`)}
             className="py-6 pl-10 text-xl"
           />
         </div>
@@ -73,7 +75,7 @@ export default function Search() {
             <Loader2 className="text-muted-foreground mb-4 h-8 w-8 animate-spin" />
             <p className="text-muted-foreground">Please wait...</p>
           </div>
-        ) : search.length === 0 ? (
+        ) : query.length === 0 ? (
           <div className="flex flex-col gap-3">
             {firstTenUsers?.users?.map((user) => (
               <UserCard user={user} key={user.id} />
