@@ -12,7 +12,9 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export default async function SettingsPage(props: {
   searchParams: SearchParams;
 }) {
-  const activeSection = String((await props.searchParams).activeSection);
+  const activeSection = String(
+    (await props.searchParams).activeSection ?? "profile",
+  );
   return (
     <div className="bg-background min-h-screen px-2 py-2">
       <Navbar />

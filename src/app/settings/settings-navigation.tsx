@@ -77,7 +77,7 @@ function SettingsSidebar({
                 href={`?activeSection=${section.id}`}
                 className={buttonVariants({
                   className: `justify-start gap-4 font-medium transition-colors ${activeSection === section.id ? "bg-muted text-primary" : ""}`,
-                  variant: "outline",
+                  variant: "ghost",
                 })}
               >
                 <Icon className="h-4 w-4" />
