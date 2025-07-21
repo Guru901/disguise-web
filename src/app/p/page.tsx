@@ -3,7 +3,7 @@ import { PostDetails } from "@/components/post-details/page";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export default async function Feed(props: { searchParams: SearchParams }) {
+export default async function Post(props: { searchParams: SearchParams }) {
   const postId = String((await props.searchParams).post);
 
   return (

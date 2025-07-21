@@ -1,10 +1,8 @@
-"use client";
-
 import CreateTopicForm from "@/components/create-topic-form";
 import Navbar from "@/components/navbar";
 import { Card } from "@/components/ui/card";
 
-export default function Post() {
+export default function CreateTopic() {
   return (
     <main className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
       <Navbar />
