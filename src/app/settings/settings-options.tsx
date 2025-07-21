@@ -40,18 +40,9 @@ import {
   type TChnagePasswordSchema,
 } from "@/lib/schemas";
 import { valibotResolver } from "@hookform/resolvers/valibot";
-import { api, type RouterOutputs } from "@/trpc/react";
-import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "@/server/api/root";
+import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-
-type GetUserDataQueryType = ReturnType<
-  typeof api.userRouter.getUserData.useQuery
->;
-type GetUserDataOutput = NonNullable<
-  RouterOutputs["userRouter"]["getUserData"]
->;
 
 export function ProfileSettings() {
   const getUserDataQuery = api.userRouter.getUserData.useQuery();

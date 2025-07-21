@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect } from "react";
 import { api } from "@/trpc/react";
 import { useUserStore } from "@/lib/userStore";
-import Navbar from "@/components/navbar";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import CommentGrid from "@/components/grids/comment-grid";
 import PostGrid from "@/components/grids/post-grid";

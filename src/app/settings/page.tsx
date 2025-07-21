@@ -1,5 +1,4 @@
 import Navbar from "@/components/navbar";
-import { api } from "@/trpc/server";
 import {
   AccountSettings,
   NotificationSettings,

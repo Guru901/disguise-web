@@ -43,7 +43,7 @@ export function MentionDropdown({
           >
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={user.avatar || "/placeholder.svg"}
+                src={user.avatar ?? "/placeholder.svg"}
                 alt={user.username}
               />
               <AvatarFallback>
