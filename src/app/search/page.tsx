@@ -5,11 +5,28 @@ import { api } from "@/trpc/react";
 import Navbar from "@/components/navbar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import UserCard from "@/components/user-card";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Loader } from "@/components/loader";
 
-export default function Search() {
+export default function SaerchPage() {
+  return (
+    <main className="bg-background px-2 py-2">
+      <Navbar />
+      <div className="container mx-auto max-w-2xl p-4">
+        <div className="mb-6">
+          <h1 className="mb-2 text-2xl font-normal">Search Users</h1>
+          <Suspense fallback={<Loader />}>
+            <Search />
+          </Suspense>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function Search() {
   const query = useSearchParams().get("q") ?? "";
   const router = useRouter();
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -53,61 +70,54 @@ export default function Search() {
   }
 
   return (
-    <main className="bg-background px-2 py-2">
-      <Navbar />
-      <div className="container mx-auto max-w-2xl p-4">
-        <div className="mb-6">
-          <h1 className="mb-2 text-2xl font-normal">Search Users</h1>
-        </div>
+    <>
+      <div className="relative mb-6">
+        <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+        <Input
+          placeholder="Search for users..."
+          value={query}
+          onChange={(e) => router.push(`?q=${e.target.value}`)}
+          className="py-6 pl-10 text-xl"
+        />
+      </div>
 
-        <div className="relative mb-6">
-          <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-          <Input
-            placeholder="Search for users..."
-            value={query}
-            onChange={(e) => router.push(`?q=${e.target.value}`)}
-            className="py-6 pl-10 text-xl"
-          />
+      {isFirstTenUsersLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="text-muted-foreground mb-4 h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground">Please wait...</p>
         </div>
-
-        {isFirstTenUsersLoading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="text-muted-foreground mb-4 h-8 w-8 animate-spin" />
-            <p className="text-muted-foreground">Please wait...</p>
-          </div>
-        ) : query.length === 0 ? (
+      ) : query.length === 0 ? (
+        <div className="flex flex-col gap-3">
+          {firstTenUsers?.users?.map((user) => (
+            <UserCard user={user} key={user.id} />
+          ))}
+        </div>
+      ) : isLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="text-muted-foreground mb-4 h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground">Searching...</p>
+        </div>
+      ) : users?.users && users.users.length > 0 ? (
+        <div className="space-y-3">
+          <p className="text-muted-foreground text-sm">
+            Found {users.users.length} user
+            {users.users.length !== 1 ? "s" : ""}
+          </p>
           <div className="flex flex-col gap-3">
-            {firstTenUsers?.users?.map((user) => (
+            {users.users.map((user) => (
               <UserCard user={user} key={user.id} />
             ))}
           </div>
-        ) : isLoading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="text-muted-foreground mb-4 h-8 w-8 animate-spin" />
-            <p className="text-muted-foreground">Searching...</p>
-          </div>
-        ) : users?.users && users.users.length > 0 ? (
-          <div className="space-y-3">
-            <p className="text-muted-foreground text-sm">
-              Found {users.users.length} user
-              {users.users.length !== 1 ? "s" : ""}
-            </p>
-            <div className="flex flex-col gap-3">
-              {users.users.map((user) => (
-                <UserCard user={user} key={user.id} />
-              ))}
-            </div>
-          </div>
-        ) : debouncedSearch.length > 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Users className="text-muted-foreground mb-4 h-12 w-12" />
-            <h3 className="mb-2 text-lg font-medium">No users found</h3>
-            <p className="text-muted-foreground">
-              Try searching with a different username
-            </p>
-          </div>
-        ) : null}
-      </div>
-    </main>
+        </div>
+      ) : debouncedSearch.length > 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <Users className="text-muted-foreground mb-4 h-12 w-12" />
+          <h3 className="mb-2 text-lg font-medium">No users found</h3>
+          <p className="text-muted-foreground">
+            Try searching with a different username
+          </p>
+        </div>
+      ) : null}
+    </>
   );
 }
