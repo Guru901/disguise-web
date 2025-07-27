@@ -123,17 +123,34 @@ async function createPost(input: TUploadPostSchema) {
         username: userSchema.username,
       });
 
+    const friendsToNotify = await trx
+      .select({
+        id: userSchema.id,
+        username: userSchema.username,
+        receiveNotificationsForFriendRequest:
+          userSchema.receiveNotificationsForFriendRequest,
+      })
+      .from(userSchema)
+      .where(
+        and(
+          inArray(userSchema.id, author[0]?.friends ?? []),
+          eq(userSchema.receiveNotificationsForFriendPost, true),
+        ),
+      );
+
     await Promise.all(
-      author[0]?.friends?.map(async (friend) => {
-        await trx.insert(notificationSchema).values({
-          content: `${author[0]?.username} uploaded a new post`,
-          message: `${author[0]?.username} uploaded a new post about '${post[0]?.title}'`,
-          byUser: input.author,
-          post: post[0]!.id,
-          user: friend,
-          type: "upload",
-        });
-      }) ?? [],
+      friendsToNotify
+        .filter((friend) => friend.receiveNotificationsForFriendRequest)
+        .map(async (friend) => {
+          await trx.insert(notificationSchema).values({
+            content: `${author[0]?.username} uploaded a new post`,
+            message: `${author[0]?.username} uploaded a new post about '${post[0]?.title}'`,
+            byUser: input.author,
+            post: post[0]!.id,
+            user: friend.id,
+            type: "upload",
+          });
+        }),
     );
   });
 
@@ -169,15 +186,18 @@ async function likePost(userId: string, postId: string) {
       });
 
     const { user } = await getUserDataById(userId);
+    const { user: createdByUser } = await getUserDataById(post[0]?.createdBy!);
 
-    await db.insert(notificationSchema).values({
-      type: "like",
-      content: `${user?.username} liked your post`,
-      message: `${user?.username} liked your post about '${post[0]?.title}'`,
-      byUser: userId,
-      post: postId,
-      user: post[0]?.createdBy,
-    });
+    if (createdByUser?.receiveNotificationsForLike) {
+      await db.insert(notificationSchema).values({
+        type: "like",
+        content: `${user?.username} liked your post`,
+        message: `${user?.username} liked your post about '${post[0]?.title}'`,
+        byUser: userId,
+        post: postId,
+        user: post[0]?.createdBy,
+      });
+    }
 
     return {
       success: true,
@@ -400,15 +420,17 @@ async function extractMentionsAndNotify(
           .limit(1)
           .then((res) => res[0]);
 
-        // Create notification for mentioned user
-        await db.insert(notificationSchema).values({
-          type: "mention",
-          content: `${authorUser?.username} mentioned you in a comment`,
-          message: `${authorUser?.username} mentioned you in a comment on '${post?.title ?? "a post"}'`,
-          byUser: commentAuthorId,
-          post: postId,
-          user: mentionedUser.id,
-        });
+        if (mentionedUser.receiveNotificationsForMention) {
+          // Create notification for mentioned user
+          await db.insert(notificationSchema).values({
+            type: "mention",
+            content: `${authorUser?.username} mentioned you in a comment`,
+            message: `${authorUser?.username} mentioned you in a comment on '${post?.title ?? "a post"}'`,
+            byUser: commentAuthorId,
+            post: postId,
+            user: mentionedUser.id,
+          });
+        }
       }
     } catch (error) {
       console.error(
@@ -474,9 +496,14 @@ async function addComment(input: TCommentAddSchema, userId: string) {
 
   // Get comment author info for notifications
   const { user: authorUser } = await getUserDataById(userId);
+  const { user: postAuthor } = await getUserDataById(post?.createdBy!);
 
   // Create notification for post author (if commenter is not the post author)
-  if (post?.createdBy && post.createdBy !== userId) {
+  if (
+    post?.createdBy &&
+    post.createdBy !== userId &&
+    postAuthor?.receiveNotificationsForComment
+  ) {
     await db.insert(notificationSchema).values({
       type: "comment",
       content: `${authorUser?.username} commented on your post`,

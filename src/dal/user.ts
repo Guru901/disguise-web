@@ -921,6 +921,117 @@ async function changePassword(
   }
 }
 
+async function changeNotificationSettingsForPost(
+  userId: string,
+  pref: boolean,
+) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        receiveNotificationsForFriendPost: pref,
+      })
+      .where(eq(userSchema.id, userId));
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+async function changeNotificationSettingsForComment(
+  userId: string,
+  pref: boolean,
+) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        receiveNotificationsForComment: pref,
+      })
+      .where(eq(userSchema.id, userId));
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+async function changeNotificationSettingsForLike(
+  userId: string,
+  pref: boolean,
+) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        receiveNotificationsForLike: pref,
+      })
+      .where(eq(userSchema.id, userId));
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+async function changeNotificationSettingsForMention(
+  userId: string,
+  pref: boolean,
+) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        receiveNotificationsForMention: pref,
+      })
+      .where(eq(userSchema.id, userId));
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+async function changeNotificationSettingsForFriendRequest(
+  userId: string,
+  pref: boolean,
+) {
+  try {
+    await db
+      .update(userSchema)
+      .set({
+        receiveNotificationsForFriendRequest: pref,
+      })
+      .where(eq(userSchema.id, userId));
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+    };
+  }
+}
+
 export {
   registerUser,
   loginUser,
@@ -948,4 +1059,9 @@ export {
   deactivateAccount,
   deleteAccount,
   changePassword,
+  changeNotificationSettingsForPost,
+  changeNotificationSettingsForComment,
+  changeNotificationSettingsForLike,
+  changeNotificationSettingsForFriendRequest,
+  changeNotificationSettingsForMention,
 };

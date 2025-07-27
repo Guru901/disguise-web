@@ -42,7 +42,7 @@ import {
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function ProfileSettings() {
   const getUserDataQuery = api.userRouter.getUserData.useQuery();
@@ -309,6 +309,115 @@ export function PrivacySettings() {
 }
 
 export function NotificationSettings() {
+  const getUserDataQuery = api.userRouter.getUserData.useQuery();
+  const user = getUserDataQuery.data?.user;
+
+  const [receiveNotificationsForLike, setReceiveNotificationsForLike] =
+    useState(user?.receiveNotificationsForLike ?? true);
+  const [receiveNotificationsForComment, setReceiveNotificationsForComment] =
+    useState(user?.receiveNotificationsForComment ?? true);
+  const [receiveNotificationsForMention, setReceiveNotificationsForMention] =
+    useState(user?.receiveNotificationsForMention ?? true);
+  const [
+    receiveNotificationsForFriendRequest,
+    setReceiveNotificationsForFriendRequest,
+  ] = useState(user?.receiveNotificationsForFriendRequest ?? true);
+  const [
+    receiveNotificationsForFriendPost,
+    setReceiveNotificationsForFriendPost,
+  ] = useState(user?.receiveNotificationsForFriendPost ?? true);
+
+  const chnageNotificationSettingForPostMutation =
+    api.userRouter.changeNotificationSettingsForPost.useMutation({
+      onSuccess: () => {
+        getUserDataQuery.refetch();
+      },
+      onMutate: (data) => {
+        setReceiveNotificationsForFriendPost((prev) => !prev);
+        if (data.pref) {
+          toast("You will now receive notifications for new posts");
+        } else {
+          toast("You will no longer receive notifications for new posts");
+        }
+      },
+    });
+
+  const chnageNotificationSettingForCommentMutation =
+    api.userRouter.changeNotificationSettingsForComment.useMutation({
+      onSuccess: () => {
+        getUserDataQuery.refetch();
+      },
+      onMutate: (data) => {
+        setReceiveNotificationsForComment((prev) => !prev);
+        if (data.pref) {
+          toast("You will now receive notifications for new comments");
+        } else {
+          toast("You will no longer receive notifications for new comments");
+        }
+      },
+    });
+
+  const chnageNotificationSettingForFriendRequestMutation =
+    api.userRouter.changeNotificationSettingsForFriendRequest.useMutation({
+      onSuccess: () => {
+        getUserDataQuery.refetch();
+      },
+      onMutate: (data) => {
+        setReceiveNotificationsForFriendRequest((prev) => !prev);
+        if (data.pref) {
+          toast("You will now receive notifications for friend requests");
+        } else {
+          toast("You will no longer receive notifications for friend requests");
+        }
+      },
+    });
+
+  const chnageNotificationSettingForLikeMutation =
+    api.userRouter.changeNotificationSettingsForLike.useMutation({
+      onSuccess: () => {
+        getUserDataQuery.refetch();
+      },
+      onMutate: (data) => {
+        setReceiveNotificationsForLike((prev) => !prev);
+        if (data.pref) {
+          toast("You will now receive notifications for likes");
+        } else {
+          toast("You will no longer receive notifications for likes");
+        }
+      },
+    });
+
+  const chnageNotificationSettingForMentionMutation =
+    api.userRouter.changeNotificationSettingsForMention.useMutation({
+      onSuccess: () => {
+        getUserDataQuery.refetch();
+      },
+      onMutate: (data) => {
+        setReceiveNotificationsForMention((prev) => !prev);
+        if (data.pref) {
+          toast("You will now receive notifications for mentions");
+        } else {
+          toast("You will no longer receive notifications for mentions");
+        }
+      },
+    });
+
+  useEffect(() => {
+    setReceiveNotificationsForLike(user?.receiveNotificationsForLike ?? true);
+    setReceiveNotificationsForComment(
+      user?.receiveNotificationsForComment ?? true,
+    );
+    setReceiveNotificationsForMention(
+      user?.receiveNotificationsForMention ?? true,
+    );
+    setReceiveNotificationsForFriendRequest(
+      user?.receiveNotificationsForFriendRequest ?? true,
+    );
+    setReceiveNotificationsForFriendPost(
+      user?.receiveNotificationsForFriendPost ?? true,
+    );
+  }, [user]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -333,7 +442,18 @@ export function NotificationSettings() {
                 When someone likes your post
               </p>
             </div>
-            <Switch defaultChecked />
+            {getUserDataQuery.isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Switch
+                checked={receiveNotificationsForLike}
+                onCheckedChange={(e) => {
+                  chnageNotificationSettingForLikeMutation.mutateAsync({
+                    pref: e,
+                  });
+                }}
+              />
+            )}
           </div>
           <Separator />
           <div className="flex items-center justify-between">
@@ -343,7 +463,18 @@ export function NotificationSettings() {
                 When someone comments on your post
               </p>
             </div>
-            <Switch defaultChecked />
+            {getUserDataQuery.isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Switch
+                checked={receiveNotificationsForComment}
+                onCheckedChange={(e) => {
+                  chnageNotificationSettingForCommentMutation.mutateAsync({
+                    pref: e,
+                  });
+                }}
+              />
+            )}
           </div>
           <Separator />
           <div className="flex items-center justify-between">
@@ -353,18 +484,63 @@ export function NotificationSettings() {
                 When someone sends you a friend request
               </p>
             </div>
-            <Switch defaultChecked />
+            {getUserDataQuery.isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Switch
+                checked={receiveNotificationsForFriendRequest}
+                onCheckedChange={(e) => {
+                  chnageNotificationSettingForFriendRequestMutation.mutateAsync(
+                    {
+                      pref: e,
+                    },
+                  );
+                }}
+              />
+            )}
           </div>
-          {/* <Separator />
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">Direct Messages</Label>
-                <p className="text-muted-foreground text-sm">
-                  When you receive a new message
-                </p>
-              </div>
-              <Switch defaultChecked />
-            </div> */}
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base">Post</Label>
+              <p className="text-muted-foreground text-sm">
+                When your friend uploads a new post
+              </p>
+            </div>
+            {getUserDataQuery.isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Switch
+                defaultChecked={receiveNotificationsForFriendPost}
+                onCheckedChange={(e) => {
+                  chnageNotificationSettingForPostMutation.mutateAsync({
+                    pref: e,
+                  });
+                }}
+              />
+            )}
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base">Mentions</Label>
+              <p className="text-muted-foreground text-sm">
+                When someone mentions you in a post
+              </p>
+            </div>
+            {getUserDataQuery.isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Switch
+                defaultChecked={receiveNotificationsForMention}
+                onCheckedChange={(e) => {
+                  chnageNotificationSettingForMentionMutation.mutateAsync({
+                    pref: e,
+                  });
+                }}
+              />
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -198,4 +198,69 @@ export const userRouter = createTRPCRouter({
         ctx.userId,
       );
     }),
+
+  changeNotificationSettingsForPost: protectedProcedure
+    .input(
+      v.object({
+        pref: v.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await userDal.changeNotificationSettingsForPost(
+        ctx.userId,
+        input.pref,
+      );
+    }),
+
+  changeNotificationSettingsForComment: protectedProcedure
+    .input(
+      v.object({
+        pref: v.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await userDal.changeNotificationSettingsForComment(
+        ctx.userId,
+        input.pref,
+      );
+    }),
+
+  changeNotificationSettingsForMention: protectedProcedure
+    .input(
+      v.object({
+        pref: v.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await userDal.changeNotificationSettingsForMention(
+        ctx.userId,
+        input.pref,
+      );
+    }),
+
+  changeNotificationSettingsForFriendRequest: protectedProcedure
+    .input(
+      v.object({
+        pref: v.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await userDal.changeNotificationSettingsForFriendRequest(
+        ctx.userId,
+        input.pref,
+      );
+    }),
+
+  changeNotificationSettingsForLike: protectedProcedure
+    .input(
+      v.object({
+        pref: v.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await userDal.changeNotificationSettingsForLike(
+        ctx.userId,
+        input.pref,
+      );
+    }),
 });

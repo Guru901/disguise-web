@@ -8,14 +8,6 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-const notificationEnum = pgEnum("recieveNotificationForEnum", [
-  "like",
-  "comment",
-  "friend_request",
-  "all",
-  "none",
-]);
-
 const accountTypeEnum = pgEnum("accountType", ["private", "public"]);
 
 export const userSchema = pgTable("users", {
@@ -26,15 +18,27 @@ export const userSchema = pgTable("users", {
   posts: text("posts").notNull().array(),
   friends: text("friends").notNull().array(),
   blockedUsers: text("blocked_users").array(),
-  recieveNotificationsFor: notificationEnum(
-    "recieve_notifications_for",
-  ).default("all"),
   accountType: accountTypeEnum("account_type").default("public"),
   isDeactivated: boolean("is_deactivated").default(false),
   deactivatedTill: timestamp("deactivated_till"),
   isDeleted: boolean("is_deleted").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastOnline: timestamp("last_online"),
+  receiveNotificationsForFriendRequest: boolean(
+    "receive_notifications_for_friend_request",
+  ).default(true),
+  receiveNotificationsForLike: boolean(
+    "receive_notifications_for_like",
+  ).default(true),
+  receiveNotificationsForComment: boolean(
+    "receive_notifications_for_comment",
+  ).default(true),
+  receiveNotificationsForMention: boolean(
+    "receive_notifications_for_mention",
+  ).default(true),
+  receiveNotificationsForFriendPost: boolean(
+    "receive_notifications_for_friend_post",
+  ).default(true),
 });
 
 export const postSchema = pgTable("posts", {
