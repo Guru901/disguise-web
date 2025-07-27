@@ -50,7 +50,7 @@ export function ProfileSettings() {
 
   const editAvatarMutation = api.userRouter.editAvatar.useMutation({
     onSuccess: async () => {
-      await getUserDataQuery.refetch();
+      void getUserDataQuery.refetch();
       toast("Avatar updated successfully");
     },
   });
@@ -164,7 +164,7 @@ export function PrivacySettings() {
 
   const accountTypeMutation = api.userRouter.changeAccountType.useMutation({
     onSuccess: async () => {
-      await getUserDataQuery.refetch();
+      void getUserDataQuery.refetch();
       toast("Your account type has been successfully updated");
     },
   });
@@ -330,7 +330,7 @@ export function NotificationSettings() {
   const chnageNotificationSettingForPostMutation =
     api.userRouter.changeNotificationSettingsForPost.useMutation({
       onSuccess: () => {
-        getUserDataQuery.refetch();
+        void getUserDataQuery.refetch();
       },
       onMutate: (data) => {
         setReceiveNotificationsForFriendPost((prev) => !prev);
@@ -345,7 +345,7 @@ export function NotificationSettings() {
   const chnageNotificationSettingForCommentMutation =
     api.userRouter.changeNotificationSettingsForComment.useMutation({
       onSuccess: () => {
-        getUserDataQuery.refetch();
+        void getUserDataQuery.refetch();
       },
       onMutate: (data) => {
         setReceiveNotificationsForComment((prev) => !prev);
@@ -360,7 +360,7 @@ export function NotificationSettings() {
   const chnageNotificationSettingForFriendRequestMutation =
     api.userRouter.changeNotificationSettingsForFriendRequest.useMutation({
       onSuccess: () => {
-        getUserDataQuery.refetch();
+        void getUserDataQuery.refetch();
       },
       onMutate: (data) => {
         setReceiveNotificationsForFriendRequest((prev) => !prev);
@@ -375,7 +375,7 @@ export function NotificationSettings() {
   const chnageNotificationSettingForLikeMutation =
     api.userRouter.changeNotificationSettingsForLike.useMutation({
       onSuccess: () => {
-        getUserDataQuery.refetch();
+        void getUserDataQuery.refetch();
       },
       onMutate: (data) => {
         setReceiveNotificationsForLike((prev) => !prev);
@@ -390,7 +390,7 @@ export function NotificationSettings() {
   const chnageNotificationSettingForMentionMutation =
     api.userRouter.changeNotificationSettingsForMention.useMutation({
       onSuccess: () => {
-        getUserDataQuery.refetch();
+        void getUserDataQuery.refetch();
       },
       onMutate: (data) => {
         setReceiveNotificationsForMention((prev) => !prev);
@@ -448,7 +448,7 @@ export function NotificationSettings() {
               <Switch
                 checked={receiveNotificationsForLike}
                 onCheckedChange={(e) => {
-                  chnageNotificationSettingForLikeMutation.mutateAsync({
+                  void chnageNotificationSettingForLikeMutation.mutateAsync({
                     pref: e,
                   });
                 }}
@@ -469,7 +469,7 @@ export function NotificationSettings() {
               <Switch
                 checked={receiveNotificationsForComment}
                 onCheckedChange={(e) => {
-                  chnageNotificationSettingForCommentMutation.mutateAsync({
+                  void chnageNotificationSettingForCommentMutation.mutateAsync({
                     pref: e,
                   });
                 }}
@@ -490,7 +490,7 @@ export function NotificationSettings() {
               <Switch
                 checked={receiveNotificationsForFriendRequest}
                 onCheckedChange={(e) => {
-                  chnageNotificationSettingForFriendRequestMutation.mutateAsync(
+                  void chnageNotificationSettingForFriendRequestMutation.mutateAsync(
                     {
                       pref: e,
                     },
@@ -513,7 +513,7 @@ export function NotificationSettings() {
               <Switch
                 defaultChecked={receiveNotificationsForFriendPost}
                 onCheckedChange={(e) => {
-                  chnageNotificationSettingForPostMutation.mutateAsync({
+                  void chnageNotificationSettingForPostMutation.mutateAsync({
                     pref: e,
                   });
                 }}
@@ -534,7 +534,7 @@ export function NotificationSettings() {
               <Switch
                 defaultChecked={receiveNotificationsForMention}
                 onCheckedChange={(e) => {
-                  chnageNotificationSettingForMentionMutation.mutateAsync({
+                  void chnageNotificationSettingForMentionMutation.mutateAsync({
                     pref: e,
                   });
                 }}

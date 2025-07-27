@@ -186,7 +186,7 @@ async function likePost(userId: string, postId: string) {
       });
 
     const { user } = await getUserDataById(userId);
-    const { user: createdByUser } = await getUserDataById(post[0]?.createdBy!);
+    const { user: createdByUser } = await getUserDataById(post[0]?.createdBy ?? "");
 
     if (createdByUser?.receiveNotificationsForLike) {
       await db.insert(notificationSchema).values({
@@ -496,7 +496,7 @@ async function addComment(input: TCommentAddSchema, userId: string) {
 
   // Get comment author info for notifications
   const { user: authorUser } = await getUserDataById(userId);
-  const { user: postAuthor } = await getUserDataById(post?.createdBy!);
+  const { user: postAuthor } = await getUserDataById(post?.createdBy ?? "");
 
   // Create notification for post author (if commenter is not the post author)
   if (
