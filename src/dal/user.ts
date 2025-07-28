@@ -267,17 +267,6 @@ async function getUserDataById(userId: string) {
       .limit(1)
       .then((res) => res[0]);
 
-    user ??= await db
-      .select()
-      .from(userSchema)
-      .where(eq(userSchema.id, userId))
-      .limit(1)
-      .then((res) => res[0]);
-
-    if (user) {
-      user.password = "";
-    }
-
     if (!user && userId.includes("_")) {
       const usernameWithSpaces = userId.replace(/_/g, " ");
       user = await db
@@ -286,6 +275,19 @@ async function getUserDataById(userId: string) {
         .where(eq(userSchema.username, usernameWithSpaces))
         .limit(1)
         .then((res) => res[0]);
+    }
+
+    if (!user) {
+      user = await db
+        .select()
+        .from(userSchema)
+        .where(eq(userSchema.id, userId))
+        .limit(1)
+        .then((res) => res[0]);
+    }
+
+    if (user) {
+      user.password = "";
     }
 
     if (user) {

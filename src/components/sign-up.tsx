@@ -59,7 +59,7 @@ export default function SignUp() {
   }
 
   return (
-    <Card className="z-50 w-md rounded-md rounded-t-none py-6">
+    <Card className="z-50 w-md py-6">
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
         <CardDescription className="text-xs md:text-sm">
