@@ -277,14 +277,12 @@ async function getUserDataById(userId: string) {
         .then((res) => res[0]);
     }
 
-    if (!user) {
-      user = await db
+    user ??= await db
         .select()
         .from(userSchema)
         .where(eq(userSchema.id, userId))
         .limit(1)
         .then((res) => res[0]);
-    }
 
     if (user) {
       user.password = "";
