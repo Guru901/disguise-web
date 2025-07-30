@@ -215,7 +215,7 @@ export function PostDetails({ postId }: { postId: string }) {
 
   // Reset form when post data loads or dialog opens
   useEffect(() => {
-    if (post && isEditDialogOpen) {
+    if (post) {
       reset({
         title: post.title || "",
         content: post.content || "",
@@ -760,7 +760,7 @@ export function PostDetails({ postId }: { postId: string }) {
                                   </Button>
                                 </CldUploadButton>
 
-                                {imageUrl ? (
+                                {imageUrl && imageUrl?.length > 0 ? (
                                   <div className="flex justify-center">
                                     <MediaPlayer
                                       url={imageUrl}
@@ -777,8 +777,25 @@ export function PostDetails({ postId }: { postId: string }) {
                                       }}
                                     />
                                   </div>
+                                ) : post?.image ? (
+                                  <div className="flex justify-center">
+                                    <MediaPlayer
+                                      url={post?.image}
+                                      imageProps={{
+                                        alt: "Preview",
+                                        className:
+                                          "w-full max-w-md h-auto object-cover rounded-md",
+                                        height: 300,
+                                        width: 400,
+                                      }}
+                                      videoProps={{
+                                        className:
+                                          "w-full max-w-md h-auto object-cover rounded-md",
+                                      }}
+                                    />
+                                  </div>
                                 ) : (
-                                  <span>No image</span>
+                                  <div>No Image</div>
                                 )}
                               </div>
                               {errors.image && (
