@@ -20,7 +20,6 @@ import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import Link from "next/link";
-import Image from "next/image";
 import MediaPlayer from "../media-player";
 import { CldUploadButton } from "next-cloudinary";
 import { useMentionInput } from "@/lib/use-mention-input";
@@ -212,7 +211,7 @@ export function PostDetails({ postId }: { postId: string }) {
     handleSubmit,
     setValue,
     control,
-    formState: { errors, isSubmitting, isLoading },
+    formState: { errors },
     watch,
     reset,
   } = useForm<TUploadPostSchema>({
@@ -224,8 +223,8 @@ export function PostDetails({ postId }: { postId: string }) {
     if (post) {
       reset({
         title: post.title || "",
-        content: post.content || "",
-        image: post.image || "",
+        content: post.content ?? "",
+        image: post.image ?? "",
         isPublic: post.isPublic,
         topic: post.topic || "General",
         author: user.id,

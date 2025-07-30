@@ -26,9 +26,7 @@ import { useForm, Controller } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
 import { toast } from "sonner"; // Assuming you're using sonner for toasts
@@ -124,7 +122,7 @@ export default function Comment({
     formState: { errors },
   } = useForm<EditFormData>();
 
-  const handleDeleteClick = (commentId: string, isReply: boolean = false) => {
+  const handleDeleteClick = (commentId: string, isReply = false) => {
     setDeleteState({
       isOpen: true,
       commentId,
@@ -135,7 +133,7 @@ export default function Comment({
 
   const handleEditClick = (
     targetComment: typeof comment,
-    isReply: boolean = false,
+    isReply = false,
   ) => {
     setEditState({
       commentId: targetComment.id,
@@ -215,7 +213,7 @@ export default function Comment({
   const renderCommentContent = (
     targetComment: typeof comment,
     isDeleted?: boolean,
-    isReplyComment: boolean = false,
+    isReplyComment = false,
   ) => {
     const isEditing = editState.commentId === targetComment.id;
 
@@ -319,7 +317,7 @@ export default function Comment({
 
   const renderDropdownMenu = (
     targetComment: typeof comment,
-    isReplyComment: boolean = false,
+    isReplyComment = false,
   ) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -350,8 +348,8 @@ export default function Comment({
             <DropdownMenuItem
               onClick={() => handleEditClick(targetComment, isReplyComment)}
               disabled={
-                deleteState.isDeleting ||
-                editCommentMutation.isPending ||
+                deleteState.isDeleting ??
+                editCommentMutation.isPending ??
                 editState.commentId !== null
               }
             >
