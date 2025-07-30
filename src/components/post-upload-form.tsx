@@ -102,10 +102,8 @@ export function PostUploadForm() {
     <div className="mx-auto max-w-2xl p-6">
       <Card className="py-6">
         <CardHeader className="space-y-2 pb-6">
-          <CardTitle className="bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-2xl font-bold text-transparent">
-            Create New Post
-          </CardTitle>
-          <p className="text-sm text-gray-600">
+          <CardTitle className="text-2xl font-bold">Create New Post</CardTitle>
+          <p className="text-muted-foreground text-sm">
             Share your thoughts with the community
           </p>
         </CardHeader>
@@ -113,10 +111,7 @@ export function PostUploadForm() {
         <CardContent>
           <form className="space-y-8" onSubmit={handleSubmit(submitForm)}>
             <div className="space-y-3">
-              <Label
-                htmlFor="title"
-                className="text-base font-semibold text-gray-900"
-              >
+              <Label htmlFor="title" className="text-base font-semibold">
                 Title
               </Label>
               <Controller
@@ -143,10 +138,7 @@ export function PostUploadForm() {
 
             {/* Content Field */}
             <div className="space-y-3">
-              <Label
-                htmlFor="body"
-                className="text-base font-semibold text-gray-900"
-              >
+              <Label htmlFor="body" className="text-base font-semibold">
                 Content
               </Label>
               <Controller
@@ -171,15 +163,12 @@ export function PostUploadForm() {
             </div>
 
             <div className="space-y-3">
-              <Label
-                htmlFor="image"
-                className="text-base font-semibold text-gray-900"
-              >
+              <Label htmlFor="image" className="text-base font-semibold">
                 Image
               </Label>
               <div className="space-y-4">
                 <CldUploadButton
-                  className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 text-gray-600 transition-all duration-200 hover:border-blue-400 hover:bg-blue-50/50 hover:text-blue-600"
+                  className="hover:text-accent-foreground hover:border-accent-foreground flex h-32 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 transition-all duration-200"
                   uploadPreset="social-media-again"
                   onSuccess={(results) => {
                     // @ts-expect-error - results.info is not typed
@@ -192,7 +181,7 @@ export function PostUploadForm() {
                   <span className="text-sm font-medium">
                     {imageUrl ? "Change Image" : "Upload Image"}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-muted-foreground text-xs">
                     Click to browse or drag and drop
                   </span>
                 </CldUploadButton>
@@ -219,7 +208,7 @@ export function PostUploadForm() {
                 )}
               </div>
               {errors.image && (
-                <p className="flex items-center gap-1 text-sm text-red-500">
+                <p className="text-destructive flex items-center gap-1">
                   <InfoIcon size={14} />
                   {errors.image.message}
                 </p>
@@ -228,27 +217,24 @@ export function PostUploadForm() {
 
             {/* Visibility Field */}
             <div className="space-y-3">
-              <Label
-                htmlFor="visibility"
-                className="text-base font-semibold text-gray-900"
-              >
+              <Label htmlFor="visibility" className="text-base font-semibold">
                 Visibility
               </Label>
-              <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
+              <div className="border-secondary flex items-center gap-2 rounded-lg border p-3">
                 {visibility ? (
-                  <>
-                    <Eye size={16} className="text-blue-600" />
-                    <p className="text-sm font-medium text-blue-700">
+                  <div className="flex items-center gap-2">
+                    <Eye size={16} className="text-primary" />
+                    <p className="text-primary text-sm font-medium">
                       Public - Visible to everyone
                     </p>
-                  </>
+                  </div>
                 ) : (
-                  <>
-                    <EyeOff size={16} className="text-orange-600" />
-                    <p className="text-sm font-medium text-orange-700">
+                  <div className="flex items-center gap-2">
+                    <EyeOff size={16} className="text-secondary-foreground" />
+                    <p className="text-secondary-foreground text-sm font-medium">
                       Private - Only visible to you and your friends
                     </p>
-                  </>
+                  </div>
                 )}
               </div>
               <Controller
@@ -295,10 +281,7 @@ export function PostUploadForm() {
 
             {/* Topic Field */}
             <div className="space-y-3">
-              <Label
-                htmlFor="topic"
-                className="text-base font-semibold text-gray-900"
-              >
+              <Label htmlFor="topic" className="text-base font-semibold">
                 Topic
               </Label>
               <Controller

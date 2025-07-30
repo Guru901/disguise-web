@@ -23,13 +23,9 @@ import {
 import type { User } from "@/lib/userStore";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from "../ui/dialog";
 import { toast } from "sonner"; // Assuming you're using sonner for toasts
+import { Separator } from "../ui/separator";
 
 type CommentProps = {
   comment: {
@@ -131,10 +127,7 @@ export default function Comment({
     });
   };
 
-  const handleEditClick = (
-    targetComment: typeof comment,
-    isReply = false,
-  ) => {
+  const handleEditClick = (targetComment: typeof comment, isReply = false) => {
     setEditState({
       commentId: targetComment.id,
       isReply,
@@ -570,6 +563,7 @@ export default function Comment({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Separator className="my-4" />
     </div>
   );
 }
