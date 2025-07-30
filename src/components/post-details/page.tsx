@@ -571,7 +571,7 @@ export function PostDetails({ postId }: { postId: string }) {
                     // Split by newlines, but keep empty lines as well
                     const lines = text.split("\n");
                     const elements: React.ReactNode[] = [];
-                    
+
                     let emptyLineCount: number;
 
                     lines.forEach((line, idx) => {
@@ -662,7 +662,7 @@ export function PostDetails({ postId }: { postId: string }) {
                   }
                   className="group relative"
                 >
-                  <Bookmark fill={hasSaved ? "#fff" : ""} />
+                  <Bookmark fill={hasSaved ? "currentColor" : "transparent"} />
                   <span className="sr-only">Save</span>
                   <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
                     Save

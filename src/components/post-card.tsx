@@ -63,9 +63,7 @@ const PostCard = React.forwardRef<
     const [hasDisliked, setHasDisliked] = useState(() =>
       disLikes.includes(loggedInUserId),
     );
-    const [hasSaved, _] = useState(() =>
-      user?.savedPosts?.includes(id),
-    );
+    const [hasSaved, _] = useState(() => user?.savedPosts?.includes(id));
 
     const likePostMutation = api.postRouter.likePost.useMutation();
 
@@ -264,7 +262,7 @@ const PostCard = React.forwardRef<
                   });
                 }}
               >
-                <Bookmark fill={hasSaved ? "#fff" : ""} />
+                <Bookmark fill={hasSaved ? "currentColor" : "transparent"} />
                 <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
                   Save
                 </span>

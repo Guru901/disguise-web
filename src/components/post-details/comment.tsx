@@ -563,7 +563,6 @@ export default function Comment({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Separator className="my-4" />
     </div>
   );
 }
