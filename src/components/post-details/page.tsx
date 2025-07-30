@@ -127,11 +127,17 @@ export function PostDetails({ postId }: { postId: string }) {
   const likeAndUndislikePostMutation =
     api.postRouter.likeAndUndislikePost.useMutation();
 
+  const editCommentMutation = api.postRouter.editComment.useMutation({
+    onSuccess: () => {
+      setCanFetchComments(true);
+      toast("Comment edited successfully");
+    },
+  });
+
   const deleteCommentMutation = api.postRouter.deleteComment.useMutation({
     onMutate: (data) => {
       setCanFetchComments(false);
       setOptimisticCommentsCount((prev) => prev - 1);
-      toast("Comment Deleted");
 
       const index = comments?.findIndex(
         (comment) => comment.id === data.commentId,
@@ -1091,6 +1097,7 @@ export function PostDetails({ postId }: { postId: string }) {
                             toggleReplies={toggleReplies}
                             expandedReplies={expandedReplies}
                             deleteCommentMutation={deleteCommentMutation}
+                            editCommentMutation={editCommentMutation}
                             key={comment.id}
                           />
                         );

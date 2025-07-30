@@ -87,3 +87,16 @@ export const notificationSchema = pgTable("notifications", {
   read: boolean("read").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const communitySchema = pgTable("communities", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  name: text("name").notNull(),
+  description: text("description"),
+  members: uuid("id")
+    .array()
+    .references(() => userSchema.id),
+  memberCount: integer("member_count").notNull().default(0),
+  tags: text("tags").array().default([]),
+  createdBy: uuid("created_by").references(() => userSchema.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

@@ -189,4 +189,14 @@ export const postRouter = createTRPCRouter({
         input.uploadPostSchema,
       );
     }),
+
+  editComment: protectedProcedure
+    .input(v.object({ commentId: v.string(), content: v.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.editCommentById(
+        ctx.userId,
+        input.commentId,
+        input.content,
+      );
+    }),
 });

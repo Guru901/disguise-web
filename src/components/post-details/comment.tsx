@@ -10,10 +10,30 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { EllipsisVerticalIcon } from "lucide-react";
+import { Input } from "../ui/input";
+import {
+  Edit,
+  EllipsisVerticalIcon,
+  Reply,
+  Trash,
+  Loader2,
+  Check,
+  X,
+} from "lucide-react";
 import type { User } from "@/lib/userStore";
+import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { toast } from "sonner"; // Assuming you're using sonner for toasts
 
-type CommnetProps = {
+type CommentProps = {
   comment: {
     id: string;
     content: string;
@@ -48,7 +68,31 @@ type CommnetProps = {
   expandedReplies: Set<string>;
   deleteCommentMutation: {
     mutateAsync: (args: { commentId: string }) => Promise<unknown>;
+    isPending?: boolean;
   };
+  editCommentMutation: {
+    mutateAsync: (args: {
+      commentId: string;
+      content: string;
+    }) => Promise<unknown>;
+    isPending?: boolean;
+  };
+};
+
+type DeleteState = {
+  isOpen: boolean;
+  commentId: string | null;
+  isReply: boolean;
+  isDeleting: boolean;
+};
+
+type EditState = {
+  commentId: string | null;
+  isReply: boolean;
+};
+
+type EditFormData = {
+  content: string;
 };
 
 export default function Comment({
@@ -59,7 +103,277 @@ export default function Comment({
   toggleReplies,
   expandedReplies,
   deleteCommentMutation,
-}: CommnetProps) {
+  editCommentMutation,
+}: CommentProps) {
+  const [deleteState, setDeleteState] = useState<DeleteState>({
+    isOpen: false,
+    commentId: null,
+    isReply: false,
+    isDeleting: false,
+  });
+
+  const [editState, setEditState] = useState<EditState>({
+    commentId: null,
+    isReply: false,
+  });
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<EditFormData>();
+
+  const handleDeleteClick = (commentId: string, isReply: boolean = false) => {
+    setDeleteState({
+      isOpen: true,
+      commentId,
+      isReply,
+      isDeleting: false,
+    });
+  };
+
+  const handleEditClick = (
+    targetComment: typeof comment,
+    isReply: boolean = false,
+  ) => {
+    setEditState({
+      commentId: targetComment.id,
+      isReply,
+    });
+    reset({ content: targetComment.content });
+  };
+
+  const handleCancelEdit = () => {
+    setEditState({
+      commentId: null,
+      isReply: false,
+    });
+    reset();
+  };
+
+  const handleEditSubmit = async (data: EditFormData) => {
+    if (!editState.commentId || !data.content.trim()) return;
+
+    try {
+      await editCommentMutation.mutateAsync({
+        commentId: editState.commentId,
+        content: data.content.trim(),
+      });
+
+      toast.success(
+        `${editState.isReply ? "Reply" : "Comment"} updated successfully`,
+      );
+
+      setEditState({
+        commentId: null,
+        isReply: false,
+      });
+      reset();
+    } catch (error) {
+      console.error("Failed to edit comment:", error);
+      toast.error(
+        `Failed to update ${editState.isReply ? "reply" : "comment"}. Please try again.`,
+      );
+    }
+  };
+
+  const closeDeleteDialog = () => {
+    if (deleteState.isDeleting) return; // Prevent closing while deleting
+    setDeleteState({
+      isOpen: false,
+      commentId: null,
+      isReply: false,
+      isDeleting: false,
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteState.commentId || deleteState.isDeleting) return;
+
+    setDeleteState((prev) => ({ ...prev, isDeleting: true }));
+
+    try {
+      await deleteCommentMutation.mutateAsync({
+        commentId: deleteState.commentId,
+      });
+
+      toast.success(
+        `${deleteState.isReply ? "Reply" : "Comment"} deleted successfully`,
+      );
+
+      closeDeleteDialog();
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      toast.error(
+        `Failed to delete ${deleteState.isReply ? "reply" : "comment"}. Please try again.`,
+      );
+      setDeleteState((prev) => ({ ...prev, isDeleting: false }));
+    }
+  };
+
+  const renderCommentContent = (
+    targetComment: typeof comment,
+    isDeleted?: boolean,
+    isReplyComment: boolean = false,
+  ) => {
+    const isEditing = editState.commentId === targetComment.id;
+
+    if (isEditing) {
+      return (
+        <form
+          onSubmit={handleSubmit(handleEditSubmit)}
+          className="mt-2 space-y-2"
+        >
+          <div className="text-muted-foreground mb-1 text-sm">
+            Editing {isReplyComment ? "reply" : "comment"}
+          </div>
+          <Controller
+            name="content"
+            control={control}
+            rules={{
+              required: "Comment content is required",
+              minLength: {
+                value: 1,
+                message: "Comment must not be empty",
+              },
+            }}
+            render={({ field }) => (
+              <Input
+                {...field}
+                placeholder={`Edit your ${isReplyComment ? "reply" : "comment"}...`}
+                className="w-full"
+                autoFocus
+                disabled={editCommentMutation.isPending}
+              />
+            )}
+          />
+          {errors.content && (
+            <p className="text-destructive text-xs">{errors.content.message}</p>
+          )}
+          <div className="flex gap-2">
+            <Button
+              type="submit"
+              size="sm"
+              disabled={editCommentMutation.isPending}
+              className="h-8"
+            >
+              {editCommentMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Check className="mr-1 h-3 w-3" />
+                  Save
+                </>
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleCancelEdit}
+              disabled={editCommentMutation.isPending}
+              className="h-8"
+            >
+              <X className="mr-1 h-3 w-3" />
+              Cancel
+            </Button>
+          </div>
+        </form>
+      );
+    }
+
+    return (
+      <div
+        className={`text-accent-foreground ${isDeleted ? "text-muted-foreground italic" : ""}`}
+      >
+        {isDeleted ? (
+          <p className="text-sm">This comment has been deleted</p>
+        ) : !targetComment.content.includes("@") ? (
+          <p>{targetComment.content}</p>
+        ) : (
+          <p>
+            {targetComment.content
+              .split(" ")
+              .map((word: string, index: number) =>
+                word.startsWith("@") ? (
+                  <Link
+                    key={index}
+                    className="text-primary hover:text-primary/80 underline transition-colors"
+                    href={`/u/${word.slice(1)}`}
+                  >
+                    {word + " "}
+                  </Link>
+                ) : (
+                  <span key={index}>{word + " "}</span>
+                ),
+              )}
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  const renderDropdownMenu = (
+    targetComment: typeof comment,
+    isReplyComment: boolean = false,
+  ) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={isReplyComment ? "h-8 w-8" : ""}
+          disabled={deleteState.isDeleting || editCommentMutation.isPending}
+        >
+          <EllipsisVerticalIcon className={isReplyComment ? "h-4 w-4" : ""} />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuItem
+          onClick={() => {
+            handleReply(
+              isReplyComment ? comment.id : targetComment.id,
+              targetComment.authorUsername ?? "User",
+            );
+          }}
+          disabled={deleteState.isDeleting || editCommentMutation.isPending}
+        >
+          <Reply className="mr-2 h-4 w-4" />
+          Reply
+        </DropdownMenuItem>
+        {user.id === targetComment.authorId && (
+          <>
+            <DropdownMenuItem
+              onClick={() => handleEditClick(targetComment, isReplyComment)}
+              disabled={
+                deleteState.isDeleting ||
+                editCommentMutation.isPending ||
+                editState.commentId !== null
+              }
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() =>
+                handleDeleteClick(targetComment.id, isReplyComment)
+              }
+              disabled={deleteState.isDeleting || editCommentMutation.isPending}
+              className="text-destructive focus:text-destructive hover:bg-destructive/10"
+            >
+              <Trash className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   return (
     <div>
       {/* Main comment */}
@@ -85,7 +399,10 @@ export default function Comment({
         <div className="flex w-full justify-between">
           <div className="flex-1">
             <div className="text-md font-semibold text-[#949BA8]">
-              <Link href={`/u/${comment.authorId}`}>
+              <Link
+                href={`/u/${comment.authorId}`}
+                className="transition-all hover:underline"
+              >
                 <span className="underline">
                   {comment.authorUsername ?? "User"}
                 </span>
@@ -99,30 +416,8 @@ export default function Comment({
                 </span>
               </Link>
             </div>
-            <div
-              className={`text-accent-foreground ${comment.isDeleted ? "italic" : ""}`}
-            >
-              {!comment.content.includes("@") ? (
-                <p>{comment.content}</p>
-              ) : (
-                <p>
-                  {comment.content.split(" ").map((x: string, index: number) =>
-                    x.startsWith("@") ? (
-                      <Link
-                        key={index}
-                        className="text-primary underline"
-                        href={`/u/${x.slice(1)}`}
-                      >
-                        {x + " "}
-                      </Link>
-                    ) : (
-                      <span key={index}>{x + " "}</span>
-                    ),
-                  )}
-                </p>
-              )}
-            </div>
-            {comment.image && (
+            {renderCommentContent(comment, comment.isDeleted ?? false)}
+            {comment.image && !comment.isDeleted && (
               <div className="mt-2">
                 <MediaPlayer
                   imageProps={{
@@ -139,43 +434,19 @@ export default function Comment({
               </div>
             )}
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <EllipsisVerticalIcon />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem
-                onClick={() => {
-                  handleReply(comment.id, comment.authorUsername ?? "User");
-                }}
-              >
-                Reply
-              </DropdownMenuItem>
-              {user.id === comment.authorId && (
-                <DropdownMenuItem
-                  onClick={async () => {
-                    void (await deleteCommentMutation.mutateAsync({
-                      commentId: comment.id,
-                    }));
-                  }}
-                >
-                  Delete
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {!comment.isDeleted && renderDropdownMenu(comment)}
         </div>
       </div>
+
       {/* Replies section */}
       {replies.length > 0 && (
-        <div className="border-muted mt-1 ml-18 space-y-3 border-l-2 pl-4">
+        <div className="border-muted mt-4 ml-18 space-y-3 border-l-2 pl-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => toggleReplies(comment.id)}
-            className="text-muted-foreground hover:text-foreground text-xs"
+            className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+            disabled={deleteState.isDeleting || editCommentMutation.isPending}
           >
             {expandedReplies.has(comment.id)
               ? `Hide ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`
@@ -206,7 +477,10 @@ export default function Comment({
                   <div className="flex w-full justify-between">
                     <div className="flex-1">
                       <div className="text-sm text-[#949BA8]">
-                        <Link href={`/u/${reply.authorId}`}>
+                        <Link
+                          href={`/u/${reply.authorId}`}
+                          className="transition-all hover:underline"
+                        >
                           <span className="underline">
                             {reply.authorUsername ?? "User"}
                           </span>
@@ -221,30 +495,13 @@ export default function Comment({
                         </Link>
                       </div>
                       <div className="text-accent-foreground text-sm font-medium">
-                        {!reply.content.includes("@") ? (
-                          <p>{reply.content}</p>
-                        ) : (
-                          <p>
-                            {reply.content
-                              .split(" ")
-                              .map((x: string, index: number) =>
-                                x.startsWith("@") ? (
-                                  <Link
-                                    key={index}
-                                    className="text-primary underline"
-                                    href={`/u/${x.slice(1)}`}
-                                  >
-                                    {x + " "}
-                                  </Link>
-                                ) : (
-                                  <span key={index}>{x + " "}</span>
-                                ),
-                              )}
-                          </p>
+                        {renderCommentContent(
+                          reply,
+                          reply.isDeleted ?? false,
+                          true,
                         )}
                       </div>
-                      {/* Display reply image if it exists */}
-                      {reply.image && (
+                      {reply.image && !reply.isDeleted && (
                         <div className="mt-2">
                           <MediaPlayer
                             url={reply.image}
@@ -260,36 +517,7 @@ export default function Comment({
                         </div>
                       )}
                     </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <EllipsisVerticalIcon className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start">
-                        <DropdownMenuItem
-                          onSelect={() => {
-                            handleReply(
-                              comment.id,
-                              reply.authorUsername ?? "User",
-                            );
-                          }}
-                        >
-                          Reply
-                        </DropdownMenuItem>
-                        {user.id === reply.authorId && (
-                          <DropdownMenuItem
-                            onClick={async () => {
-                              void (await deleteCommentMutation.mutateAsync({
-                                commentId: reply.id,
-                              }));
-                            }}
-                          >
-                            Delete
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {!reply.isDeleted && renderDropdownMenu(reply, true)}
                   </div>
                 </div>
               ))}
@@ -297,6 +525,53 @@ export default function Comment({
           )}
         </div>
       )}
+
+      {/* Enhanced Delete Confirmation Dialog */}
+      <Dialog open={deleteState.isOpen} onOpenChange={closeDeleteDialog}>
+        <DialogContent className="sm:max-w-md">
+          <div className="mb-4 flex items-center gap-4">
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-50">
+              <Trash className="h-6 w-6 text-red-600" />
+            </div>
+            <div>
+              <DialogTitle className="text-foreground text-lg font-semibold">
+                Delete {deleteState.isReply ? "Reply" : "Comment"}
+              </DialogTitle>
+              <p className="text-muted-foreground mt-1 text-sm">
+                This action cannot be undone. The comment will be permanently
+                removed.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              onClick={closeDeleteDialog}
+              disabled={deleteState.isDeleting}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              disabled={deleteState.isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+            >
+              {deleteState.isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash className="h-4 w-4" />
+                  Delete
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

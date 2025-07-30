@@ -890,6 +890,37 @@ async function deletePostById(postId: string, userId: string) {
   }
 }
 
+async function editCommentById(
+  userId: string,
+  commentId: string,
+  content: string,
+) {
+  try {
+    const comment = await db
+      .update(commentSchema)
+      .set({
+        content: content,
+      })
+      .where(
+        and(eq(commentSchema.id, commentId), eq(commentSchema.author, userId)),
+      )
+      .returning({ id: commentSchema.id });
+
+    return {
+      success: true,
+      message: "Comment edited successfully",
+      commentId: comment[0]!.id,
+    };
+  } catch (error) {
+    console.error("Error editing comment:", error);
+    return {
+      success: false,
+      message: "Failed to edit comment",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
 export {
   getCommentsByPostId,
   getFeed,
@@ -916,4 +947,5 @@ export {
   undislikePost,
   deletePostById,
   editPostById,
+  editCommentById,
 };

@@ -12,6 +12,7 @@ import {
   PenLineIcon,
   LogOut,
   Settings,
+  Users,
 } from "lucide-react";
 import { Button, buttonVariants } from "./ui/button";
 import { usePathname } from "next/navigation";
@@ -19,8 +20,9 @@ import { useUserStore } from "@/lib/userStore";
 
 const navItems = [
   { label: "Home", href: "/feed", icon: Home },
-  { label: "Profile", href: "/me", icon: User },
   { label: "Post", href: "/post", icon: PlusIcon },
+  { label: "Communities", href: "/communities", icon: Users },
+  { label: "Profile", href: "/me", icon: User },
   { label: "Topics", href: "/topics", icon: FolderIcon },
   { label: "Create Topics", href: "/create-topic", icon: PenLineIcon },
   { label: "Search", href: "/search", icon: Search },
