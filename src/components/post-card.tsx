@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { formatTimeAgo } from "@/lib/format-time-ago";
-import { Share2 } from "lucide-react";
+import { Bookmark, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { api } from "@/trpc/react";
 import MediaPlayer from "@/components/media-player";
+import useGetUser from "@/lib/use-get-user";
 
 const PostCard = React.forwardRef<
   HTMLDivElement,
@@ -54,19 +55,27 @@ const PostCard = React.forwardRef<
       disLikes.length,
     );
 
+    const { user } = useGetUser();
+
     const [hasLiked, setHasLiked] = useState(() =>
       likes.includes(loggedInUserId),
     );
     const [hasDisliked, setHasDisliked] = useState(() =>
       disLikes.includes(loggedInUserId),
     );
+    const [hasSaved, setHasSaved] = useState(() =>
+      user?.savedPosts?.includes(id),
+    );
 
     const likePostMutation = api.postRouter.likePost.useMutation();
+
     const unlikePostMutation = api.postRouter.unlikePost.useMutation();
+
     const likeAndUndislikePostMutation =
       api.postRouter.likeAndUndislikePost.useMutation();
 
     const dislikePostMutation = api.postRouter.dislikePost.useMutation();
+    const savePostMutation = api.postRouter.savePostById.useMutation();
     const undislikePostMutation = api.postRouter.undislikePost.useMutation();
     const dislikeAndUnlikePostMutation =
       api.postRouter.dislikeAndUnlikePost.useMutation();
@@ -204,34 +213,61 @@ const PostCard = React.forwardRef<
           <div className="text-muted-foreground flex items-center gap-2">
             <div className="flex items-center gap-1">
               <Button
-                className="flex gap-1"
+                className="group relative flex gap-1"
                 variant={"ghost"}
                 size={"icon"}
                 onClick={likePost}
               >
                 {hasLiked ? <HeartIconFilled /> : <HeartIcon />}
                 <span>{optimisticLikes}</span>
+                <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+                  {hasLiked ? "Unlike" : "Like"}
+                </span>
               </Button>
             </div>
             <div className="flex items-center gap-1">
               <Button
-                className="flex gap-1"
+                className="group relative flex gap-1"
                 variant={"ghost"}
                 size={"icon"}
                 onClick={dislikePost}
               >
                 {hasDisliked ? <ThumbsDownIconFilled /> : <ThumbsDownIcon />}
                 <span>{optimisticDislikes}</span>
+                <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+                  {hasDisliked ? "Undislike" : "Dislike"}
+                </span>
               </Button>
             </div>
             <div className="flex items-center gap-1">
               <Button
-                className="flex gap-1"
+                className="group relative flex gap-1"
                 variant={"ghost"}
                 size={"icon"}
                 onClick={copyUrlToClipboard}
               >
                 <Share2 />
+                <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+                  Share
+                </span>
+              </Button>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                className="group relative flex gap-1"
+                variant={"ghost"}
+                size={"icon"}
+                onClick={async () => {
+                  await savePostMutation.mutateAsync({
+                    postId: id,
+                    saved: hasSaved,
+                  });
+                }}
+              >
+                <Bookmark fill={hasSaved ? "#fff" : ""} />
+                <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+                  Save
+                </span>
               </Button>
             </div>
           </div>

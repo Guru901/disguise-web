@@ -31,6 +31,10 @@ export const postRouter = createTRPCRouter({
     return await postDal.getDislikedPostsByUserId(ctx.userId);
   }),
 
+  getLoggedInUserSavedPosts: protectedProcedure.query(async ({ ctx }) => {
+    return await postDal.getLoggedInUserSavedPosts(ctx.userId);
+  }),
+
   getDislikedPostByUserId: protectedProcedure
     .input(v.string())
     .query(async ({ input }) => {
@@ -198,5 +202,10 @@ export const postRouter = createTRPCRouter({
         input.commentId,
         input.content,
       );
+    }),
+  savePostById: protectedProcedure
+    .input(v.object({ postId: v.string(), saved: v.boolean() }))
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.savePostById(ctx.userId, input.postId, input.saved);
     }),
 });

@@ -566,6 +566,29 @@ async function getDislikedPostsByUserId(userId: string) {
   }
 }
 
+async function getLoggedInUserSavedPosts(userId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(postSchema)
+      .innerJoin(
+        userSchema,
+        sql`(${postSchema.id})::text = ANY(${userSchema.savedPosts})`,
+      )
+      .where(eq(userSchema.id, userId))
+      .orderBy(desc(postSchema.createdAt));
+
+    let posts = results.map((row) => ({
+      ...row.posts,
+    }));
+
+    return posts;
+  } catch (error) {
+    console.error("Error fetching saved posts:", error);
+    return [];
+  }
+}
+
 async function getLoggedInUserPrivatePosts(userId: string) {
   try {
     const results = await db
@@ -921,6 +944,46 @@ async function editCommentById(
   }
 }
 
+async function savePostById(userId: string, postId: string, hasSaved: boolean) {
+  try {
+    if (!hasSaved) {
+      await db
+        .update(userSchema)
+        .set({
+          savedPosts: sql`array_append
+      (
+      ${userSchema.savedPosts},
+      ${postId}
+      )`,
+        })
+        .where(eq(userSchema.id, userId));
+    } else {
+      await db
+        .update(userSchema)
+        .set({
+          savedPosts: sql`array_remove
+        (
+        ${userSchema.savedPosts},
+        ${postId}
+        )`,
+        })
+        .where(eq(userSchema.id, userId));
+    }
+
+    return {
+      success: true,
+      message: "Post saved successfully",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Failed to save post",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
 export {
   getCommentsByPostId,
   getFeed,
@@ -948,4 +1011,6 @@ export {
   deletePostById,
   editPostById,
   editCommentById,
+  savePostById,
+  getLoggedInUserSavedPosts,
 };

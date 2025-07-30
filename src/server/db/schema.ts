@@ -16,6 +16,7 @@ export const userSchema = pgTable("users", {
   password: text("password").notNull(),
   avatar: text("avatar"),
   posts: text("posts").notNull().array(),
+  savedPosts: text("saved_posts").notNull().array().default([]),
   friends: text("friends").notNull().array(),
   blockedUsers: text("blocked_users").array(),
   accountType: accountTypeEnum("account_type").default("public"),

@@ -9,6 +9,7 @@ export type User = {
   posts: string[];
   createdAt: string;
   blockedUsers: string[];
+  savedPosts: string[];
 };
 
 export type Font = "inter" | "spline" | "roboto" | "fira" | "ubuntu";
@@ -31,6 +32,7 @@ export const useUserStore = create<UserStore>()(
         posts: [],
         createdAt: "",
         blockedUsers: [],
+        savedPosts: [],
       },
       setUser: (user: User) => set({ user }),
       font: "inter",

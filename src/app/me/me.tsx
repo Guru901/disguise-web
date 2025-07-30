@@ -30,8 +30,8 @@ export default function Profile() {
   const { data: userComments, isLoading: isCommentsLoading } =
     api.postRouter.getLoggedInUserComments.useQuery();
 
-  const { data: userDisLikedPosts, isLoading: isDisLikedPostsLoading } =
-    api.postRouter.getLoggedInUserDisLikedPosts.useQuery();
+  const { data: userSavedPosts, isLoading: isSavedPostsLoading } =
+    api.postRouter.getLoggedInUserSavedPosts.useQuery();
 
   const { data: userFriends, isLoading: isFriendsLoading } =
     api.postRouter.getLoggedInUserFriend.useQuery();
@@ -44,6 +44,7 @@ export default function Profile() {
   const createdAt = user?.createdAt;
   const lastOnline = user?.lastOnline;
   const blockedUsers = user?.blockedUsers;
+  const savedPosts = user?.savedPosts;
   const id = user?.id ?? "";
 
   const { setUser } = useUserStore();
@@ -57,9 +58,9 @@ export default function Profile() {
       createdAt: createdAt?.toLocaleDateString() ?? "",
       id: id,
       blockedUsers: blockedUsers ?? [],
+      savedPosts: savedPosts ?? [],
     });
   }, []);
-
   return (
     <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[430px_1fr]">
       <div className="bg-muted/40 border-r p-6 lg:p-8">
@@ -147,7 +148,7 @@ export default function Profile() {
                       value={"disLiked"}
                       className={"w-full cursor-pointer"}
                     >
-                      Disliked Posts ({userDisLikedPosts?.length ?? 0})
+                      Saved Posts ({userSavedPosts?.length ?? 0})
                     </TabsTrigger>
                   </Link>
                   <Link className="w-1/3" href="?option=comments">
@@ -185,10 +186,7 @@ export default function Profile() {
             posts={userPrivatePosts}
           />
         ) : selectedOption === "disLiked" ? (
-          <PostGrid
-            isLoading={isDisLikedPostsLoading}
-            posts={userDisLikedPosts}
-          />
+          <PostGrid isLoading={isSavedPostsLoading} posts={userSavedPosts} />
         ) : selectedOption === "friends" ? (
           <FriendsGrid
             friends={userFriends?.friends}
