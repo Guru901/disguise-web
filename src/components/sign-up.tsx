@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
@@ -126,50 +126,65 @@ export default function SignUp() {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="avatar">Avatar (optional)</Label>
-            <CldUploadButton
-              options={{
-                resourceType: "image",
-                clientAllowedFormats: [
-                  "jpg",
-                  "jpeg",
-                  "png",
-                  "gif",
-                  "webp",
-                  "bmp",
-                  "tiff",
-                  "svg",
-                  "ico",
-                  "avif",
-                  "heic",
-                  "heif",
-                  "jxl",
-                  "jp2",
-                  "raw",
-                  "psd",
-                ],
-                maxFiles: 1,
-              }}
-              uploadPreset="social-media-again"
-              className="w-full"
-              onSuccess={(results) => {
-                // @ts-expect-error - results.info is not typed
-                const imageUrl = String(results.info.secure_url);
-                setImage(imageUrl);
-                setValue("avatar", imageUrl);
-                toast("Avatar uploaded successfully");
-              }}
-            />
-            {image && (
-              <div className="mt-2">
-                <Image
-                  src={image}
-                  alt="Avatar preview"
-                  width={64}
-                  height={64}
-                  className="h-16 w-16 rounded-full object-cover"
-                />
-              </div>
-            )}
+            <div className="flex flex-col items-center gap-3">
+              {image && (
+                <div className="mb-2 flex flex-col items-center">
+                  <div className="relative">
+                    <Image
+                      src={image}
+                      alt="Avatar preview"
+                      width={96}
+                      height={96}
+                      className="h-24 w-24 rounded-full border-2 border-gray-200 object-cover shadow"
+                    />
+                  </div>
+                  <span className="text-muted-foreground mt-1 text-xs">
+                    Preview
+                  </span>
+                </div>
+              )}
+              <CldUploadButton
+                className="hover:text-accent-foreground hover:border-accent-foreground flex h-32 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 transition-all duration-200"
+                options={{
+                  resourceType: "image",
+                  clientAllowedFormats: [
+                    "jpg",
+                    "jpeg",
+                    "png",
+                    "gif",
+                    "webp",
+                    "bmp",
+                    "tiff",
+                    "svg",
+                    "ico",
+                    "avif",
+                    "heic",
+                    "heif",
+                    "jxl",
+                    "jp2",
+                    "raw",
+                    "psd",
+                  ],
+                  maxFiles: 1,
+                }}
+                uploadPreset="social-media-again"
+                onSuccess={(results) => {
+                  // @ts-expect-error - results.info is not typed
+                  const imageUrl = String(results.info.secure_url);
+                  setImage(imageUrl);
+                  setValue("avatar", imageUrl);
+                  toast.info("Avatar uploaded successfully");
+                }}
+              >
+                <Upload size={24} />
+                <span className="text-sm font-medium">
+                  {image ? "Change Image" : "Upload Image"}
+                </span>
+                <span className="text-muted-foreground text-xs">
+                  Click to browse or drag and drop
+                </span>
+              </CldUploadButton>
+            </div>
             {errors && errors.avatar && (
               <p className="text-xs text-red-500">{errors.avatar.message}</p>
             )}
