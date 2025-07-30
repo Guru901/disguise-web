@@ -186,7 +186,9 @@ async function likePost(userId: string, postId: string) {
       });
 
     const { user } = await getUserDataById(userId);
-    const { user: createdByUser } = await getUserDataById(post[0]?.createdBy ?? "");
+    const { user: createdByUser } = await getUserDataById(
+      post[0]?.createdBy ?? "",
+    );
 
     if (createdByUser?.receiveNotificationsForLike) {
       await db.insert(notificationSchema).values({
@@ -824,6 +826,31 @@ async function getTopicSpecificFeed(topicName: string) {
   }
 }
 
+async function editPostById(
+  userId: string,
+  postId: string,
+  postContent: TUploadPostSchema,
+) {
+  try {
+    const post = await db
+      .update(postSchema)
+      .set(postContent)
+      .where(and(eq(postSchema.id, postId), eq(postSchema.createdBy, userId)))
+      .then((res) => res[0]);
+
+    return {
+      success: true,
+      data: post,
+    };
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return {
+      success: false,
+      message: "Failed to delete post",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
 async function deletePostById(postId: string, userId: string) {
   try {
     return await db.transaction(async (tx) => {
@@ -888,4 +915,5 @@ export {
   dislikePost,
   undislikePost,
   deletePostById,
+  editPostById,
 };

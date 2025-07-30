@@ -205,7 +205,7 @@ export default function Comment({
                   </div>
                   <div className="flex w-full justify-between">
                     <div className="flex-1">
-                      <div className="text-sm font-semibold text-[#949BA8]">
+                      <div className="text-sm text-[#949BA8]">
                         <Link href={`/u/${reply.authorId}`}>
                           <span className="underline">
                             {reply.authorUsername ?? "User"}

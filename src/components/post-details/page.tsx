@@ -5,13 +5,22 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { formatTimeAgo } from "@/lib/format-time-ago";
-import { ImageIcon, Loader2, Share2, Trash, X } from "lucide-react";
+import {
+  Edit,
+  ImageIcon,
+  InfoIcon,
+  Loader2,
+  Share2,
+  Trash,
+  X,
+} from "lucide-react";
 import * as icons from "./icons";
 import { useState, useEffect } from "react";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 import MediaPlayer from "../media-player";
 import { CldUploadButton } from "next-cloudinary";
 import { useMentionInput } from "@/lib/use-mention-input";
@@ -27,19 +36,35 @@ import {
 } from "../ui/dialog";
 import { PostCommentsLoading } from "../loaders/post-loading";
 import { Skeleton } from "../ui/skeleton";
+import { Label } from "../ui/label";
+import { valibotResolver } from "@hookform/resolvers/valibot";
+import { uploadPostSchema, type TUploadPostSchema } from "@/lib/schemas";
+import { Controller, useForm } from "react-hook-form";
+import { Textarea } from "../ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export function PostDetails({ postId }: { postId: string }) {
   const { user } = useGetUser();
   const router = useRouter();
 
   // Fetch the post data here
-  const { data: post, isLoading: isPostLoading } =
-    api.postRouter.getPostById.useQuery({ postId });
+  const {
+    data: post,
+    isLoading: isPostLoading,
+    refetch: refetchPost,
+  } = api.postRouter.getPostById.useQuery({ postId });
 
   const searchParams = useSearchParams();
 
   const [isAuthor, setIsAuthor] = useState(false);
   const [isImage, setIsImage] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const isImageParam = searchParams.get("image");
   const isAuthorParam = searchParams.get("author");
@@ -162,6 +187,56 @@ export function PostDetails({ postId }: { postId: string }) {
       router.back();
     },
   });
+
+  const editPostMutation = api.postRouter.editPostById.useMutation({
+    onSuccess: async () => {
+      await refetchPost();
+      setIsEditDialogOpen(false);
+      toast("Post edited successfully");
+    },
+    onError: (error) => {
+      toast(`Failed to edit post: ${error.message}`);
+    },
+  });
+
+  const { isLoading: isLoadingTopics, data: topics } =
+    api.topicRouter.getAllTopics.useQuery();
+
+  const {
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors, isSubmitting, isLoading },
+    watch,
+    reset,
+  } = useForm<TUploadPostSchema>({
+    resolver: valibotResolver(uploadPostSchema),
+  });
+
+  // Reset form when post data loads or dialog opens
+  useEffect(() => {
+    if (post && isEditDialogOpen) {
+      reset({
+        title: post.title || "",
+        content: post.content || "",
+        image: post.image || "",
+        isPublic: post.isPublic,
+        topic: post.topic || "General",
+        author: user.id,
+      });
+    }
+  }, [post, isEditDialogOpen, reset, user.id]);
+
+  async function onEditPost(data: TUploadPostSchema) {
+    try {
+      await editPostMutation.mutateAsync({
+        postId: postId,
+        uploadPostSchema: data,
+      });
+    } catch (error) {
+      console.error("Edit post error:", error);
+    }
+  }
 
   const {
     data: comments,
@@ -377,6 +452,9 @@ export function PostDetails({ postId }: { postId: string }) {
     }
   }
 
+  const imageUrl = watch("image");
+  const visibility = watch("isPublic");
+
   return (
     <Card className="flex h-[calc(100vh+15rem)] w-full items-start py-0 pb-12 md:h-fit md:w-fit md:pb-0">
       <div className="text-foreground flex w-full items-center justify-center">
@@ -566,6 +644,276 @@ export function PostDetails({ postId }: { postId: string }) {
                               )}
                             </Button>
                           </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                    {isAuthor && (
+                      <Dialog
+                        open={isEditDialogOpen}
+                        onOpenChange={setIsEditDialogOpen}
+                      >
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+                          <div className="mb-6 flex items-center gap-4">
+                            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-50">
+                              <Edit className="h-6 w-6 text-blue-600" />
+                            </div>
+                            <div>
+                              <DialogTitle className="text-foreground text-lg font-semibold">
+                                Edit Post
+                              </DialogTitle>
+                              <p className="text-muted-foreground mt-1 text-sm">
+                                Make changes to your post below
+                              </p>
+                            </div>
+                          </div>
+
+                          <form
+                            onSubmit={handleSubmit(onEditPost)}
+                            className="space-y-6"
+                          >
+                            <div className="grid gap-3">
+                              <Label
+                                htmlFor="title"
+                                className="text-base font-medium"
+                              >
+                                Title
+                              </Label>
+                              <Controller
+                                control={control}
+                                name="title"
+                                render={({ field }) => (
+                                  <Input
+                                    id="title"
+                                    type="text"
+                                    placeholder="Enter a title for your post"
+                                    className="h-11"
+                                    {...field}
+                                  />
+                                )}
+                              />
+                              {errors.title && (
+                                <p className="text-sm text-red-500">
+                                  {errors.title.message}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="grid gap-3">
+                              <Label
+                                htmlFor="content"
+                                className="text-base font-medium"
+                              >
+                                Content
+                              </Label>
+                              <Controller
+                                control={control}
+                                name="content"
+                                render={({ field }) => (
+                                  <Textarea
+                                    id="content"
+                                    placeholder="Write the content of your post"
+                                    rows={4}
+                                    className="resize-none"
+                                    {...field}
+                                  />
+                                )}
+                              />
+                              {errors.content && (
+                                <p className="text-sm text-red-500">
+                                  {errors.content.message}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="grid gap-3">
+                              <Label
+                                htmlFor="image"
+                                className="text-base font-medium"
+                              >
+                                Image/Video
+                              </Label>
+                              <div className="space-y-3">
+                                <CldUploadButton
+                                  className="w-full"
+                                  uploadPreset="social-media-again"
+                                  onSuccess={(results) => {
+                                    const uploadImageUrl = String(
+                                      // @ts-expect-error - results.info is not typed
+                                      results?.info?.secure_url,
+                                    );
+                                    setValue("image", uploadImageUrl);
+                                    toast("Media uploaded successfully");
+                                  }}
+                                >
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="w-full"
+                                  >
+                                    <ImageIcon className="mr-2 h-4 w-4" />
+                                    Change Image
+                                  </Button>
+                                </CldUploadButton>
+
+                                {imageUrl ? (
+                                  <div className="flex justify-center">
+                                    <MediaPlayer
+                                      url={imageUrl}
+                                      imageProps={{
+                                        alt: "Preview",
+                                        className:
+                                          "w-full max-w-md h-auto object-cover rounded-md",
+                                        height: 300,
+                                        width: 400,
+                                      }}
+                                      videoProps={{
+                                        className:
+                                          "w-full max-w-md h-auto object-cover rounded-md",
+                                      }}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span>No image</span>
+                                )}
+                              </div>
+                              {errors.image && (
+                                <p className="text-sm text-red-500">
+                                  {errors.image.message}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="grid gap-3">
+                              <Label
+                                htmlFor="visibility"
+                                className="text-base font-medium"
+                              >
+                                Visibility
+                              </Label>
+                              <div className="mb-2 flex items-center gap-2">
+                                <InfoIcon
+                                  size={16}
+                                  className="text-muted-foreground"
+                                />
+                                <p className="text-muted-foreground text-sm">
+                                  {visibility
+                                    ? "Visible to everyone"
+                                    : "Only visible to you and your friends"}
+                                </p>
+                              </div>
+                              <Controller
+                                name="isPublic"
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    onValueChange={(value) =>
+                                      field.onChange(value === "true")
+                                    }
+                                    value={field.value ? "true" : "false"}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select visibility" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="true">
+                                        Public
+                                      </SelectItem>
+                                      <SelectItem value="false">
+                                        Private
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                )}
+                              />
+                              {errors.isPublic && (
+                                <p className="text-sm text-red-500">
+                                  {errors.isPublic.message}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="grid gap-3">
+                              <Label
+                                htmlFor="topic"
+                                className="text-base font-medium"
+                              >
+                                Topic
+                              </Label>
+                              <Controller
+                                name="topic"
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select a topic" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {isLoadingTopics ? (
+                                        <SelectItem value="General">
+                                          General
+                                        </SelectItem>
+                                      ) : (
+                                        topics?.map(
+                                          (topic: {
+                                            id: string;
+                                            name: string;
+                                          }) => (
+                                            <SelectItem
+                                              key={topic.id}
+                                              value={topic.name}
+                                            >
+                                              {topic.name}
+                                            </SelectItem>
+                                          ),
+                                        )
+                                      )}
+                                    </SelectContent>
+                                  </Select>
+                                )}
+                              />
+                              {errors.topic && (
+                                <p className="text-sm text-red-500">
+                                  {errors.topic.message}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
+                              <DialogClose asChild>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  className="w-full sm:w-auto"
+                                  disabled={editPostMutation.isPending}
+                                >
+                                  Cancel
+                                </Button>
+                              </DialogClose>
+
+                              <Button
+                                type="submit"
+                                className="w-full sm:w-auto"
+                                disabled={editPostMutation.isPending}
+                              >
+                                {editPostMutation.isPending ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Saving...
+                                  </>
+                                ) : (
+                                  "Save Changes"
+                                )}
+                              </Button>
+                            </div>
+                          </form>
                         </DialogContent>
                       </Dialog>
                     )}

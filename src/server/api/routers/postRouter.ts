@@ -175,4 +175,18 @@ export const postRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       return await postDal.deletePostById(input.postId, ctx.userId);
     }),
+  editPostById: protectedProcedure
+    .input(
+      v.object({
+        uploadPostSchema,
+        postId: v.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await postDal.editPostById(
+        ctx.userId,
+        input.postId,
+        input.uploadPostSchema,
+      );
+    }),
 });
