@@ -548,17 +548,35 @@ export function PostDetails({ postId }: { postId: string }) {
                       <Skeleton className="h-4 w-5/6" />
                       <Skeleton className="h-4 w-4/5" />
                     </div>
-                  ) : post.content?.includes("\n") ? (
-                    post.content
-                      .split("\n")
-                      .filter((x) => x !== "")
-                      .map((y) => (
-                        <p className="text-lg" key={y}>
-                          {y}
-                        </p>
-                      ))
                   ) : (
-                    <p className="text-md">{post.content}</p>
+                    (() => {
+                      const content = post.content ?? "";
+                      const renderContent = (text: string) => {
+                        return text.split("\n").map((line, idx) => {
+                          if (!line.trim()) return null;
+                          const parts = line.split(/(#\w+)/g);
+                          return (
+                            <p className="text-lg" key={idx}>
+                              {parts.map((part, i) =>
+                                /^#\w+/.test(part) ? (
+                                  <Link
+                                    href={`/t/${part.slice(1)}`}
+                                    className="text-blue-500 underline"
+                                    key={i}
+                                  >
+                                    {part}
+                                  </Link>
+                                ) : (
+                                  <span key={i}>{part}</span>
+                                ),
+                              )}
+                            </p>
+                          );
+                        });
+                      };
+
+                      return renderContent(content);
+                    })()
                   )}
                 </div>
 
