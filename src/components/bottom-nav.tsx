@@ -17,6 +17,7 @@ import {
   SearchIcon,
   Settings,
   UserRound,
+  Users,
 } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -64,6 +65,26 @@ function BottomNavigation() {
 
           <DrawerClose asChild>
             <Link
+              href="/post"
+              className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+              prefetch={false}
+            >
+              <PlusIcon />
+              Post
+            </Link>
+          </DrawerClose>
+          <DrawerClose asChild>
+            <Link
+              href="/communities"
+              className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+              prefetch={false}
+            >
+              <Users />
+              Communities
+            </Link>
+          </DrawerClose>
+          <DrawerClose asChild>
+            <Link
               href="/me"
               className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
               prefetch={false}
@@ -73,16 +94,6 @@ function BottomNavigation() {
             </Link>
           </DrawerClose>
 
-          <DrawerClose asChild>
-            <Link
-              href="/post"
-              className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
-              prefetch={false}
-            >
-              <PlusIcon />
-              Post
-            </Link>
-          </DrawerClose>
           <DrawerClose asChild>
             <Link
               href="/topics"
