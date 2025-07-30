@@ -52,6 +52,7 @@ export default function SignIn() {
           posts: [],
           createdAt: "",
           blockedUsers: [],
+          savedPosts: [],
         });
         router.push("/me");
       } else {

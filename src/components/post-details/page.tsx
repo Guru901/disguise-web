@@ -315,7 +315,7 @@ export function PostDetails({ postId }: { postId: string }) {
     setHasDisliked(post?.disLikes?.includes(user.id));
     setHasLiked(post?.likes?.includes(user.id));
     setHasSaved(user?.savedPosts?.includes(postId));
-  }, [post, user.id]);
+  }, [post, postId, user.id, user?.savedPosts]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -571,7 +571,8 @@ export function PostDetails({ postId }: { postId: string }) {
                     // Split by newlines, but keep empty lines as well
                     const lines = text.split("\n");
                     const elements: React.ReactNode[] = [];
-                    let emptyLineCount = 0;
+                    
+                    let emptyLineCount: number;
 
                     lines.forEach((line, idx) => {
                       if (!line.trim()) {

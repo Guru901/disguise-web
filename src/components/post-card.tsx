@@ -63,7 +63,7 @@ const PostCard = React.forwardRef<
     const [hasDisliked, setHasDisliked] = useState(() =>
       disLikes.includes(loggedInUserId),
     );
-    const [hasSaved, setHasSaved] = useState(() =>
+    const [hasSaved, _] = useState(() =>
       user?.savedPosts?.includes(id),
     );
 

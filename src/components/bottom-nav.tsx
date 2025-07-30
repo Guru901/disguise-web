@@ -148,6 +148,7 @@ function BottomNavigation() {
                   createdAt: "",
                   id: "",
                   blockedUsers: [],
+                  savedPosts: []
                 });
                 location.href = "/login";
               }}

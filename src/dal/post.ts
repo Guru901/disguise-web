@@ -578,7 +578,7 @@ async function getLoggedInUserSavedPosts(userId: string) {
       .where(eq(userSchema.id, userId))
       .orderBy(desc(postSchema.createdAt));
 
-    let posts = results.map((row) => ({
+    const posts = results.map((row) => ({
       ...row.posts,
     }));
 
