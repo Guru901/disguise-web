@@ -15,6 +15,7 @@ const breakpointColumnsObj = {
 export default function PostGrid({
   posts,
   isLoading,
+  option,
 }: {
   posts:
     | {
@@ -32,12 +33,20 @@ export default function PostGrid({
       }[]
     | undefined;
   isLoading: boolean;
+  option: string;
 }) {
   if (isLoading) {
     return <UserPostLoader />;
   }
 
-  return (
+  return posts?.length === 0 ? (
+    <div className="flex flex-col items-center justify-center py-12">
+      <h3 className="mb-2 text-lg font-medium">No posts</h3>
+      <p className="text-muted-foreground">
+        You don't have any '{option}' posts yet.
+      </p>
+    </div>
+  ) : (
     <Masonry
       breakpointCols={breakpointColumnsObj}
       className="my-masonry-grid"

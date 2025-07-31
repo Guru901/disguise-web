@@ -143,9 +143,9 @@ export default function Profile() {
                 className="w-full"
               >
                 <TabsList className="w-full">
-                  <Link className="w-1/3" href="?option=disLiked">
+                  <Link className="w-1/3" href="?option=saved">
                     <TabsTrigger
-                      value={"disLiked"}
+                      value={"saved"}
                       className={"w-full cursor-pointer"}
                     >
                       Saved Posts ({userSavedPosts?.length ?? 0})
@@ -177,16 +177,29 @@ export default function Profile() {
         {selectedOption === "comments" ? (
           <CommentGrid comments={userComments} isLoading={isCommentsLoading} />
         ) : selectedOption === "public" ? (
-          <PostGrid isLoading={isPostsLoading} posts={userPosts} />
+          <PostGrid
+            isLoading={isPostsLoading}
+            posts={userPosts}
+            option={selectedOption}
+          />
         ) : selectedOption === "liked" ? (
-          <PostGrid isLoading={isLikedPostsLoading} posts={userLikedPosts} />
+          <PostGrid
+            isLoading={isLikedPostsLoading}
+            posts={userLikedPosts}
+            option={selectedOption}
+          />
         ) : selectedOption === "private" ? (
           <PostGrid
             isLoading={isPrivatePostsLoading}
             posts={userPrivatePosts}
+            option={selectedOption}
           />
-        ) : selectedOption === "disLiked" ? (
-          <PostGrid isLoading={isSavedPostsLoading} posts={userSavedPosts} />
+        ) : selectedOption === "saved" ? (
+          <PostGrid
+            isLoading={isSavedPostsLoading}
+            posts={userSavedPosts}
+            option={selectedOption}
+          />
         ) : selectedOption === "friends" ? (
           <FriendsGrid
             friends={userFriends?.friends}
