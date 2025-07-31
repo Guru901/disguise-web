@@ -13,6 +13,8 @@ import {
   AtSign,
   UserPlus,
   X,
+  Users,
+  BellMinus,
 } from "lucide-react";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import Navbar from "@/components/navbar";
@@ -309,7 +311,7 @@ export default function NotificationsPage() {
 
       <div className="flex items-center justify-between px-2">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold">Notifications</h1>
+          <h1 className="mb-2 text-3xl font-normal">Notifications</h1>
           {Number(unreadCount) > 0 && (
             <Badge variant="default" className="h-6 px-2">
               {unreadCount}
@@ -333,29 +335,39 @@ export default function NotificationsPage() {
       </div>
 
       <div className="flex flex-col gap-3">
-        {notifications?.map((notification) => (
-          <div key={notification.id}>
-            {notification.type === "friend_request" ? (
-              <FriendRequestNotification
-                notification={notification}
-                // @ts-expect-error Fix later
-                markAsReadMutation={markAsReadMutation}
-                // @ts-expect-error Fix later
-                deleteNotificationMutation={deleteNotificationMutation}
-                // @ts-expect-error Fix later
-                refetchNotifications={refetch}
-              />
-            ) : (
-              <RegularNotification
-                notification={notification}
-                // @ts-expect-error Fix later
-                markAsReadMutation={markAsReadMutation}
-                // @ts-expect-error Fix later
-                deleteNotificationMutation={deleteNotificationMutation}
-              />
-            )}
+        {notifications?.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <BellMinus className="text-muted-foreground mb-4 h-12 w-12" />
+            <h3 className="mb-2 text-lg font-medium">No notifications</h3>
+            <p className="text-muted-foreground">
+              You have no notifications at the moment
+            </p>
           </div>
-        ))}
+        ) : (
+          notifications?.map((notification) => (
+            <div key={notification.id}>
+              {notification.type === "friend_request" ? (
+                <FriendRequestNotification
+                  notification={notification}
+                  // @ts-expect-error Fix later
+                  markAsReadMutation={markAsReadMutation}
+                  // @ts-expect-error Fix later
+                  deleteNotificationMutation={deleteNotificationMutation}
+                  // @ts-expect-error Fix later
+                  refetchNotifications={refetch}
+                />
+              ) : (
+                <RegularNotification
+                  notification={notification}
+                  // @ts-expect-error Fix later
+                  markAsReadMutation={markAsReadMutation}
+                  // @ts-expect-error Fix later
+                  deleteNotificationMutation={deleteNotificationMutation}
+                />
+              )}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

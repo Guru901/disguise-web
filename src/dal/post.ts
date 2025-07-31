@@ -190,7 +190,10 @@ async function likePost(userId: string, postId: string) {
       post[0]?.createdBy ?? "",
     );
 
-    if (createdByUser?.receiveNotificationsForLike) {
+    if (
+      createdByUser?.receiveNotificationsForLike &&
+      userId !== post[0]?.createdBy
+    ) {
       await db.insert(notificationSchema).values({
         type: "like",
         content: `${user?.username} liked your post`,
@@ -422,7 +425,10 @@ async function extractMentionsAndNotify(
           .limit(1)
           .then((res) => res[0]);
 
-        if (mentionedUser.receiveNotificationsForMention) {
+        if (
+          mentionedUser.receiveNotificationsForMention &&
+          commentAuthorId !== mentionedUser.id
+        ) {
           // Create notification for mentioned user
           await db.insert(notificationSchema).values({
             type: "mention",
