@@ -263,6 +263,7 @@ const PostCard = React.forwardRef<
               </div>
             ) : (
               image &&
+              image.length !== 0 &&
               image[0] !== "" && (
                 <div className="mt-2">
                   <MediaPlayer

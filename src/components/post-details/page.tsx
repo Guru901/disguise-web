@@ -626,7 +626,8 @@ export function PostDetails({ postId }: { postId: string }) {
                   </Carousel>
                 </div>
               ) : (
-                post.image && (
+                post.image &&
+                post.image[0] !== "" && (
                   <div className="mt-4">
                     <MediaPlayer
                       url={String(post.image[0])}
