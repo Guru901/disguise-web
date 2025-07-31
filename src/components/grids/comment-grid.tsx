@@ -43,7 +43,7 @@ export default function CommentGrid({
     <div className="flex flex-col items-center justify-center py-12">
       <h3 className="mb-2 text-lg font-medium">No comments</h3>
       <p className="text-muted-foreground text-center">
-        You don't have any comments yet.
+        You don&apos;t have any comments yet.
       </p>
     </div>
   ) : (

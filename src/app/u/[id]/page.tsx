@@ -459,18 +459,20 @@ export default function UserProfile() {
               isLoading={isCommentsLoading}
             />
           ) : selectedOption === "public" ? (
-            <PostGrid posts={userPosts} isLoading={isPostsLoading} />
+            <PostGrid posts={userPosts} isLoading={isPostsLoading} option={selectedOption} />
           ) : selectedOption === "liked" ? (
-            <PostGrid posts={userLikedPosts} isLoading={isLikedPostsLoading} />
+            <PostGrid posts={userLikedPosts} isLoading={isLikedPostsLoading} option={selectedOption} />
           ) : selectedOption === "private" ? (
             <PostGrid
               posts={userPrivatePosts}
               isLoading={isPrivatePostsLoading}
+              option={selectedOption}
             />
           ) : selectedOption === "disLiked" ? (
             <PostGrid
               posts={userDisLikedPosts}
               isLoading={isDisLikedPostsLoading}
+              option={selectedOption}
             />
           ) : selectedOption === "friends" ? (
             isFriendsLoading ? (

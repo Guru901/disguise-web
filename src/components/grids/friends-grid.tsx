@@ -27,8 +27,8 @@ export default function FriendsGrid({
     <div className="flex flex-col items-center justify-center py-12">
       <h3 className="mb-2 text-lg font-medium">No friends 🤷‍♂️</h3>
       <p className="text-muted-foreground text-center">
-        Maybe they're in your other tab... or imaginary. <br />
-        Either way, it's pretty lonely here.
+        Maybe they&apos;re in your other tab... or imaginary. <br />
+        Either way, it&apos;s pretty lonely here.
       </p>
     </div>
   ) : (

@@ -43,7 +43,7 @@ export default function PostGrid({
     <div className="flex flex-col items-center justify-center py-12">
       <h3 className="mb-2 text-lg font-medium">No posts</h3>
       <p className="text-muted-foreground">
-        You don't have any '{option}' posts yet.
+        You don&apos;t have any &apos;{option}&apos; posts yet.
       </p>
     </div>
   ) : (
