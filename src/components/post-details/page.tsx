@@ -601,7 +601,7 @@ export function PostDetails({ postId }: { postId: string }) {
                     <CarouselContent>
                       {post.image.map((image, idx) => (
                         <CarouselItem key={image + idx}>
-                          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-gray-100 sm:aspect-[16/9] lg:aspect-[4/3] dark:bg-gray-800">
+                          <div className="relative flex aspect-[4/3] w-full overflow-hidden rounded-lg bg-gray-100 sm:aspect-[16/9] lg:aspect-[4/3] dark:bg-gray-800">
                             <MediaPlayer
                               url={image}
                               imageProps={{
@@ -618,6 +618,11 @@ export function PostDetails({ postId }: { postId: string }) {
                             {/* Image counter badge */}
                             <div className="absolute top-2 left-2 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
                               {idx + 1} of {post.image?.length ?? 0}
+                              {image.endsWith(".mp4") ||
+                              image.endsWith(".mkv") ||
+                              image.endsWith(".mov")
+                                ? " (video)"
+                                : " (image)"}
                             </div>
                           </div>
                         </CarouselItem>
