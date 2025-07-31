@@ -19,7 +19,7 @@ import { usePathname } from "next/navigation";
 import { useUserStore } from "@/lib/userStore";
 
 const navItems = [
-  { label: "Home", href: "/feed", icon: Home },
+  { label: "Feed", href: "/feed", icon: Home },
   { label: "Post", href: "/post", icon: PlusIcon },
   { label: "Communities", href: "/communities", icon: Users },
   { label: "Profile", href: "/me", icon: User },
@@ -88,7 +88,7 @@ export default function DesktopSidebar() {
                 createdAt: "",
                 id: "",
                 blockedUsers: [],
-                savedPosts: []
+                savedPosts: [],
               });
               location.href = "/login";
             }}

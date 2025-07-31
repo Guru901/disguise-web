@@ -59,7 +59,7 @@ function BottomNavigation() {
               prefetch={false}
             >
               <HomeIcon />
-              Home
+              Feed
             </Link>
           </DrawerClose>
 
@@ -148,7 +148,7 @@ function BottomNavigation() {
                   createdAt: "",
                   id: "",
                   blockedUsers: [],
-                  savedPosts: []
+                  savedPosts: [],
                 });
                 location.href = "/login";
               }}
