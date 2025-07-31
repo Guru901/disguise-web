@@ -30,7 +30,7 @@ export type TSignInSchema = v.InferOutput<typeof signInSchema>;
 export const uploadPostSchema = v.object({
   title: v.pipe(v.string(), v.minLength(3), v.maxLength(30)),
   content: v.optional(v.string()),
-  image: v.optional(v.string()),
+  image: v.optional(v.array(v.string())),
   isPublic: v.fallback(v.boolean(), false),
   topic: v.fallback(v.string(), "General"),
   author: v.string(),

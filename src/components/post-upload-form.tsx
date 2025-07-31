@@ -12,6 +12,7 @@ import {
   Upload,
   Eye,
   EyeOff,
+  X,
 } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,7 +31,14 @@ import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { CldUploadButton } from "next-cloudinary";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import {
+  Carousel,
+  CarouselNext,
+  CarouselPrevious,
+  CarouselItem,
+  CarouselContent,
+} from "./ui/carousel";
 
 export function PostUploadForm() {
   const router = useRouter();
@@ -43,12 +51,13 @@ export function PostUploadForm() {
     control,
     formState: { errors, isSubmitting, isLoading },
     watch,
+    getValues,
   } = useForm<TUploadPostSchema>({
     resolver: valibotResolver(uploadPostSchema),
     defaultValues: {
       title: "",
       content: "",
-      image: "",
+      image: [],
       isPublic: true,
       topic: "General",
       author: "",
@@ -59,9 +68,7 @@ export function PostUploadForm() {
     api.topicRouter.getAllTopics.useQuery();
 
   const imageUrl = watch("image");
-  // const visibility = watch("isPublic"); // Remove this line
 
-  // --- Begin: Fix for visibility indicator not updating ---
   // Use a local state to mirror the isPublic value from the form
   const [visibility, setVisibility] = useState<boolean>(true);
 
@@ -77,7 +84,36 @@ export function PostUploadForm() {
     return () => subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch]);
-  // --- End: Fix for visibility indicator not updating ---
+
+  // Function to handle image upload with proper state management
+  const handleImageUpload = useCallback(
+    (uploadImageUrl: string) => {
+      // Get the current values directly from the form
+      const currentImages = getValues("image") || [];
+      console.log("Current images from getValues:", currentImages);
+      console.log("Adding new image:", uploadImageUrl);
+
+      const updatedImages = [...currentImages, uploadImageUrl];
+      console.log("Updated images array:", updatedImages);
+
+      setValue("image", updatedImages, { shouldValidate: true });
+      toast(`Image uploaded successfully! Total: ${updatedImages.length}`);
+    },
+    [getValues, setValue],
+  );
+
+  // Function to remove a specific image
+  const removeImage = useCallback(
+    (indexToRemove: number) => {
+      const currentImages = getValues("image") || [];
+      const updatedImages = currentImages.filter(
+        (_, index) => index !== indexToRemove,
+      );
+      setValue("image", updatedImages, { shouldValidate: true });
+      toast("Image removed");
+    },
+    [getValues, setValue],
+  );
 
   async function submitForm(data: TUploadPostSchema) {
     console.log(data);
@@ -163,9 +199,17 @@ export function PostUploadForm() {
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="image" className="text-base font-semibold">
-                Image
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="image" className="text-base font-semibold">
+                  Images
+                </Label>
+                {imageUrl && imageUrl.length > 0 && (
+                  <Badge variant="outline" className="text-xs">
+                    {imageUrl.length} image{imageUrl.length > 1 ? "s" : ""}{" "}
+                    uploaded
+                  </Badge>
+                )}
+              </div>
               <div className="space-y-4">
                 <CldUploadButton
                   className="hover:text-accent-foreground hover:border-accent-foreground flex h-32 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 transition-all duration-200"
@@ -173,37 +217,65 @@ export function PostUploadForm() {
                   onSuccess={(results) => {
                     // @ts-expect-error - results.info is not typed
                     const uploadImageUrl = String(results.info.secure_url);
-                    setValue("image", uploadImageUrl);
-                    toast("Image uploaded successfully");
+                    handleImageUpload(uploadImageUrl);
                   }}
                 >
                   <Upload size={24} />
                   <span className="text-sm font-medium">
-                    {imageUrl ? "Change Image" : "Upload Image"}
+                    {imageUrl && imageUrl.length > 0
+                      ? `Add Another Image (${imageUrl.length} uploaded)`
+                      : "Upload Images"}
                   </span>
                   <span className="text-muted-foreground text-xs">
                     Click to browse or drag and drop
                   </span>
                 </CldUploadButton>
 
-                {imageUrl && (
+                {imageUrl && imageUrl.length > 0 && (
                   <div className="relative">
-                    <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                      <Image
-                        src={imageUrl || "/placeholder.svg"}
-                        alt="Preview"
-                        width={400}
-                        height={300}
-                        className="h-64 w-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className="absolute top-2 right-2 bg-white/90 text-gray-700"
-                    >
-                      Preview
-                    </Badge>
+                    <Carousel className="w-full">
+                      <CarouselContent>
+                        {imageUrl.map((url: string, idx: number) => (
+                          <CarouselItem key={`${url}-${idx}`}>
+                            <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                              <Image
+                                src={url || "/placeholder.svg"}
+                                alt={`Preview ${idx + 1}`}
+                                width={400}
+                                height={300}
+                                className="h-64 w-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+
+                              {/* Remove button */}
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="absolute top-2 right-2 h-8 w-8 p-0"
+                                onClick={() => removeImage(idx)}
+                              >
+                                <X size={14} />
+                              </Button>
+
+                              {/* Image counter */}
+                              <Badge
+                                variant="secondary"
+                                className="absolute top-2 left-2 bg-white/90 text-gray-700"
+                              >
+                                {idx + 1} of {imageUrl.length}
+                              </Badge>
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      {imageUrl.length > 1 && (
+                        <>
+                          <CarouselPrevious />
+                          <CarouselNext />
+                        </>
+                      )}
+                    </Carousel>
                   </div>
                 )}
               </div>
@@ -319,7 +391,6 @@ export function PostUploadForm() {
               )}
             </div>
 
-            {/* Root Error */}
             {errors.root && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-3">
                 <p className="flex items-center gap-1 text-sm text-red-700">
@@ -329,7 +400,6 @@ export function PostUploadForm() {
               </div>
             )}
 
-            {/* Submit Button */}
             <Button
               type="submit"
               className="h-12 w-full text-base font-semibold shadow-lg hover:shadow-xl disabled:cursor-not-allowed"

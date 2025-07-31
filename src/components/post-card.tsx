@@ -15,6 +15,13 @@ import { useState } from "react";
 import { api } from "@/trpc/react";
 import MediaPlayer from "@/components/media-player";
 import useGetUser from "@/lib/use-get-user";
+import {
+  Carousel,
+  CarouselPrevious,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+} from "./ui/carousel";
 
 const PostCard = React.forwardRef<
   HTMLDivElement,
@@ -23,7 +30,7 @@ const PostCard = React.forwardRef<
     username: string;
     authorId: string;
     title: string;
-    image: string | null;
+    image: string[] | null;
     createdAt: Date;
     content: string | null;
     id: string;
@@ -228,19 +235,32 @@ const PostCard = React.forwardRef<
         <CardContent className="px-4 py-0">
           <div className="space-y-3">
             <p>{title}</p>
-            {image && (
-              <MediaPlayer
-                url={image}
-                imageProps={{
-                  alt: title,
-                  width: 600,
-                  height: 200,
-                  className: "h-52 w-full rounded-md object-cover",
-                }}
-                videoProps={{
-                  className: "h-52 w-full rounded-md bg-black object-cover",
-                }}
-              />
+            {image && image.length > 0 && image[0] !== "" && (
+              <div className="mt-2">
+                <Carousel>
+                  <CarouselContent>
+                    {image.map((img, idx) => (
+                      <CarouselItem key={img + idx}>
+                        <MediaPlayer
+                          url={img}
+                          imageProps={{
+                            alt: title,
+                            width: 600,
+                            height: 200,
+                            className: "h-52 w-full rounded-md object-cover",
+                          }}
+                          videoProps={{
+                            className:
+                              "h-52 w-full rounded-md bg-black object-cover",
+                          }}
+                        />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
+              </div>
             )}
             {content && <p className="truncate overflow-hidden">{content}</p>}
           </div>

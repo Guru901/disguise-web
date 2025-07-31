@@ -14,9 +14,11 @@ import {
   Share2,
   Trash,
   X,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import * as icons from "./icons";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
@@ -48,6 +50,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import {
+  Carousel,
+  CarouselPrevious,
+  CarouselItem,
+  CarouselContent,
+  CarouselNext,
+} from "../ui/carousel";
+import { Badge } from "../ui/badge";
 
 export function PostDetails({ postId }: { postId: string }) {
   const { user, refetchUser } = useGetUser();
@@ -236,6 +246,7 @@ export function PostDetails({ postId }: { postId: string }) {
     formState: { errors },
     watch,
     reset,
+    getValues,
   } = useForm<TUploadPostSchema>({
     resolver: valibotResolver(uploadPostSchema),
   });
@@ -246,13 +257,42 @@ export function PostDetails({ postId }: { postId: string }) {
       reset({
         title: post.title || "",
         content: post.content ?? "",
-        image: post.image ?? "",
+        image: post.image ?? [],
         isPublic: post.isPublic,
         topic: post.topic || "General",
         author: user.id,
       });
     }
   }, [post, isEditDialogOpen, reset, user.id]);
+
+  // Function to handle image upload with proper state management for edit form
+  const handleEditImageUpload = useCallback(
+    (uploadImageUrl: string) => {
+      const currentImages = getValues("image") || [];
+      console.log("Current edit images from getValues:", currentImages);
+      console.log("Adding new edit image:", uploadImageUrl);
+
+      const updatedImages = [...currentImages, uploadImageUrl];
+      console.log("Updated edit images array:", updatedImages);
+
+      setValue("image", updatedImages, { shouldValidate: true });
+      toast(`Image uploaded successfully! Total: ${updatedImages.length}`);
+    },
+    [getValues, setValue],
+  );
+
+  // Function to remove a specific image from edit form
+  const removeEditImage = useCallback(
+    (indexToRemove: number) => {
+      const currentImages = getValues("image") || [];
+      const updatedImages = currentImages.filter(
+        (_, index) => index !== indexToRemove,
+      );
+      setValue("image", updatedImages, { shouldValidate: true });
+      toast("Image removed");
+    },
+    [getValues, setValue],
+  );
 
   async function onEditPost(data: TUploadPostSchema) {
     try {
@@ -543,11 +583,41 @@ export function PostDetails({ postId }: { postId: string }) {
                 <div className="mt-4">
                   <Skeleton className="h-[300px] w-full rounded-md" />
                 </div>
+              ) : post.image &&
+                post.image.length > 0 &&
+                post.image[0] !== "" &&
+                post.image.length > 1 ? (
+                <div className="mt-4">
+                  <Carousel>
+                    <CarouselContent>
+                      {post.image.map((image, idx) => (
+                        <CarouselItem key={image + idx}>
+                          <MediaPlayer
+                            url={image}
+                            imageProps={{
+                              alt: "Post Image",
+                              width: 500,
+                              height: 500,
+                              className:
+                                "h-full w-full rounded-md object-cover",
+                            }}
+                            videoProps={{
+                              className:
+                                "h-full w-full rounded-md object-cover",
+                            }}
+                          />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </Carousel>
+                </div>
               ) : (
                 post.image && (
                   <div className="mt-4">
                     <MediaPlayer
-                      url={post.image}
+                      url={String(post.image[0])}
                       imageProps={{
                         alt: "Post Image",
                         width: 500,
@@ -837,12 +907,20 @@ export function PostDetails({ postId }: { postId: string }) {
                         </div>
 
                         <div className="grid gap-3">
-                          <Label
-                            htmlFor="image"
-                            className="text-base font-medium"
-                          >
-                            Image/Video
-                          </Label>
+                          <div className="flex items-center justify-between">
+                            <Label
+                              htmlFor="image"
+                              className="text-base font-medium"
+                            >
+                              Images
+                            </Label>
+                            {imageUrl && imageUrl.length > 0 && (
+                              <Badge variant="outline" className="text-xs">
+                                {imageUrl.length} image
+                                {imageUrl.length > 1 ? "s" : ""} uploaded
+                              </Badge>
+                            )}
+                          </div>
                           <div className="space-y-3">
                             <CldUploadButton
                               className="w-full"
@@ -852,8 +930,7 @@ export function PostDetails({ postId }: { postId: string }) {
                                   // @ts-expect-error - results.info is not typed
                                   results?.info?.secure_url,
                                 );
-                                setValue("image", uploadImageUrl);
-                                toast("Media uploaded successfully");
+                                handleEditImageUpload(uploadImageUrl);
                               }}
                             >
                               <Button
@@ -862,46 +939,69 @@ export function PostDetails({ postId }: { postId: string }) {
                                 className="w-full"
                               >
                                 <ImageIcon className="mr-2 h-4 w-4" />
-                                Change Image
+                                {imageUrl && imageUrl.length > 0
+                                  ? `Add Another Image (${imageUrl.length} uploaded)`
+                                  : "Upload Images"}
                               </Button>
                             </CldUploadButton>
 
-                            {imageUrl && imageUrl?.length > 0 ? (
-                              <div className="flex justify-center">
-                                <MediaPlayer
-                                  url={imageUrl}
-                                  imageProps={{
-                                    alt: "Preview",
-                                    className:
-                                      "w-full max-w-md h-auto object-cover rounded-md",
-                                    height: 300,
-                                    width: 400,
-                                  }}
-                                  videoProps={{
-                                    className:
-                                      "w-full max-w-md h-auto object-cover rounded-md",
-                                  }}
-                                />
+                            {imageUrl && imageUrl.length > 0 && (
+                              <div className="relative">
+                                <Carousel className="w-full">
+                                  <CarouselContent>
+                                    {imageUrl.map(
+                                      (url: string, idx: number) => (
+                                        <CarouselItem key={`${url}-${idx}`}>
+                                          <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                                            <MediaPlayer
+                                              url={url}
+                                              imageProps={{
+                                                alt: `Preview ${idx + 1}`,
+                                                className:
+                                                  "w-full max-w-md h-auto object-cover rounded-md",
+                                                height: 300,
+                                                width: 400,
+                                              }}
+                                              videoProps={{
+                                                className:
+                                                  "w-full max-w-md h-auto object-cover rounded-md",
+                                              }}
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+
+                                            {/* Remove button */}
+                                            <Button
+                                              type="button"
+                                              variant="destructive"
+                                              size="sm"
+                                              className="absolute top-2 right-2 h-8 w-8 p-0"
+                                              onClick={() =>
+                                                removeEditImage(idx)
+                                              }
+                                            >
+                                              <X size={14} />
+                                            </Button>
+
+                                            {/* Image counter */}
+                                            <Badge
+                                              variant="secondary"
+                                              className="absolute top-2 left-2 bg-white/90 text-gray-700"
+                                            >
+                                              {idx + 1} of {imageUrl.length}
+                                            </Badge>
+                                          </div>
+                                        </CarouselItem>
+                                      ),
+                                    )}
+                                  </CarouselContent>
+                                  {imageUrl.length > 1 && (
+                                    <>
+                                      <CarouselPrevious />
+                                      <CarouselNext />
+                                    </>
+                                  )}
+                                </Carousel>
                               </div>
-                            ) : post?.image ? (
-                              <div className="flex justify-center">
-                                <MediaPlayer
-                                  url={post?.image}
-                                  imageProps={{
-                                    alt: "Preview",
-                                    className:
-                                      "w-full max-w-md h-auto object-cover rounded-md",
-                                    height: 300,
-                                    width: 400,
-                                  }}
-                                  videoProps={{
-                                    className:
-                                      "w-full max-w-md h-auto object-cover rounded-md",
-                                  }}
-                                />
-                              </div>
-                            ) : (
-                              <div>No Image</div>
                             )}
                           </div>
                           {errors.image && (
@@ -919,15 +1019,24 @@ export function PostDetails({ postId }: { postId: string }) {
                             Visibility
                           </Label>
                           <div className="mb-2 flex items-center gap-2">
-                            <InfoIcon
-                              size={16}
-                              className="text-muted-foreground"
-                            />
-                            <p className="text-muted-foreground text-sm">
-                              {visibility
-                                ? "Visible to everyone"
-                                : "Only visible to you and your friends"}
-                            </p>
+                            {visibility ? (
+                              <div className="flex items-center gap-2">
+                                <Eye size={16} className="text-primary" />
+                                <p className="text-primary text-sm font-medium">
+                                  Public - Visible to everyone
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <EyeOff
+                                  size={16}
+                                  className="text-secondary-foreground"
+                                />
+                                <p className="text-secondary-foreground text-sm font-medium">
+                                  Private - Only visible to you and your friends
+                                </p>
+                              </div>
+                            )}
                           </div>
                           <Controller
                             name="isPublic"
@@ -943,8 +1052,18 @@ export function PostDetails({ postId }: { postId: string }) {
                                   <SelectValue placeholder="Select visibility" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="true">Public</SelectItem>
-                                  <SelectItem value="false">Private</SelectItem>
+                                  <SelectItem value="true">
+                                    <div className="flex items-center gap-2">
+                                      <Eye size={16} />
+                                      Public
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="false">
+                                    <div className="flex items-center gap-2">
+                                      <EyeOff size={16} />
+                                      Private
+                                    </div>
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                             )}
