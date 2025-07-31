@@ -9,7 +9,6 @@ import {
   Bookmark,
   Edit,
   ImageIcon,
-  InfoIcon,
   Loader2,
   Share2,
   Trash,
@@ -246,7 +245,6 @@ export function PostDetails({ postId }: { postId: string }) {
     formState: { errors },
     watch,
     reset,
-    getValues,
   } = useForm<TUploadPostSchema>({
     resolver: valibotResolver(uploadPostSchema),
   });
@@ -533,7 +531,6 @@ export function PostDetails({ postId }: { postId: string }) {
     }
   }
 
-  const imageUrl = watch("image");
   const visibility = watch("isPublic");
 
   return (

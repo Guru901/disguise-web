@@ -82,14 +82,13 @@ export function PostUploadForm() {
     // Set initial value
     setVisibility(watch("isPublic"));
     return () => subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch]);
 
   // Function to handle image upload with proper state management
   const handleImageUpload = useCallback(
     (uploadImageUrl: string) => {
       // Get the current values directly from the form
-      const currentImages = getValues("image") || [];
+      const currentImages = getValues("image") ?? [];
       console.log("Current images from getValues:", currentImages);
       console.log("Adding new image:", uploadImageUrl);
 
@@ -105,7 +104,7 @@ export function PostUploadForm() {
   // Function to remove a specific image
   const removeImage = useCallback(
     (indexToRemove: number) => {
-      const currentImages = getValues("image") || [];
+      const currentImages = getValues("image") ?? [];
       const updatedImages = currentImages.filter(
         (_, index) => index !== indexToRemove,
       );

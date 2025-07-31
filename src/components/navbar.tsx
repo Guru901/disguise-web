@@ -8,13 +8,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
-import { type Font } from "@/lib/userStore";
 
 export default function Navbar() {
   const { setTheme } = useTheme();

@@ -13,7 +13,6 @@ import {
   AtSign,
   UserPlus,
   X,
-  Users,
   BellMinus,
 } from "lucide-react";
 import { formatTimeAgo } from "@/lib/format-time-ago";
