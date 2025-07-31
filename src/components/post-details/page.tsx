@@ -488,7 +488,7 @@ export function PostDetails({ postId }: { postId: string }) {
     <Card className="flex h-[calc(100vh+15rem)] w-full items-start py-0 pb-12 md:h-fit md:w-fit md:pb-0">
       <div className="h-auto w-full px-2 py-3 sm:px-6 md:w-auto lg:p-2">
         <div className="flex flex-col px-[6px] pb-[6px] md:min-w-[60vw] md:flex-row md:py-[6px]">
-          <div className="py-6 sm:w-3/4 sm:p-6">
+          <div className="w-full py-6 sm:w-3/4 sm:p-6">
             {isPostLoading || !post ? (
               <div className="flex items-start">
                 <div className="mr-4">
@@ -614,7 +614,7 @@ export function PostDetails({ postId }: { postId: string }) {
               )}
             </div>
 
-            <div className="mt-4 flex items-center gap-12 sm:justify-between sm:gap-0">
+            <div className="mt-8 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-12">
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
