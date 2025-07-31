@@ -9,12 +9,6 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-@media screen and (max-width: 768px) {
-  * {
-    zoom: 0.99;
-  }
-}
-
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -439,13 +433,6 @@ html[data-theme="ghibli"] {
   --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
   --sidebar-border: hsl(240 3.7% 15.9%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
-}
-
-@media screen and (width <= 768px) {
-  .bottom-nav {
-    zoom: 1.03 !important;
-    width: 97%;
-  }
 }
 
 [data-radix-dialog-content] .cld-upload-button {
