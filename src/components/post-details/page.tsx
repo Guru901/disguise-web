@@ -597,47 +597,58 @@ export function PostDetails({ postId }: { postId: string }) {
                 post.image[0] !== "" &&
                 post.image.length > 1 ? (
                 <div className="mt-4">
-                  <Carousel>
+                  <Carousel className="w-full">
                     <CarouselContent>
                       {post.image.map((image, idx) => (
                         <CarouselItem key={image + idx}>
-                          <MediaPlayer
-                            url={image}
-                            imageProps={{
-                              alt: "Post Image",
-                              width: 500,
-                              height: 500,
-                              className:
-                                "h-full w-full rounded-md object-cover",
-                            }}
-                            videoProps={{
-                              className:
-                                "h-full w-full rounded-md object-cover",
-                            }}
-                          />
+                          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-gray-100 sm:aspect-[16/9] lg:aspect-[4/3] dark:bg-gray-800">
+                            <MediaPlayer
+                              url={image}
+                              imageProps={{
+                                alt: `Post Image ${idx + 1}`,
+                                width: 800,
+                                height: 600,
+                                className:
+                                  "h-full w-full object-contain transition-transform duration-300 hover:scale-105",
+                              }}
+                              videoProps={{
+                                className: "h-full w-full object-contain",
+                              }}
+                            />
+                            {/* Image counter badge */}
+                            <div className="absolute top-2 left-2 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                              {idx + 1} of {post.image?.length ?? 0}
+                            </div>
+                          </div>
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
+                    <CarouselPrevious className="left-2 bg-white/80 backdrop-blur-sm hover:bg-white/90 dark:bg-gray-800/80 dark:hover:bg-gray-800/90" />
+                    <CarouselNext className="right-2 bg-white/80 backdrop-blur-sm hover:bg-white/90 dark:bg-gray-800/80 dark:hover:bg-gray-800/90" />
                   </Carousel>
                 </div>
               ) : (
                 post.image &&
                 post.image[0] !== "" && (
                   <div className="mt-4">
-                    <MediaPlayer
-                      url={String(post.image[0])}
-                      imageProps={{
-                        alt: "Post Image",
-                        width: 500,
-                        height: 500,
-                        className: "h-full w-full rounded-md object-cover",
-                      }}
-                      videoProps={{
-                        className: "h-full w-full rounded-md object-cover",
-                      }}
-                    />
+                    <div className="relative w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                      {/* Dynamic aspect ratio container for single images */}
+                      <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-[4/3]">
+                        <MediaPlayer
+                          url={String(post.image[0])}
+                          imageProps={{
+                            alt: "Post Image",
+                            width: 800,
+                            height: 600,
+                            className:
+                              "h-full w-full object-contain transition-transform duration-300 hover:scale-105",
+                          }}
+                          videoProps={{
+                            className: "h-full w-full object-contain",
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 )
               ))}
