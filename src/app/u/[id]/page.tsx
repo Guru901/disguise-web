@@ -201,9 +201,11 @@ export default function UserProfile() {
               <p className="text-primary text-sm">
                 Joined {formatTimeAgo(createdAt!)}
               </p>
-              <p className="text-primary text-sm">
-                Last online {formatTimeAgo(lastOnline!)}
-              </p>
+              {isFriend && (
+                <p className="text-primary text-sm">
+                  Last online {formatTimeAgo(lastOnline!)}
+                </p>
+              )}
             </div>
             <div className="bg-background flex w-full items-center justify-around rounded-lg p-4 text-sm font-medium">
               <div className="flex flex-col items-center">
