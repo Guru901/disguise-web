@@ -447,3 +447,18 @@ html[data-theme="ghibli"] {
     width: 97%;
   }
 }
+
+[data-radix-dialog-content] .cld-upload-button {
+  z-index: 10000 !important;
+  position: relative !important;
+  pointer-events: all;
+}
+
+[data-radix-dialog-content] .cld-upload-button iframe {
+  z-index: 10001 !important;
+  position: relative !important;
+}
+
+iframe[title="Upload Widget"] {
+  pointer-events: all !important;
+}

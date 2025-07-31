@@ -3,6 +3,13 @@ import { Card, CardContent } from "../ui/card";
 import Link from "next/link";
 import MediaPlayer from "../media-player";
 import UserPostLoader from "../loaders/profile-loading";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "../ui/carousel";
 
 const breakpointColumnsObj = {
   default: 3,
@@ -23,7 +30,7 @@ export default function PostGrid({
         title: string;
         content: string | null;
         commentsCount: number;
-        image: string | null;
+        image: string[] | null;
         topic: string;
         isPublic: boolean;
         likes: string[] | null;
@@ -57,25 +64,56 @@ export default function PostGrid({
           <Card className="overflow-hidden">
             <Link href={`/p?post=${post.id}`} className="h-full">
               <CardContent className="h-full p-0">
-                {post.image ? (
+                {post.image && post.image.length > 0 && post.image[0] !== "" ? (
                   <div className="relative h-full">
                     <div className="absolute top-0 right-0 bottom-0 left-0 rounded-xl bg-black/40">
                       <div className="flex h-full w-full items-center justify-center rounded-xl text-xl text-white opacity-100">
                         <h1>{post.title}</h1>
                       </div>
                     </div>
-                    <MediaPlayer
-                      url={post.image}
-                      imageProps={{
-                        alt: "Post",
-                        width: 500,
-                        height: 300,
-                        className: "h-full w-full rounded-xl object-cover",
-                      }}
-                      videoProps={{
-                        className: "h-full w-full rounded-xl object-cover",
-                      }}
-                    />
+                    {post.image.length > 0 &&
+                    post.image[0] !== "" &&
+                    post.image.length > 1 ? (
+                      <Carousel>
+                        <CarouselContent>
+                          {post.image.map((image, idx) => (
+                            <CarouselItem key={image + idx}>
+                              <MediaPlayer
+                                url={image}
+                                imageProps={{
+                                  alt: "Post Image",
+                                  width: 500,
+                                  height: 300,
+                                  className:
+                                    "h-full w-full rounded-md object-cover",
+                                }}
+                                videoProps={{
+                                  className:
+                                    "h-full w-full rounded-md object-cover",
+                                }}
+                              />
+                            </CarouselItem>
+                          ))}
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                      </Carousel>
+                    ) : (
+                      post.image && (
+                        <MediaPlayer
+                          url={String(post.image[0])}
+                          imageProps={{
+                            alt: "Post Image",
+                            width: 500,
+                            height: 300,
+                            className: "h-full w-full rounded-md object-cover",
+                          }}
+                          videoProps={{
+                            className: "h-full w-full rounded-md object-cover",
+                          }}
+                        />
+                      )
+                    )}
                   </div>
                 ) : (
                   <div className="bg-secondary flex h-[500px] w-full items-center justify-center rounded-lg text-xl text-white">

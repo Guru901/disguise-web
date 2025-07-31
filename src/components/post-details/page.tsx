@@ -262,36 +262,48 @@ export function PostDetails({ postId }: { postId: string }) {
         topic: post.topic || "General",
         author: user.id,
       });
+      // Initialize edit images
+      setEditImages(post.image ?? []);
     }
   }, [post, isEditDialogOpen, reset, user.id]);
+
+  // Local state for edit images to avoid form state issues
+  const [editImages, setEditImages] = useState<string[]>([]);
 
   // Function to handle image upload with proper state management for edit form
   const handleEditImageUpload = useCallback(
     (uploadImageUrl: string) => {
-      const currentImages = getValues("image") || [];
-      console.log("Current edit images from getValues:", currentImages);
-      console.log("Adding new edit image:", uploadImageUrl);
-
-      const updatedImages = [...currentImages, uploadImageUrl];
-      console.log("Updated edit images array:", updatedImages);
-
-      setValue("image", updatedImages, { shouldValidate: true });
-      toast(`Image uploaded successfully! Total: ${updatedImages.length}`);
+      try {
+        console.log("Adding new edit image:", uploadImageUrl);
+        setEditImages((prev) => {
+          const updatedImages = [...prev, uploadImageUrl];
+          console.log("Updated edit images array:", updatedImages);
+          // Sync with form
+          setValue("image", updatedImages, { shouldValidate: true });
+          return updatedImages;
+        });
+        toast(`Image uploaded successfully! Total: ${editImages.length + 1}`);
+      } catch (error) {
+        console.error("Error handling edit image upload:", error);
+        toast.error("Failed to upload image. Please try again.");
+      }
     },
-    [getValues, setValue],
+    [setValue, editImages.length],
   );
 
   // Function to remove a specific image from edit form
   const removeEditImage = useCallback(
     (indexToRemove: number) => {
-      const currentImages = getValues("image") || [];
-      const updatedImages = currentImages.filter(
-        (_, index) => index !== indexToRemove,
-      );
-      setValue("image", updatedImages, { shouldValidate: true });
+      setEditImages((prev) => {
+        const updatedImages = prev.filter(
+          (_, index) => index !== indexToRemove,
+        );
+        setValue("image", updatedImages, { shouldValidate: true });
+        return updatedImages;
+      });
       toast("Image removed");
     },
-    [getValues, setValue],
+    [setValue],
   );
 
   async function onEditPost(data: TUploadPostSchema) {
@@ -833,7 +845,10 @@ export function PostDetails({ postId }: { postId: string }) {
                         </span>
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+                    <DialogContent
+                      className="max-h-[90vh] max-w-2xl overflow-y-auto"
+                      style={{ zIndex: 9999 }}
+                    >
                       <div className="mb-6 flex items-center gap-4">
                         <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-50">
                           <Edit className="h-6 w-6 text-blue-600" />
@@ -914,42 +929,54 @@ export function PostDetails({ postId }: { postId: string }) {
                             >
                               Images
                             </Label>
-                            {imageUrl && imageUrl.length > 0 && (
+                            {editImages && editImages.length > 0 && (
                               <Badge variant="outline" className="text-xs">
-                                {imageUrl.length} image
-                                {imageUrl.length > 1 ? "s" : ""} uploaded
+                                {editImages.length} image
+                                {editImages.length > 1 ? "s" : ""} uploaded
                               </Badge>
                             )}
                           </div>
                           <div className="space-y-3">
-                            <CldUploadButton
-                              className="w-full"
-                              uploadPreset="social-media-again"
-                              onSuccess={(results) => {
-                                const uploadImageUrl = String(
-                                  // @ts-expect-error - results.info is not typed
-                                  results?.info?.secure_url,
-                                );
-                                handleEditImageUpload(uploadImageUrl);
+                            <div
+                              style={{
+                                zIndex: 10000,
+                                position: "relative",
+                                pointerEvents: "all",
                               }}
+                              className="cloudinary-upload-wrapper"
                             >
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                className="w-full"
+                              <CldUploadButton
+                                className="pointer-events-[all] w-full"
+                                uploadPreset="social-media-again"
+                                options={{
+                                  resourceType: "image",
+                                }}
+                                onSuccess={(results) => {
+                                  const uploadImageUrl = String(
+                                    // @ts-expect-error - results.info is not typed
+                                    results?.info?.secure_url,
+                                  );
+                                  handleEditImageUpload(uploadImageUrl);
+                                }}
                               >
-                                <ImageIcon className="mr-2 h-4 w-4" />
-                                {imageUrl && imageUrl.length > 0
-                                  ? `Add Another Image (${imageUrl.length} uploaded)`
-                                  : "Upload Images"}
-                              </Button>
-                            </CldUploadButton>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  className="w-full"
+                                >
+                                  <ImageIcon className="mr-2 h-4 w-4" />
+                                  {editImages && editImages.length > 0
+                                    ? `Add Another Image (${editImages.length} uploaded)`
+                                    : "Upload Images"}
+                                </Button>
+                              </CldUploadButton>
+                            </div>
 
-                            {imageUrl && imageUrl.length > 0 && (
+                            {editImages && editImages.length > 0 && (
                               <div className="relative">
                                 <Carousel className="w-full">
                                   <CarouselContent>
-                                    {imageUrl.map(
+                                    {editImages.map(
                                       (url: string, idx: number) => (
                                         <CarouselItem key={`${url}-${idx}`}>
                                           <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
@@ -987,14 +1014,14 @@ export function PostDetails({ postId }: { postId: string }) {
                                               variant="secondary"
                                               className="absolute top-2 left-2 bg-white/90 text-gray-700"
                                             >
-                                              {idx + 1} of {imageUrl.length}
+                                              {idx + 1} of {editImages.length}
                                             </Badge>
                                           </div>
                                         </CarouselItem>
                                       ),
                                     )}
                                   </CarouselContent>
-                                  {imageUrl.length > 1 && (
+                                  {editImages.length > 1 && (
                                     <>
                                       <CarouselPrevious />
                                       <CarouselNext />

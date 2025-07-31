@@ -235,7 +235,7 @@ const PostCard = React.forwardRef<
         <CardContent className="px-4 py-0">
           <div className="space-y-3">
             <p>{title}</p>
-            {image && image.length > 0 && image[0] !== "" && (
+            {image && image.length > 1 && image[0] !== "" ? (
               <div className="mt-2">
                 <Carousel>
                   <CarouselContent>
@@ -261,6 +261,24 @@ const PostCard = React.forwardRef<
                   <CarouselNext />
                 </Carousel>
               </div>
+            ) : (
+              image &&
+              image[0] !== "" && (
+                <div className="mt-2">
+                  <MediaPlayer
+                    url={String(image[0])}
+                    imageProps={{
+                      alt: title,
+                      width: 600,
+                      height: 200,
+                      className: "h-52 w-full rounded-md object-cover",
+                    }}
+                    videoProps={{
+                      className: "h-52 w-full rounded-md bg-black object-cover",
+                    }}
+                  />
+                </div>
+              )
             )}
             {content && <p className="truncate overflow-hidden">{content}</p>}
           </div>
