@@ -25,7 +25,6 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from "../ui/dialog";
 import { toast } from "sonner"; // Assuming you're using sonner for toasts
-import { Separator } from "../ui/separator";
 
 type CommentProps = {
   comment: {

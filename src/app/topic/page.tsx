@@ -48,6 +48,7 @@ function TopicFeedContent() {
           loggedInUserId={user.id}
           key={post.id}
           loggedInUser={user.username}
+          savedCount={post.savedCount}
         />
       ))}
     </Masonry>

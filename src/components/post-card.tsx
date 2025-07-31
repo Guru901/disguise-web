@@ -315,6 +315,8 @@ const PostCard = React.forwardRef<
   },
 );
 
+PostCard.displayName = "PostCard";
+
 export { PostCard };
 
 function HeartIcon() {
