@@ -87,6 +87,7 @@ export default function Feed() {
               loggedInUserId={user.id}
               loggedInUser={user.username}
               key={post.id}
+              savedCount={post.savedCount}
               ref={lastPostRef}
             />
           ))}

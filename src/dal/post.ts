@@ -957,6 +957,12 @@ async function savePostById(userId: string, postId: string, hasSaved: boolean) {
       )`,
         })
         .where(eq(userSchema.id, userId));
+      await db
+        .update(postSchema)
+        .set({
+          savedCount: sql`saved_count + 1`,
+        })
+        .where(eq(postSchema.id, postId));
     } else {
       await db
         .update(userSchema)
@@ -968,6 +974,12 @@ async function savePostById(userId: string, postId: string, hasSaved: boolean) {
         )`,
         })
         .where(eq(userSchema.id, userId));
+      await db
+        .update(postSchema)
+        .set({
+          savedCount: sql`saved_count - 1`,
+        })
+        .where(eq(postSchema.id, postId));
     }
 
     return {

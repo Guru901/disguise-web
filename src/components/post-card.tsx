@@ -29,6 +29,7 @@ const PostCard = React.forwardRef<
     id: string;
     likes: string[];
     disLikes: string[];
+    savedCount: number;
     loggedInUserId: string;
     loggedInUser: string;
   }
@@ -45,6 +46,7 @@ const PostCard = React.forwardRef<
       id,
       likes,
       disLikes,
+      savedCount,
       loggedInUserId,
       loggedInUser,
     },
@@ -54,6 +56,8 @@ const PostCard = React.forwardRef<
     const [optimisticDislikes, setOptimisticDislikes] = useState(
       disLikes.length,
     );
+    const [optimisticSavedCount, setOptimisticSavedCount] =
+      useState(savedCount);
 
     const { user } = useGetUser();
 
@@ -63,7 +67,9 @@ const PostCard = React.forwardRef<
     const [hasDisliked, setHasDisliked] = useState(() =>
       disLikes.includes(loggedInUserId),
     );
-    const [hasSaved, _] = useState(() => user?.savedPosts?.includes(id));
+    const [hasSaved, setHasSaved] = useState(() =>
+      user?.savedPosts?.includes(id),
+    );
 
     const likePostMutation = api.postRouter.likePost.useMutation();
 
@@ -167,6 +173,38 @@ const PostCard = React.forwardRef<
       }
     }
 
+    async function savePost() {
+      const previousSaveState = hasSaved;
+      // Optimistically update the save state and count
+      setHasSaved(!hasSaved);
+      if (hasSaved) {
+        // If we're unsaving, decrease the count
+        setOptimisticSavedCount((prev) => prev - 1);
+      } else {
+        // If we're saving, increase the count
+        setOptimisticSavedCount((prev) => prev + 1);
+      }
+
+      try {
+        await savePostMutation.mutateAsync({
+          postId: id,
+          saved: previousSaveState,
+        });
+      } catch (error) {
+        console.error("Failed to save/unsave post:", error);
+        // Revert the optimistic updates on error
+        setHasSaved(previousSaveState);
+        if (previousSaveState) {
+          // If we were trying to unsave, revert the count increase
+          setOptimisticSavedCount((prev) => prev + 1);
+        } else {
+          // If we were trying to save, revert the count decrease
+          setOptimisticSavedCount((prev) => prev - 1);
+        }
+        toast.error("Failed to save post. Please try again.");
+      }
+    }
+
     return (
       <Card className="h-max overflow-hidden py-3" ref={ref}>
         <CardHeader className="flex items-center gap-4 px-4 py-3">
@@ -255,16 +293,12 @@ const PostCard = React.forwardRef<
                 className="group relative flex gap-1"
                 variant={"ghost"}
                 size={"icon"}
-                onClick={async () => {
-                  await savePostMutation.mutateAsync({
-                    postId: id,
-                    saved: hasSaved,
-                  });
-                }}
+                onClick={savePost}
               >
                 <Bookmark fill={hasSaved ? "currentColor" : "transparent"} />
+                <span>{optimisticSavedCount}</span>
                 <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                  Save
+                  {hasSaved ? "Unsave" : "Save"}
                 </span>
               </Button>
             </div>
@@ -280,7 +314,6 @@ const PostCard = React.forwardRef<
     );
   },
 );
-PostCard.displayName = "PostCard";
 
 export { PostCard };
 

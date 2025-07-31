@@ -97,6 +97,9 @@ export function PostDetails({ postId }: { postId: string }) {
   const [optimisticDislikes, setOptimisticDislikes] = useState(
     post?.disLikes?.length ?? 0,
   );
+  const [optimisticSavedCount, setOptimisticSavedCount] = useState(
+    post?.savedCount ?? 0,
+  );
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(
     new Set(),
   );
@@ -164,6 +167,7 @@ export function PostDetails({ postId }: { postId: string }) {
         toast.success("Post saved successfully");
       }
       setHasSaved((prev) => !prev);
+      setOptimisticSavedCount((prev) => prev + 1);
     },
     onSuccess: async () => {
       await refetchUser();
@@ -311,6 +315,7 @@ export function PostDetails({ postId }: { postId: string }) {
     setOptimisticCommentsCount(post?.commentsCount ?? 0);
     setOptimisticLikes(post?.likes?.length ?? 0);
     setOptimisticDislikes(post?.disLikes?.length ?? 0);
+    setOptimisticSavedCount(post?.savedCount ?? 0);
 
     setHasDisliked(post?.disLikes?.includes(user.id));
     setHasLiked(post?.likes?.includes(user.id));
@@ -1035,7 +1040,8 @@ export function PostDetails({ postId }: { postId: string }) {
                 ) : (
                   <>
                     {optimisticLikes} Likes • {optimisticDislikes} Dislikes •{" "}
-                    {optimisticCommentsCount} Comments
+                    {optimisticCommentsCount} Comments • {optimisticSavedCount}{" "}
+                    Saves
                   </>
                 )}
               </div>
