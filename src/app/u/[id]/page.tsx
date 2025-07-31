@@ -69,10 +69,13 @@ export default function UserProfile() {
       },
     );
 
-  const { data: userDisLikedPosts, isLoading: isDisLikedPostsLoading } =
-    api.postRouter.getDislikedPostByUserId.useQuery(data?.user?.id ?? "", {
-      enabled: isFriend ?? false,
-    });
+  const { data: userSavedPosts, isLoading: isSavedPostsLoading } =
+    api.postRouter.getUserSavedPostByUserId.useQuery(
+      { userId: data?.user?.id ?? "" },
+      {
+        enabled: isFriend ?? false,
+      },
+    );
 
   const { data: userComments, isLoading: isCommentsLoading } =
     api.postRouter.getCommentsByUserId.useQuery(data?.user?.id ?? "", {
@@ -436,8 +439,8 @@ export default function UserProfile() {
                     onValueChange={(e) => setSelectedOption(e)}
                   >
                     <TabsList className="w-full">
-                      <TabsTrigger value={"disLiked"} className={"w-1/3"}>
-                        Disliked Posts ({userDisLikedPosts?.length ?? 0})
+                      <TabsTrigger value={"saved"} className={"w-1/3"}>
+                        Saved Posts ({userSavedPosts?.length ?? 0})
                       </TabsTrigger>
                       <TabsTrigger value={"comments"} className={"w-1/3"}>
                         Comments ({userComments?.length ?? 0})
@@ -459,19 +462,27 @@ export default function UserProfile() {
               isLoading={isCommentsLoading}
             />
           ) : selectedOption === "public" ? (
-            <PostGrid posts={userPosts} isLoading={isPostsLoading} option={selectedOption} />
+            <PostGrid
+              posts={userPosts}
+              isLoading={isPostsLoading}
+              option={selectedOption}
+            />
           ) : selectedOption === "liked" ? (
-            <PostGrid posts={userLikedPosts} isLoading={isLikedPostsLoading} option={selectedOption} />
+            <PostGrid
+              posts={userLikedPosts}
+              isLoading={isLikedPostsLoading}
+              option={selectedOption}
+            />
           ) : selectedOption === "private" ? (
             <PostGrid
               posts={userPrivatePosts}
               isLoading={isPrivatePostsLoading}
               option={selectedOption}
             />
-          ) : selectedOption === "disLiked" ? (
+          ) : selectedOption === "saved" ? (
             <PostGrid
-              posts={userDisLikedPosts}
-              isLoading={isDisLikedPostsLoading}
+              posts={userSavedPosts}
+              isLoading={isSavedPostsLoading}
               option={selectedOption}
             />
           ) : selectedOption === "friends" ? (

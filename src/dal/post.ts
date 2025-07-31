@@ -792,6 +792,36 @@ async function getUserlikedPostsByUserId(
   }
 }
 
+async function getUserSavedPostByUserId(
+  userId: string,
+  loggedInUserId: string,
+) {
+  try {
+    const results = await db
+      .select()
+      .from(postSchema)
+      .innerJoin(
+        userSchema,
+        sql`(${postSchema.id})::text = ANY(${userSchema.savedPosts})`,
+      )
+      .where(
+        and(
+          eq(userSchema.id, userId),
+          sql`${loggedInUserId} = ANY(${userSchema.friends})`,
+        ),
+      )
+      .orderBy(desc(postSchema.createdAt));
+
+    const posts = results.map((row) => ({
+      ...row.posts,
+    }));
+
+    return posts;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
 async function getUserPrivatePostsByUserId(
   userId: string,
   loggedInUserId: string,
@@ -1031,4 +1061,5 @@ export {
   editCommentById,
   savePostById,
   getLoggedInUserSavedPosts,
+  getUserSavedPostByUserId,
 };
