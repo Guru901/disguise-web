@@ -1,6 +1,7 @@
 import Navbar from "@/components/navbar";
 import {
   AccountSettings,
+  CustomiseSettings,
   NotificationSettings,
   PrivacySettings,
   ProfileSettings,
@@ -27,6 +28,7 @@ export default async function SettingsPage(props: {
             {activeSection === "privacy" && <PrivacySettings />}
             {activeSection === "notifications" && <NotificationSettings />}
             {activeSection === "account" && <AccountSettings />}
+            {activeSection === "customise" && <CustomiseSettings />}
           </div>
         </div>
       </div>

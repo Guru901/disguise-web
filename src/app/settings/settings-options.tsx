@@ -33,7 +33,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { parseDate } from "chrono-node";
-import { useUserStore } from "@/lib/userStore";
+import { useUserStore, type Font } from "@/lib/userStore";
 import { Controller, useForm } from "react-hook-form";
 import {
   changePasswordSchema,
@@ -43,6 +43,23 @@ import { valibotResolver } from "@hookform/resolvers/valibot";
 import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useTheme } from "next-themes";
 
 export function ProfileSettings() {
   const getUserDataQuery = api.userRouter.getUserData.useQuery();
@@ -595,7 +612,7 @@ export function AccountSettings() {
           createdAt: "",
           id: "",
           blockedUsers: [],
-          savedPosts: []
+          savedPosts: [],
         });
         location.href = "/login";
       },
@@ -613,7 +630,7 @@ export function AccountSettings() {
         createdAt: "",
         id: "",
         blockedUsers: [],
-        savedPosts: []
+        savedPosts: [],
       });
       location.href = "/login";
     },
@@ -934,6 +951,78 @@ export function AccountSettings() {
               </DialogContent>
             </Dialog>
           </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export function CustomiseSettings() {
+  const font = useUserStore((s) => s.font);
+  const setFont = useUserStore((s) => s.setFont);
+  const { setTheme } = useTheme();
+
+  const fonts = [
+    { label: "Inter", value: "inter" },
+    { label: "Spline Sans", value: "spline" },
+    { label: "Roboto", value: "roboto" },
+    { label: "Fira", value: "fira" },
+    { label: "Ubuntu", value: "ubuntu" },
+  ];
+
+  const themes = ["light", "dark", "caffeine", "sunset", "ghibli", "t3-chat"];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">Customise</h2>
+        <p className="text-muted-foreground">Make the site your own.</p>
+      </div>
+
+      <Card className="py-6">
+        <CardHeader>
+          <CardTitle>Font</CardTitle>
+          <CardDescription>Update the font to your liking.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Select onValueChange={(e) => setFont(e as Font)}>
+            <SelectTrigger className="w-full">
+              <SelectValue
+                placeholder={fonts.find((f) => f.value === font)?.label}
+              />
+            </SelectTrigger>
+            <SelectContent align="end">
+              <SelectGroup>
+                {fonts.map((f) => (
+                  <SelectItem key={f.value} value={f.value}>
+                    {f.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+      <Card className="py-6">
+        <CardHeader>
+          <CardTitle>Theme</CardTitle>
+          <CardDescription>Update the theme to your liking.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Select onValueChange={(e) => setTheme(e)}>
+            <SelectTrigger className="w-full capitalize">
+              <SelectValue placeholder={"Select a theme"} />
+            </SelectTrigger>
+            <SelectContent align="end">
+              <SelectGroup>
+                {themes.map((f) => (
+                  <SelectItem key={f} value={f} className="capitalize">
+                    {f === "t3-chat" ? "Pink" : f}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </CardContent>
       </Card>
     </div>

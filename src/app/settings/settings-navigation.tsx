@@ -10,6 +10,7 @@ import {
   ChevronUp,
   XIcon,
   type LucideProps,
+  Edit,
 } from "lucide-react";
 
 import {
@@ -37,6 +38,7 @@ export function SettingsNavigation({
     { id: "privacy", label: "Privacy", icon: Shield },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "account", label: "Account", icon: Settings },
+    { id: "customise", label: "Customise", icon: Edit },
   ];
 
   const [isDesktop, setIsDesktop] = useState(true);
