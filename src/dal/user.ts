@@ -189,8 +189,9 @@ async function searchusers(searchTerm: string, loggedInUserId: string) {
       .where(
         and(
           ilike(userSchema.username, "%" + searchTerm + "%"),
-          not(arrayContains(userSchema.blockedUsers, [loggedInUserId])),
-          not(eq(userSchema.isDeleted, true)),
+          // Check if user is not deleted
+          eq(userSchema.isDeleted, false),
+          // Check if searched user is NOT in logged-in user's blocked list
           loggedInUserBlockedList.length > 0
             ? not(inArray(userSchema.id, loggedInUserBlockedList))
             : sql`true`,
@@ -278,11 +279,11 @@ async function getUserDataById(userId: string) {
     }
 
     user ??= await db
-        .select()
-        .from(userSchema)
-        .where(eq(userSchema.id, userId))
-        .limit(1)
-        .then((res) => res[0]);
+      .select()
+      .from(userSchema)
+      .where(eq(userSchema.id, userId))
+      .limit(1)
+      .then((res) => res[0]);
 
     if (user) {
       user.password = "";
