@@ -11,15 +11,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Navbar from "@/components/navbar";
 import Link from "next/link";
 import { api } from "@/trpc/react";
+import useGetUser from "@/lib/use-get-user";
 
 export default function CommunitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const isJoined = false;
+  const { user } = useGetUser();
 
   const { data: communities } =
     api.communityRouter.getAllCommunities.useQuery();
 
-  // const [joinedCommunities, setJoinedCommunities] = useState(new Set([]));
+  const [joinedCommunities, setJoinedCommunities] = useState(
+    user.joinedCommunities,
+  );
 
   return (
     <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
@@ -201,26 +205,32 @@ export default function CommunitiesPage() {
               <TabsContent value="all" className="mt-0">
                 <div className="divide-y">
                   {communities?.data?.map((community, index) => (
-                    <div key={community.id} className="hover:bg-muted p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="text-muted-foreground w-6 text-sm font-medium">
-                            {index + 1}
-                          </span>
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage
-                              src={community.icon ?? "/placeholder.svg"}
-                            />
-                            <AvatarFallback className="text-xs">
-                              {community.name.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">
-                                {community.name}
+                    <div className="hover:bg-muted flex items-center">
+                      <Link
+                        href={`/communities/${community.id}`}
+                        key={community.id}
+                        className="w-[90%]"
+                      >
+                        <div className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <span className="text-muted-foreground w-6 text-sm font-medium">
+                                {index + 1}
                               </span>
-                              {/* {community.trending && (
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage
+                                  src={community.icon ?? "/placeholder.svg"}
+                                />
+                                <AvatarFallback className="text-xs">
+                                  {community.name.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">
+                                    {community.name}
+                                  </span>
+                                  {/* {community.trending && (
                                 <Badge
                                   variant="secondary"
                                   className="px-1.5 py-0.5 text-xs"
@@ -229,28 +239,36 @@ export default function CommunitiesPage() {
                                   Hot
                                 </Badge>
                               )} */}
-                            </div>
-                            <p className="text-muted-foreground line-clamp-1 text-sm">
-                              {community.description}
-                            </p>
-                            <div className="text-muted-foreground mt-1 flex items-center gap-4 text-xs">
-                              <span>{community.memberCount} members</span>
-                              <span className="flex items-center gap-1">
-                                <div className="h-1.5 w-1.5 rounded-full bg-green-500"></div>
-                                {/* {formatNumber(community.online)} online */}0
-                                online
-                              </span>
+                                </div>
+                                <p className="text-muted-foreground line-clamp-1 text-sm">
+                                  {community.description}
+                                </p>
+                                <div className="text-muted-foreground mt-1 flex items-center gap-4 text-xs">
+                                  <span>{community.memberCount} members</span>
+                                  <span className="flex items-center gap-1">
+                                    <div className="h-1.5 w-1.5 rounded-full bg-green-500"></div>
+                                    {/* {formatNumber(community.online)} online */}
+                                    0 online
+                                  </span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                        <Button
-                          // onClick={() => handleJoinToggle(community.id)}
-                          variant={isJoined ? "outline" : "default"}
-                          size="sm"
-                        >
-                          {isJoined ? "Joined" : "Join"}
-                        </Button>
-                      </div>
+                      </Link>
+                      <Button
+                        // onClick={() => handleJoinToggle(community.id)}
+                        variant={
+                          joinedCommunities.includes(community.id)
+                            ? "outline"
+                            : "default"
+                        }
+                        size="sm"
+                      >
+                        {joinedCommunities.includes(community.id)
+                          ? "Joined"
+                          : "Join"}
+                      </Button>
                     </div>
                   ))}
                 </div>
