@@ -601,7 +601,7 @@ export function PostDetails({ postId }: { postId: string }) {
                     <CarouselContent>
                       {post.image.map((image, idx) => (
                         <CarouselItem key={image + idx}>
-                          <div className="relative flex aspect-[4/3] w-full overflow-hidden rounded-lg bg-gray-100 sm:aspect-[16/9] lg:aspect-[4/3] dark:bg-gray-800">
+                          <div className="bg-secondary/30 relative flex aspect-[4/3] w-full overflow-hidden rounded-lg sm:aspect-[16/9] lg:aspect-[4/3] dark:bg-gray-800">
                             <MediaPlayer
                               url={image}
                               imageProps={{
@@ -628,8 +628,8 @@ export function PostDetails({ postId }: { postId: string }) {
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious className="left-2 bg-white/80 backdrop-blur-sm hover:bg-white/90 dark:bg-gray-800/80 dark:hover:bg-gray-800/90" />
-                    <CarouselNext className="right-2 bg-white/80 backdrop-blur-sm hover:bg-white/90 dark:bg-gray-800/80 dark:hover:bg-gray-800/90" />
+                    <CarouselPrevious className="left-2" />
+                    <CarouselNext className="right-2" />
                   </Carousel>
                 </div>
               ) : (
