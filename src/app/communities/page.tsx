@@ -415,7 +415,7 @@ export default function CommunitiesPage() {
                 <div className="divide-y">
                   {joinedCommunitiesList.length === 0 ? (
                     <div className="text-muted-foreground p-8 text-center">
-                      <p>You haven't joined any communities yet.</p>
+                      <p>You {"haven't"} joined any communities yet.</p>
                       <p className="mt-1 text-sm">
                         Explore and join communities that interest you!
                       </p>
@@ -474,7 +474,7 @@ export default function CommunitiesPage() {
           <div className="space-y-4">
             <Card className="p-4">
               <h3 className="mb-3 font-semibold">
-                Today's Top Growing Communities
+                {"Today's"} Top Growing Communities
               </h3>
               <div className="space-y-3">
                 {communities
