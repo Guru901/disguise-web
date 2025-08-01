@@ -94,7 +94,10 @@ export const communitySchema = pgTable("communities", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   name: text("name").notNull(),
   description: text("description"),
-  members: uuid("id")
+  members: uuid("members_id")
+    .array()
+    .references(() => userSchema.id),
+  moderators: uuid("moderators_id")
     .array()
     .references(() => userSchema.id),
   memberCount: integer("member_count").notNull().default(0),
