@@ -80,7 +80,7 @@ export default function SignIn() {
               name="username"
               control={control}
               render={({ field }) => (
-                <Input {...field} id="username" placeholder="Guru" required />
+                <Input {...field} id="username" placeholder="Guru" />
               )}
             />
             {errors && errors.username && (
@@ -98,7 +98,6 @@ export default function SignIn() {
                   {...field}
                   id="password"
                   type="password"
-                  required
                   placeholder="Password"
                   showPasswordToggle
                 />

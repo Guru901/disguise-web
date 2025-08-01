@@ -68,3 +68,34 @@ export const changePasswordSchema = v.pipe(
 );
 
 export type TChnagePasswordSchema = v.InferOutput<typeof changePasswordSchema>;
+
+export const createCommunitySchema = v.object({
+  name: v.pipe(
+    v.string("Name must be a string."),
+    v.minLength(3, "Name must be at least 3 characters long."),
+    v.maxLength(30, "Name must be at most 30 characters long."),
+    v.trim(),
+  ),
+  description: v.pipe(
+    v.string("Description must be a string."),
+    v.minLength(10, "Description must be at least 10 characters."),
+    v.maxLength(500, "Description must be at most 500 characters."),
+  ),
+  tags: v.string(),
+  banner: v.optional(
+    v.pipe(
+      v.string("Banner URL must be a string."),
+      v.url("Banner must be a valid URL."),
+    ),
+  ),
+  icon: v.optional(
+    v.pipe(
+      v.string("Icon URL must be a string."),
+      v.url("Icon must be a valid URL."),
+    ),
+  ),
+});
+
+export type TCreateCommunitySchema = v.InferOutput<
+  typeof createCommunitySchema
+>;

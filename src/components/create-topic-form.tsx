@@ -52,7 +52,6 @@ export default function CreateTopicForm() {
             <Input
               id="title"
               type="text"
-              required
               placeholder="Enter a title for your post"
               className="h-10"
               {...field}
@@ -68,7 +67,6 @@ export default function CreateTopicForm() {
           render={({ field }) => (
             <Textarea
               id="description"
-              required
               placeholder="What will be uploaded here"
               className="h-10"
               {...field}

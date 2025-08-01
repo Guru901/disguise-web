@@ -156,9 +156,8 @@ export function PostUploadForm() {
                   <Input
                     id="title"
                     type="text"
-                    required
                     placeholder="Enter a compelling title for your post..."
-                    className="h-12 border-gray-200 text-base transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
+                    className="border-muted-foreground h-12 text-base transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
                     {...field}
                   />
                 )}
@@ -184,7 +183,7 @@ export function PostUploadForm() {
                     id="body"
                     placeholder="Write your post content here... Share your thoughts, experiences, or insights."
                     rows={6}
-                    className="resize-none border-gray-200 text-base transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
+                    className="border-muted-foreground resize-none text-base transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
                     {...field}
                   />
                 )}

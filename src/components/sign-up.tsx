@@ -73,7 +73,7 @@ export default function SignUp() {
             <Controller
               name="username"
               render={({ field }) => (
-                <Input {...field} id="username" placeholder="Guru" required />
+                <Input {...field} id="username" placeholder="Guru" />
               )}
               control={control}
             />

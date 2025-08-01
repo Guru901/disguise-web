@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { Search, Plus, TrendingUp, ArrowUp, MessageSquare } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Navbar from "@/components/navbar";
+import Link from "next/link";
 
 const communities = [
   {
@@ -171,18 +172,16 @@ export default function CommunitiesPage() {
   return (
     <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
       <Navbar />
-      <div className="sticky top-0 z-10">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold">Explore Communities</h1>
-              <h1 className="text-md">Nothing here works (yet).</h1>
-            </div>
-            <Button>
-              <Plus className="h-4 w-4" />
-              Create
-            </Button>
+      <div className="px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold">Explore Communities</h1>
+            <h1 className="text-md">Nothing here works (yet).</h1>
           </div>
+          <Link href={"/communities/create"} className={buttonVariants()}>
+            <Plus className="h-4 w-4" />
+            Create
+          </Link>
         </div>
       </div>
 
