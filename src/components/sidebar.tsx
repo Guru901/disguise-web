@@ -8,8 +8,6 @@ import {
   User,
   Feather,
   PlusIcon,
-  FolderIcon,
-  PenLineIcon,
   LogOut,
   Settings,
   Users,
@@ -23,8 +21,6 @@ const navItems = [
   { label: "Post", href: "/post", icon: PlusIcon },
   { label: "Communities", href: "/communities", icon: Users },
   { label: "Profile", href: "/me", icon: User },
-  { label: "Topics", href: "/topics", icon: FolderIcon },
-  { label: "Create Topics", href: "/create-topic", icon: PenLineIcon },
   { label: "Search", href: "/search", icon: Search },
   { label: "Settings", href: "/settings", icon: Settings },
 ];

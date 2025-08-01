@@ -235,9 +235,6 @@ export function PostDetails({ postId }: { postId: string }) {
     },
   });
 
-  const { isLoading: isLoadingTopics, data: topics } =
-    api.topicRouter.getAllTopics.useQuery();
-
   const {
     handleSubmit,
     setValue,
@@ -257,7 +254,6 @@ export function PostDetails({ postId }: { postId: string }) {
         content: post.content ?? "",
         image: post.image ?? [],
         isPublic: post.isPublic,
-        topic: post.topic || "General",
         author: user.id,
       });
       // Initialize edit images
@@ -573,9 +569,6 @@ export function PostDetails({ postId }: { postId: string }) {
                   </div>
                   <div className="text-muted-foreground text-xs font-semibold">
                     {formatTimeAgo(post.createdAt)}
-                  </div>
-                  <div className="text-muted-foreground text-xs font-semibold">
-                    {post.topic.charAt(0).toUpperCase() + post.topic.slice(1)}
                   </div>
                 </div>
               </div>
@@ -1112,52 +1105,6 @@ export function PostDetails({ postId }: { postId: string }) {
                           {errors.isPublic && (
                             <p className="text-sm text-red-500">
                               {errors.isPublic.message}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="grid gap-3">
-                          <Label
-                            htmlFor="topic"
-                            className="text-base font-medium"
-                          >
-                            Topic
-                          </Label>
-                          <Controller
-                            name="topic"
-                            control={control}
-                            render={({ field }) => (
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                              >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Select a topic" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {isLoadingTopics ? (
-                                    <SelectItem value="General">
-                                      General
-                                    </SelectItem>
-                                  ) : (
-                                    topics?.map(
-                                      (topic: { id: string; name: string }) => (
-                                        <SelectItem
-                                          key={topic.id}
-                                          value={topic.name}
-                                        >
-                                          {topic.name}
-                                        </SelectItem>
-                                      ),
-                                    )
-                                  )}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          {errors.topic && (
-                            <p className="text-sm text-red-500">
-                              {errors.topic.message}
                             </p>
                           )}
                         </div>

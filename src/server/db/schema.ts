@@ -50,18 +50,9 @@ export const postSchema = pgTable("posts", {
   commentsCount: integer("comments_count").notNull().default(0),
   savedCount: integer("saved_count").notNull().default(0),
   image: text("image").array().default([]),
-  topic: text("topic").notNull().default("General"),
   isPublic: boolean("is_public").notNull().default(true),
   likes: text("likes").notNull().array(),
   disLikes: text("dislikes").notNull().array(),
-  createdBy: uuid("created_by").references(() => userSchema.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-export const topicSchema = pgTable("topics", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  name: text("name").notNull(),
-  description: text("description"),
   createdBy: uuid("created_by").references(() => userSchema.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

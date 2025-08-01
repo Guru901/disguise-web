@@ -170,16 +170,6 @@ export const postRouter = createTRPCRouter({
       return await postDal.getUserSavedPostByUserId(input.userId, ctx.userId);
     }),
 
-  getTopicSpecificFeed: protectedProcedure
-    .input(
-      v.object({
-        topicName: v.string(),
-      }),
-    )
-    .query(async ({ input }) => {
-      return await postDal.getTopicSpecificFeed(input.topicName);
-    }),
-
   deletePostById: protectedProcedure
     .input(
       v.object({

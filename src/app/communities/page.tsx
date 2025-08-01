@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Plus, TrendingUp } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -15,15 +15,20 @@ import useGetUser from "@/lib/use-get-user";
 
 export default function CommunitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const isJoined = false;
   const { user } = useGetUser();
 
   const { data: communities } =
     api.communityRouter.getAllCommunities.useQuery();
 
   const [joinedCommunities, setJoinedCommunities] = useState(
-    user.joinedCommunities,
+    user.joinedCommunities ?? [],
   );
+
+  useEffect(() => {
+    if (user.joinedCommunities) {
+      setJoinedCommunities(user.joinedCommunities);
+    }
+  }, [user.joinedCommunities]);
 
   return (
     <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
@@ -205,7 +210,7 @@ export default function CommunitiesPage() {
               <TabsContent value="all" className="mt-0">
                 <div className="divide-y">
                   {communities?.data?.map((community, index) => (
-                    <div className="hover:bg-muted flex items-center">
+                    <div className="hover:bg-muted flex items-center" key={community.id}>
                       <Link
                         href={`/communities/${community.id}`}
                         key={community.id}

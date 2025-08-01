@@ -28,8 +28,6 @@ export const config = {
     "/search",
     "/change__password",
     "/notifications",
-    "/topic",
-    "/createTopic",
     "/friends",
     "/settings",
     "/admin/dashboard",

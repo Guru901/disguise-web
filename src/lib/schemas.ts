@@ -32,7 +32,6 @@ export const uploadPostSchema = v.object({
   content: v.optional(v.string()),
   image: v.optional(v.array(v.string())),
   isPublic: v.fallback(v.boolean(), false),
-  topic: v.fallback(v.string(), "General"),
   author: v.string(),
 });
 
@@ -47,13 +46,6 @@ export const commentAddSchema = v.object({
 });
 
 export type TCommentAddSchema = v.InferOutput<typeof commentAddSchema>;
-
-export const topicSchema = v.object({
-  name: v.pipe(v.string(), v.minLength(3), v.maxLength(30), v.trim()),
-  description: v.string(),
-});
-
-export type TTopicSchema = v.InferOutput<typeof topicSchema>;
 
 export const changePasswordSchema = v.pipe(
   v.object({

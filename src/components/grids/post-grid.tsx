@@ -31,7 +31,6 @@ export default function PostGrid({
         content: string | null;
         commentsCount: number;
         image: string[] | null;
-        topic: string;
         isPublic: boolean;
         likes: string[] | null;
         disLikes: string[] | null;

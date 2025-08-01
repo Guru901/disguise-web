@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import {
   ArrowLeft,
-  Plus,
   Share,
   Users,
   Crown,
@@ -12,12 +11,10 @@ import {
   Flame,
   Clock,
   TrendingUp,
-  Star,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -83,7 +80,6 @@ const posts = [
     title: "Multiple images work now",
     content: "Took a shit load of time, to if u find a bug report",
     commentsCount: 0,
-    topic: "General",
     isPublic: true,
     likes: [],
     dislikes: [],
@@ -146,7 +142,6 @@ const posts = [
       "2. Communities feature\n" +
       "3. Multiple images and videos in the same posts",
     commentsCount: 0,
-    topic: "General",
     isPublic: true,
     likes: [],
     dislikes: [],
@@ -184,7 +179,6 @@ const posts = [
       "\n" +
       "#riruru #doraemon",
     commentsCount: 6,
-    topic: "General",
     isPublic: true,
     likes: ["3bf18e98-38b1-4a80-8e1f-695a162661fb"],
     dislikes: [],
@@ -222,7 +216,6 @@ const posts = [
     title: "hehehehehe",
     content: "",
     commentsCount: 4,
-    topic: "",
     isPublic: true,
     likes: ["c1cb8b40-04ff-47ec-ba22-4604be7f3cb6"],
     dislikes: ["3bf18e98-38b1-4a80-8e1f-695a162661fb"],
@@ -259,7 +252,6 @@ const posts = [
     title: "...",
     content: "the two people mentioned in first one are renowned authors",
     commentsCount: 22,
-    topic: "General",
     isPublic: true,
     likes: ["1b68eed4-313e-4f3c-bcb7-cbf3fc5c5691"],
     dislikes: ["3bf18e98-38b1-4a80-8e1f-695a162661fb"],
@@ -296,7 +288,6 @@ const posts = [
     title: "Kya haramkhor log hai bhai",
     content: "",
     commentsCount: 0,
-    topic: "",
     isPublic: true,
     likes: [
       "c1cb8b40-04ff-47ec-ba22-4604be7f3cb6",
@@ -337,7 +328,6 @@ const posts = [
     content:
       "Now the dropdown for the theme picker on the navbar have 5-6 theme options that u can choose from!!",
     commentsCount: 12,
-    topic: "General",
     isPublic: true,
     likes: ["3bf18e98-38b1-4a80-8e1f-695a162661fb"],
     dislikes: [],
@@ -374,7 +364,6 @@ const posts = [
     title: "THIS ONE'S BETTER , I LIKE IT",
     content: "title pretty much",
     commentsCount: 4,
-    topic: "",
     isPublic: true,
     likes: [
       "1b68eed4-313e-4f3c-bcb7-cbf3fc5c5691",
@@ -416,7 +405,6 @@ const posts = [
       "Okay so some context this guy raped a girl who was 4 years and 3 months old.\n" +
       "The judge said this :)",
     commentsCount: 32,
-    topic: "",
     isPublic: true,
     likes: ["c1cb8b40-04ff-47ec-ba22-4604be7f3cb6"],
     dislikes: [],
@@ -454,7 +442,6 @@ const posts = [
     content:
       "I looked arround here and there, the app is so good-looking first of all, the functioning is pretty smooth, and the overall like design is on point, good work admin!!",
     commentsCount: 35,
-    topic: "",
     isPublic: true,
     likes: [
       "3bf18e98-38b1-4a80-8e1f-695a162661fb",
@@ -497,7 +484,6 @@ const posts = [
     title: "Hmmmm",
     content: "Niceee",
     commentsCount: 15,
-    topic: "",
     isPublic: true,
     likes: [
       "3bf18e98-38b1-4a80-8e1f-695a162661fb",
@@ -537,7 +523,6 @@ const posts = [
       "The old thing was a mess.\n" +
       "But mai probably kuchh features bhool gya hounga, to if u want some features tell me i will make them!!",
     commentsCount: 20,
-    topic: "",
     isPublic: true,
     likes: [],
     dislikes: ["c1cb8b40-04ff-47ec-ba22-4604be7f3cb6"],

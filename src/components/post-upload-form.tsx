@@ -59,13 +59,9 @@ export function PostUploadForm() {
       content: "",
       image: [],
       isPublic: true,
-      topic: "General",
       author: "",
     },
   });
-
-  const { isLoading: isLoadingTopics, data: topics } =
-    api.topicRouter.getAllTopics.useQuery();
 
   const imageUrl = watch("image");
 
@@ -345,46 +341,6 @@ export function PostUploadForm() {
                 <p className="flex items-center gap-1 text-sm text-red-500">
                   <InfoIcon size={14} />
                   {errors.isPublic.message}
-                </p>
-              )}
-            </div>
-
-            {/* Topic Field */}
-            <div className="space-y-3">
-              <Label htmlFor="topic" className="text-base font-semibold">
-                Topic
-              </Label>
-              <Controller
-                name="topic"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="h-12 w-full">
-                      <SelectValue placeholder="General" />
-                    </SelectTrigger>
-                    <SelectContent className="w-full">
-                      {isLoadingTopics ? (
-                        <SelectItem value="General" disabled>
-                          <div className="flex items-center gap-2">
-                            <Loader2 size={14} className="animate-spin" />
-                            Loading topics...
-                          </div>
-                        </SelectItem>
-                      ) : (
-                        topics?.map((topic: { id: string; name: string }) => (
-                          <SelectItem key={topic.id} value={topic.name}>
-                            {topic.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.topic && (
-                <p className="flex items-center gap-1 text-sm text-red-500">
-                  <InfoIcon size={14} />
-                  {errors.topic.message}
                 </p>
               )}
             </div>

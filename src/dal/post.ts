@@ -17,7 +17,6 @@ async function getFeed(page: number, limit: number, loggedInUserId: string) {
       .where(
         and(
           eq(postSchema.isPublic, true),
-          or(eq(postSchema.topic, "General"), eq(postSchema.topic, "")),
           or(
             eq(userSchema.accountType, "public"),
             and(
@@ -101,7 +100,6 @@ async function createPost(input: TUploadPostSchema) {
         content: input.content ?? null,
         image: input.image ?? null,
         isPublic: input.isPublic,
-        topic: input.topic ?? "",
         createdBy: input.author,
         likes: [],
         disLikes: [],
@@ -864,27 +862,6 @@ async function getUserPrivatePostsByUserId(
   }
 }
 
-async function getTopicSpecificFeed(topicName: string) {
-  try {
-    const results = await db
-      .select()
-      .from(postSchema)
-      .where(
-        and(eq(postSchema.isPublic, true), eq(postSchema.topic, topicName)),
-      )
-      .leftJoin(userSchema, eq(userSchema.id, postSchema.createdBy))
-      .orderBy(desc(postSchema.createdAt));
-
-    return results.map((row) => ({
-      ...row.posts,
-      createdBy: row.users,
-    }));
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
-
 async function editPostById(
   userId: string,
   postId: string,
@@ -1039,7 +1016,6 @@ export {
   getCommentsByUserId,
   getLoggedInUserLikedPosts,
   getLoggedInUserPrivatePosts,
-  getTopicSpecificFeed,
   getUserPrivatePostsByUserId,
   getUserPublicPostsByUserId,
   getUserlikedPostsByUserId,
