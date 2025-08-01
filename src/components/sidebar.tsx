@@ -89,6 +89,7 @@ export default function DesktopSidebar() {
                 id: "",
                 blockedUsers: [],
                 savedPosts: [],
+                joinedCommunities: [],
               });
               location.href = "/login";
             }}

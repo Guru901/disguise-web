@@ -23,8 +23,6 @@ export const userSchema = pgTable("users", {
   isDeactivated: boolean("is_deactivated").default(false),
   deactivatedTill: timestamp("deactivated_till"),
   isDeleted: boolean("is_deleted").default(false),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  lastOnline: timestamp("last_online"),
   receiveNotificationsForFriendRequest: boolean(
     "receive_notifications_for_friend_request",
   ).default(true),
@@ -40,6 +38,9 @@ export const userSchema = pgTable("users", {
   receiveNotificationsForFriendPost: boolean(
     "receive_notifications_for_friend_post",
   ).default(true),
+  joinedCommunities: uuid("joined_communities").array().default([]),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  lastOnline: timestamp("last_online"),
 });
 
 export const postSchema = pgTable("posts", {

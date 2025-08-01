@@ -149,6 +149,7 @@ function BottomNavigation() {
                   id: "",
                   blockedUsers: [],
                   savedPosts: [],
+                  joinedCommunities: [],
                 });
                 location.href = "/login";
               }}

@@ -43,8 +43,9 @@ export default function Profile() {
   const friends = user?.friends ?? [];
   const createdAt = user?.createdAt;
   const lastOnline = user?.lastOnline;
-  const blockedUsers = user?.blockedUsers;
-  const savedPosts = user?.savedPosts;
+  const blockedUsers = user?.blockedUsers ?? [];
+  const savedPosts = user?.savedPosts ?? [];
+  const joinedCommunities = user?.joinedCommunities ?? [];
   const id = user?.id ?? "";
 
   const { setUser } = useUserStore();
@@ -57,8 +58,9 @@ export default function Profile() {
       friends: friends,
       createdAt: createdAt?.toLocaleDateString() ?? "",
       id: id,
-      blockedUsers: blockedUsers ?? [],
-      savedPosts: savedPosts ?? [],
+      blockedUsers: blockedUsers,
+      savedPosts: savedPosts,
+      joinedCommunities: joinedCommunities,
     });
   }, []);
   return (

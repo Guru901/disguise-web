@@ -39,4 +39,29 @@ async function createCommunity(data: TCreateCommunitySchema, userId: string) {
   }
 }
 
-export { createCommunity };
+async function getAllCommunities() {
+  try {
+    const data = await db.select().from(communitySchema);
+
+    if (data) {
+      return {
+        success: true,
+        message: "Community data retrieved",
+        data,
+      };
+    } else {
+      return {
+        success: false,
+        message: "Error retrieving community data",
+      };
+    }
+  } catch (error) {
+    console.error("Error retrieving community data:", error);
+    return {
+      success: false,
+      message: error,
+    };
+  }
+}
+
+export { createCommunity, getAllCommunities };

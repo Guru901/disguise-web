@@ -605,6 +605,7 @@ export function AccountSettings() {
           id: "",
           blockedUsers: [],
           savedPosts: [],
+          joinedCommunities: [],
         });
         location.href = "/login";
       },
@@ -623,6 +624,7 @@ export function AccountSettings() {
         id: "",
         blockedUsers: [],
         savedPosts: [],
+        joinedCommunities: [],
       });
       location.href = "/login";
     },
