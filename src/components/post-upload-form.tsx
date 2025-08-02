@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { type TUploadPostSchema, uploadPostSchema } from "@/lib/schemas";
 import { valibotResolver } from "@hookform/resolvers/valibot";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
@@ -65,6 +65,9 @@ export function PostUploadForm() {
       community: "",
     },
   });
+
+  const communityId = useSearchParams().get("community");
+  console.log(communityId);
 
   const imageUrl = watch("image");
 
@@ -359,9 +362,20 @@ export function PostUploadForm() {
                     onValueChange={(value) => {
                       field.onChange(value);
                     }}
+                    defaultValue={communityId ?? undefined}
                   >
                     <SelectTrigger className="h-12 w-full">
-                      <SelectValue placeholder="Choose a community" />
+                      {communityId ? (
+                        <SelectValue
+                          placeholder={
+                            communities?.data?.find(
+                              (community) => community.id === communityId,
+                            )?.name
+                          }
+                        />
+                      ) : (
+                        <SelectValue placeholder="Choose a community" />
+                      )}
                     </SelectTrigger>
                     <SelectContent className="w-full">
                       {communities?.data?.map((community) => (
