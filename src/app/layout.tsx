@@ -5,10 +5,9 @@ import { Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { ThemeProvider } from "../components/theme-provider";
-import BottomNavbar from "../components/bottom-nav";
 import { Toaster } from "@/components/ui/sonner";
-import DesktopSidebar from "../components/sidebar";
 import { FontSelectorWrapper } from "@/components/font-provider";
+import { BottomNavbar, DesktopSidebar } from "@/components/navigation";
 
 export const metadata: Metadata = {
   title: "Social Media again",

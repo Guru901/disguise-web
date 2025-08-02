@@ -54,7 +54,7 @@ export function CreateCommunityForm() {
   const bannerUrl = watch("banner");
 
   return (
-    <div className="mx-auto min-w-2xl p-6">
+    <div className="mx-auto p-6 md:min-w-2xl">
       <Card className="py-6">
         <CardHeader className="space-y-2 pb-6">
           <CardTitle className="text-2xl font-bold">

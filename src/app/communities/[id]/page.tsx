@@ -775,7 +775,7 @@ export default function CommunityPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="sticky top-24 h-screen space-y-6">
             {/* About */}
             <Card className="border-0 py-6 shadow-sm">
               <CardHeader className="pb-4">
