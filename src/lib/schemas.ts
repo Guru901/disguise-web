@@ -33,6 +33,7 @@ export const uploadPostSchema = v.object({
   image: v.optional(v.array(v.string())),
   isPublic: v.fallback(v.boolean(), false),
   author: v.string(),
+  community: v.optional(v.string()),
 });
 
 export type TUploadPostSchema = v.InferOutput<typeof uploadPostSchema>;

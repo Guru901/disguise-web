@@ -44,6 +44,8 @@ export function PostUploadForm() {
   const router = useRouter();
   const { user } = useGetUser();
   const uploadPostMutation = api.postRouter.createPost.useMutation();
+  const { data: communities, isLoading: isLoadingCommunities } =
+    api.communityRouter.getAllCommunities.useQuery();
 
   const {
     handleSubmit,
@@ -60,6 +62,7 @@ export function PostUploadForm() {
       image: [],
       isPublic: true,
       author: "",
+      community: "",
     },
   });
 
@@ -341,6 +344,43 @@ export function PostUploadForm() {
                 <p className="flex items-center gap-1 text-sm text-red-500">
                   <InfoIcon size={14} />
                   {errors.isPublic.message}
+                </p>
+              )}
+            </div>
+            <div className="space-y-3">
+              <Label htmlFor="community" className="text-base font-semibold">
+                Community
+              </Label>
+              <Controller
+                name="community"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                  >
+                    <SelectTrigger className="h-12 w-full">
+                      <SelectValue placeholder="Choose a community" />
+                    </SelectTrigger>
+                    <SelectContent className="w-full">
+                      {communities?.data?.map((community) => (
+                        <SelectItem
+                          key={community.id}
+                          value={community.id}
+                          className="flex w-full items-center gap-2"
+                        >
+                          {community.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.community && (
+                <p className="flex items-center gap-1 text-sm text-red-500">
+                  <InfoIcon size={14} />
+                  {errors.community.message}
                 </p>
               )}
             </div>

@@ -103,6 +103,7 @@ async function createPost(input: TUploadPostSchema) {
         createdBy: input.author,
         likes: [],
         disLikes: [],
+        community: input.community,
       })
       .returning({ id: postSchema.id, title: postSchema.title });
 

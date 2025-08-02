@@ -1,7 +1,7 @@
 import type { TCreateCommunitySchema } from "@/lib/schemas";
 import { db } from "@/server/db";
 import { communitySchema, userSchema } from "@/server/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 
 async function createCommunity(data: TCreateCommunitySchema, userId: string) {
   try {
@@ -132,6 +132,24 @@ async function getCommunity(id: string) {
       message: "Community data retrieved",
       data: data,
     };
+  } catch (error) {
+    console.error("Error retrieving community data:", error);
+    return {
+      success: false,
+      message: error,
+    };
+  }
+}
+
+async function getUserJoinedCommunities(userId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(communitySchema)
+      .where(sql`${userId} = ANY(${communitySchema.members})`)
+      .orderBy(communitySchema.name);
+
+    return results;
   } catch (error) {
     console.error("Error retrieving community data:", error);
     return {

@@ -13,6 +13,9 @@ export const communityRouter = createTRPCRouter({
   getAllCommunities: protectedProcedure.query(async () => {
     return await communityDal.getAllCommunities();
   }),
+  getUserJoinedCommunities: protectedProcedure.query(async () => {
+    return await communityDal.getAllCommunities();
+  }),
   getCommunity: protectedProcedure
     .input(
       v.object({

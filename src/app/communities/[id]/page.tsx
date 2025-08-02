@@ -762,7 +762,14 @@ export default function CommunityPage() {
                   </div>
                 </div>
 
-                <Button className="w-full">Create Post</Button>
+                <Link
+                  href={`/post?community=${id}`}
+                  className={buttonVariants({
+                    className: "w-full",
+                  })}
+                >
+                  Create Post
+                </Link>
               </CardContent>
             </Card>
 
