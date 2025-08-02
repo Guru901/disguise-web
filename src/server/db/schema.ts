@@ -52,7 +52,9 @@ export const postSchema = pgTable("posts", {
   image: text("image").array().default([]),
   isPublic: boolean("is_public").notNull().default(true),
   likes: text("likes").notNull().array(),
-  community: uuid("community").references(() => communitySchema.id),
+  community: uuid("community")
+    .references(() => communitySchema.id)
+    .default(""),
   disLikes: text("dislikes").notNull().array(),
   createdBy: uuid("created_by").references(() => userSchema.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),

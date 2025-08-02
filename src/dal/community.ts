@@ -1,7 +1,7 @@
 import type { TCreateCommunitySchema } from "@/lib/schemas";
 import { db } from "@/server/db";
-import { communitySchema, userSchema } from "@/server/db/schema";
-import { eq, inArray, sql } from "drizzle-orm";
+import { communitySchema, postSchema, userSchema } from "@/server/db/schema";
+import { and, eq, or, not, sql, desc, inArray } from "drizzle-orm";
 
 async function createCommunity(data: TCreateCommunitySchema, userId: string) {
   try {
@@ -159,4 +159,43 @@ async function getUserJoinedCommunities(userId: string) {
   }
 }
 
-export { createCommunity, getAllCommunities, getCommunity };
+async function getPostsByCommunity(communityId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(postSchema)
+      .where(
+        and(
+          eq(postSchema.isPublic, true),
+          eq(postSchema.community, communityId),
+        ),
+      )
+      .leftJoin(userSchema, and(eq(userSchema.id, postSchema.createdBy)))
+      .orderBy(desc(postSchema.createdAt));
+
+    const posts = results.map((row) => ({
+      ...row.posts,
+      createdBy: row.users,
+    }));
+
+    return {
+      success: true,
+      message: "Posts retrieved",
+      data: posts,
+    };
+  } catch (error) {
+    console.error("Error retrieving posts by community:", error);
+    return {
+      success: false,
+      message: error,
+      data: [],
+    };
+  }
+}
+
+export {
+  createCommunity,
+  getAllCommunities,
+  getCommunity,
+  getPostsByCommunity,
+};

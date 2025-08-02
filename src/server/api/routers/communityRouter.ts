@@ -25,4 +25,14 @@ export const communityRouter = createTRPCRouter({
     .query(async ({ input }) => {
       return await communityDal.getCommunity(input.id);
     }),
+
+  getPostsByCommunity: protectedProcedure
+    .input(
+      v.object({
+        communityId: v.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await communityDal.getPostsByCommunity(input.communityId);
+    }),
 });

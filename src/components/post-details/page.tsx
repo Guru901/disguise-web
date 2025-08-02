@@ -629,9 +629,9 @@ export function PostDetails({ postId }: { postId: string }) {
                 post.image[0] !== "" &&
                 post.image.length !== 0 && (
                   <div className="mt-4">
-                    <div className="relative w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                    <div className="bg-secondary/20 relative w-full overflow-hidden rounded-lg dark:bg-gray-800">
                       {/* Dynamic aspect ratio container for single images */}
-                      <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-[4/3]">
+                      <div className="relative flex aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-[4/3]">
                         <MediaPlayer
                           url={String(post.image[0])}
                           imageProps={{

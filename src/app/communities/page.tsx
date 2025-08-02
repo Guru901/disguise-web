@@ -210,7 +210,10 @@ export default function CommunitiesPage() {
               <TabsContent value="all" className="mt-0">
                 <div className="divide-y">
                   {communities?.data?.map((community, index) => (
-                    <div className="hover:bg-muted flex items-center" key={community.id}>
+                    <div
+                      className="hover:bg-muted flex items-center"
+                      key={community.id}
+                    >
                       <Link
                         href={`/communities/${community.id}`}
                         key={community.id}
