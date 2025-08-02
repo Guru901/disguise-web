@@ -47,7 +47,7 @@ export function CreateCommunityForm() {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    // @ts-expect-error - name is not typed
+    // @ts-expect-error name is not typed
     name: "guidlines",
   });
 
@@ -61,15 +61,18 @@ export function CreateCommunityForm() {
 
   // Remove image functions
   const removeIcon = () => {
-    setValue("icon", "");
+    setValue("icon", "", { shouldDirty: true, shouldValidate: true });
   };
 
   const removeBanner = () => {
-    setValue("banner", "");
+    setValue("banner", "", { shouldDirty: true, shouldValidate: true });
   };
 
   const imageUrl = watch("icon");
   const bannerUrl = watch("banner");
+
+  console.log("Icon URL:", imageUrl);
+  console.log("Banner URL:", bannerUrl);
 
   return (
     <div className="mx-auto max-w-2xl p-6 md:min-w-2xl">
@@ -142,21 +145,17 @@ export function CreateCommunityForm() {
               <p className="text-muted-foreground text-sm">
                 Set guidelines for your community members to follow.
               </p>
-              <div className="w-full space-y-3">
+              <div className="space-y-3">
                 {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="flex w-full items-center gap-2"
-                  >
+                  <div key={field.id} className="flex items-center gap-2">
                     <Controller
                       control={control}
                       name={`guidlines.${index}`}
                       render={({ field }) => (
                         <Input
-                          divClassName="w-full"
                           type="text"
                           placeholder={`Guideline ${index + 1}`}
-                          className="w-full"
+                          className="border-muted-foreground h-10 flex-1 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
                           {...field}
                         />
                       )}
@@ -164,8 +163,9 @@ export function CreateCommunityForm() {
                     {fields.length > 1 && (
                       <Button
                         type="button"
-                        variant="destructive"
+                        variant="outline"
                         size="sm"
+                        className="h-10 w-10 p-0 text-red-500 hover:bg-red-50 hover:text-red-700"
                         onClick={() => remove(index)}
                       >
                         <Minus size={16} />
@@ -225,7 +225,11 @@ export function CreateCommunityForm() {
                   onSuccess={(results) => {
                     // @ts-expect-error - results.info is not typed
                     const uploadImageUrl = String(results.info.secure_url);
-                    setValue("icon", uploadImageUrl);
+                    console.log("Icon uploaded:", uploadImageUrl);
+                    setValue("icon", uploadImageUrl, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
                   }}
                 >
                   <Upload size={24} />
@@ -234,7 +238,7 @@ export function CreateCommunityForm() {
                   </span>
                 </CldUploadButton>
 
-                {imageUrl && imageUrl.length > 0 && (
+                {imageUrl && imageUrl.trim().length > 0 && (
                   <div className="relative">
                     <div className="border-muted-foreground relative overflow-hidden rounded-lg border bg-gray-50">
                       <Image
@@ -242,7 +246,7 @@ export function CreateCommunityForm() {
                         alt="Community icon preview"
                         width={400}
                         height={300}
-                        className="h-64 w-full object-cover"
+                        className="h-64 w-full object-contain"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
 
@@ -281,7 +285,11 @@ export function CreateCommunityForm() {
                   onSuccess={(results) => {
                     // @ts-expect-error - results.info is not typed
                     const uploadImageUrl = String(results.info.secure_url);
-                    setValue("banner", uploadImageUrl);
+                    console.log("Banner uploaded:", uploadImageUrl);
+                    setValue("banner", uploadImageUrl, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
                   }}
                 >
                   <Upload size={24} />
@@ -290,7 +298,7 @@ export function CreateCommunityForm() {
                   </span>
                 </CldUploadButton>
 
-                {bannerUrl && bannerUrl.length > 0 && (
+                {bannerUrl && bannerUrl.trim().length > 0 && (
                   <div className="relative">
                     <div className="border-muted-foreground relative overflow-hidden rounded-lg border bg-gray-50">
                       <Image
