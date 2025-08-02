@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import {
   ArrowLeft,
@@ -532,7 +531,7 @@ export default function CommunityPage() {
             </Link>
             <div className="flex items-center gap-3">
               <Avatar className="border-border h-8 w-8 border-2">
-                <AvatarImage src={data?.data?.icon || "/placeholder.svg"} />
+                <AvatarImage src={data?.data?.icon ?? "/placeholder.svg"} />
                 <AvatarFallback>{data?.data?.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
@@ -801,7 +800,7 @@ export default function CommunityPage() {
                   {data?.data?.moderatorsData?.map((mod, index) => (
                     <div key={index} className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={mod.avatar || "/placeholder.svg"} />
+                        <AvatarImage src={mod.avatar ?? "/placeholder.svg"} />
                         <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-400 text-xs text-white">
                           {mod.username
                             .split(" ")

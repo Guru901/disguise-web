@@ -9,7 +9,7 @@ async function createCommunity(data: TCreateCommunitySchema, userId: string) {
     const guidelinesArr =
       data.guidlines?.filter(
         (guideline) => guideline && guideline.trim() !== "",
-      ) || [];
+      ) ?? [];
 
     const result = await db
       .insert(communitySchema)
