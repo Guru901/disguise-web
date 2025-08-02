@@ -59,16 +59,13 @@ export default function CommunitiesPage() {
 
       <div className="space-y-8 px-4 pb-6">
         {/* Enhanced Search Bar */}
-        <div className="relative">
-          <div className="relative">
-            <Search className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 transform" />
-            <Input
-              placeholder="Search communities..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border-border bg-background focus:border-primary focus:ring-primary/20 h-12 border-2 pr-4 pl-12 text-base transition-all duration-200 focus:ring-2"
-            />
-          </div>
+        <div className="relative mb-6">
+          <Input
+            placeholder="Search communities"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="py-6"
+          />
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
