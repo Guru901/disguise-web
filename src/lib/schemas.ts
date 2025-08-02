@@ -86,6 +86,7 @@ export const createCommunitySchema = v.object({
       v.url("Icon must be a valid URL."),
     ),
   ),
+  guidlines: v.optional(v.array(v.string())),
 });
 
 export type TCreateCommunitySchema = v.InferOutput<

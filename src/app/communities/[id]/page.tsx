@@ -13,7 +13,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,58 +21,9 @@ import { Separator } from "@/components/ui/separator";
 import { PostCard } from "@/components/post-card";
 import useGetUser from "@/lib/use-get-user";
 import Navbar from "@/components/navbar";
-
-const communityData = {
-  name: "Photography Hub",
-  handle: "photography",
-  description:
-    "A creative space for photographers to share their work, learn techniques, and connect with fellow artists.",
-  longDescription:
-    "Welcome to Photography Hub! This community is dedicated to the art and craft of photography. Whether you're a beginner with your first camera or a seasoned professional, this is your space to share, learn, and grow together.",
-  members: 2400000,
-  online: 12500,
-  created: "2020-03-15",
-  avatar: "/placeholder.svg?height=80&width=80",
-  banner: "",
-  isJoined: false,
-  verified: true,
-  category: "Creative Arts",
-  guidelines: [
-    "Share original work and give credit where due",
-    "Be constructive with feedback and criticism",
-    "No spam or excessive self-promotion",
-    "Use relevant tags to help others discover your content",
-    "Respect copyright and intellectual property",
-  ],
-  moderators: [
-    {
-      name: "Alex Chen",
-      username: "alexphoto",
-      avatar: "/placeholder.svg?height=32&width=32",
-      role: "Lead Moderator",
-    },
-    {
-      name: "Sarah Kim",
-      username: "sarahsnaps",
-      avatar: "/placeholder.svg?height=32&width=32",
-      role: "Community Manager",
-    },
-    {
-      name: "Mike Torres",
-      username: "mikelens",
-      avatar: "/placeholder.svg?height=32&width=32",
-      role: "Content Moderator",
-    },
-  ],
-  tags: [
-    "Landscape",
-    "Portrait",
-    "Street",
-    "Wildlife",
-    "Tutorial",
-    "Gear Review",
-  ],
-};
+import { api } from "@/trpc/react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const posts = [
   {
@@ -558,12 +509,10 @@ const posts = [
 
 export default function CommunityPage() {
   const { user } = useGetUser();
-  const [isJoined, setIsJoined] = useState(communityData.isJoined);
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
-    return num.toString();
-  };
+
+  const id = usePathname().split("/")[2];
+
+  const { data } = api.communityRouter.getCommunity.useQuery({ id: id! });
 
   return (
     <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
@@ -572,16 +521,22 @@ export default function CommunityPage() {
       <div className="border-b">
         <div className="mx-auto max-w-6xl px-4 py-4">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" className="p-2">
+            <Link
+              href="/communities"
+              className={buttonVariants({
+                variant: "ghost",
+                size: "sm",
+              })}
+            >
               <ArrowLeft className="h-5 w-5" />
-            </Button>
+            </Link>
             <div className="flex items-center gap-3">
               <Avatar className="border-border h-8 w-8 border-2">
-                <AvatarImage src={communityData.avatar || "/placeholder.svg"} />
-                <AvatarFallback>{communityData.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={data?.data?.icon || "/placeholder.svg"} />
+                <AvatarFallback>{data?.data?.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
-                <span className="font-semibold">{communityData.name}</span>
+                <span className="font-semibold">{data?.data?.name}</span>
               </div>
             </div>
           </div>
@@ -590,10 +545,10 @@ export default function CommunityPage() {
 
       {/* Banner */}
       <div className="relative">
-        {communityData.banner.length > 0 ? (
+        {data?.data?.banner && data.data.banner.length > 0 ? (
           <div className="relative h-48 overflow-hidden bg-gradient-to-r">
             <Image
-              src={communityData.banner || "/placeholder.svg"}
+              src={data.data.banner || "/placeholder.svg"}
               alt=""
               fill
               className="object-cover opacity-80"
@@ -611,12 +566,8 @@ export default function CommunityPage() {
             <div className="flex items-start gap-6">
               <div className="relative">
                 <Avatar className="border-border h-24 w-24 border-4 shadow-lg">
-                  <AvatarImage
-                    src={communityData.avatar || "/placeholder.svg"}
-                  />
-                  <AvatarFallback>
-                    {communityData.name.charAt(0)}
-                  </AvatarFallback>
+                  <AvatarImage src={data?.data?.icon ?? "/placeholder.svg"} />
+                  <AvatarFallback>{data?.data?.name.charAt(0)}</AvatarFallback>
                 </Avatar>
               </div>
 
@@ -624,46 +575,49 @@ export default function CommunityPage() {
                 <div className="mb-4 flex flex-col items-start justify-between md:flex-row">
                   <div>
                     <h1 className="mb-1 text-3xl font-bold">
-                      {communityData.name}
+                      {data?.data?.name}
                     </h1>
-                    <p className="text-muted-foreground mb-2">
+                    {/* <p className="text-muted-foreground mb-2">
                       @{communityData.handle}
-                    </p>
+                    </p> */}
                   </div>
                   <div className="flex items-center gap-3">
                     <Button variant="outline" size="sm">
                       <Share className="mr-2 h-4 w-4" />
                       Share
                     </Button>
-                    <Button onClick={() => setIsJoined(!isJoined)}>
+                    {/* <Button onClick={() => setIsJoined(!isJoined)}>
                       {isJoined ? "Following" : "Follow"}
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
 
                 <p className="text-muted-foreground mb-4 leading-relaxed">
-                  {communityData.description}
+                  {data?.data?.description}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-8 text-sm">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
                     <span className="font-semibold">
-                      {formatNumber(communityData.members)}
+                      {data?.data?.memberCount}
                     </span>
                     <span>members</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
-                    <span className="font-semibold text-green-600">
+                    {/* <span className="font-semibold text-green-600">
                       {formatNumber(communityData.online)}
-                    </span>
+                    </span> */}
                     <span>online</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
                     <span>
-                      Since {new Date(communityData.created).getFullYear()}
+                      Since{" "}
+                      {data?.data?.createdAt
+                        ? new Date(data.data.createdAt).getFullYear()
+                        : "Unknown"}
                     </span>
                   </div>
                 </div>
@@ -785,7 +739,7 @@ export default function CommunityPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  {communityData.longDescription}
+                  {data?.data?.description}
                 </p>
 
                 <Separator />
@@ -793,16 +747,16 @@ export default function CommunityPage() {
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="text-muted-foreground text-2xl font-bold">
-                      {formatNumber(communityData.members)}
+                      {data?.data?.memberCount}
                     </div>
                     <div className="text-muted-foreground/60 text-xs tracking-wide uppercase">
                       Members
                     </div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-green-600">
+                    {/* <div className="text-2xl font-bold text-green-600">
                       {formatNumber(communityData.online)}
-                    </div>
+                    </div> */}
                     <div className="text-muted-foreground/60 text-xs tracking-wide uppercase">
                       Online
                     </div>
@@ -822,7 +776,7 @@ export default function CommunityPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                {/* <div className="space-y-3">
                   {communityData.guidelines.map((guideline, index) => (
                     <div key={index} className="flex gap-3 text-sm">
                       <span className="min-w-0 font-semibold text-purple-500">
@@ -831,7 +785,7 @@ export default function CommunityPage() {
                       <span>{guideline}</span>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </CardContent>
             </Card>
 
@@ -844,21 +798,20 @@ export default function CommunityPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {communityData.moderators.map((mod, index) => (
+                  {data?.data?.moderatorsData?.map((mod, index) => (
                     <div key={index} className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={mod.avatar || "/placeholder.svg"} />
                         <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-400 text-xs text-white">
-                          {mod.name
+                          {mod.username
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="text-sm font-medium">{mod.name}</div>
-                        <div className="text-muted-foreground text-xs">
-                          @{mod.username} • {mod.role}
+                        <div className="text-sm font-medium">
+                          {mod.username}
                         </div>
                       </div>
                     </div>

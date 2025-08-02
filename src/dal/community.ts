@@ -1,10 +1,16 @@
 import type { TCreateCommunitySchema } from "@/lib/schemas";
 import { db } from "@/server/db";
-import { communitySchema } from "@/server/db/schema";
+import { communitySchema, userSchema } from "@/server/db/schema";
+import { eq, inArray } from "drizzle-orm";
 
 async function createCommunity(data: TCreateCommunitySchema, userId: string) {
   try {
-    console.log(data);
+    const tagsArr = data.tags.split(" ");
+    const guidelinesArr =
+      data.guidlines?.filter(
+        (guideline) => guideline && guideline.trim() !== "",
+      ) || [];
+
     const result = await db
       .insert(communitySchema)
       .values({
@@ -13,6 +19,11 @@ async function createCommunity(data: TCreateCommunitySchema, userId: string) {
         icon: data.icon,
         banner: data.banner,
         moderators: [userId],
+        members: [userId],
+        memberCount: 1,
+        createdBy: userId,
+        tags: tagsArr,
+        guidlines: guidelinesArr,
       })
       .returning({
         id: communitySchema.id,
@@ -64,4 +75,70 @@ async function getAllCommunities() {
   }
 }
 
-export { createCommunity, getAllCommunities };
+async function getCommunity(id: string) {
+  try {
+    const communityData = await db
+      .select({
+        id: communitySchema.id,
+        name: communitySchema.name,
+        description: communitySchema.description,
+        icon: communitySchema.icon,
+        banner: communitySchema.banner,
+        members: communitySchema.members,
+        memberCount: communitySchema.memberCount,
+        createdAt: communitySchema.createdAt,
+        moderators: communitySchema.moderators,
+        guidlines: communitySchema.guidlines,
+      })
+      .from(communitySchema)
+      .where(eq(communitySchema.id, id))
+      .limit(1)
+      .then((res) => res[0]);
+
+    if (!communityData) {
+      return {
+        success: false,
+        message: "Community not found",
+      };
+    }
+
+    // Fetch moderator data for all moderators
+    let moderatorsData: Array<{
+      id: string;
+      username: string;
+      avatar: string | null;
+    }> = [];
+
+    if (communityData.moderators && communityData.moderators.length > 0) {
+      const moderatorsDataResult = await db
+        .select({
+          id: userSchema.id,
+          username: userSchema.username,
+          avatar: userSchema.avatar,
+        })
+        .from(userSchema)
+        .where(inArray(userSchema.id, communityData.moderators));
+
+      moderatorsData = moderatorsDataResult;
+    }
+
+    const data = {
+      ...communityData,
+      moderatorsData,
+    };
+
+    return {
+      success: true,
+      message: "Community data retrieved",
+      data: data,
+    };
+  } catch (error) {
+    console.error("Error retrieving community data:", error);
+    return {
+      success: false,
+      message: error,
+    };
+  }
+}
+
+export { createCommunity, getAllCommunities, getCommunity };

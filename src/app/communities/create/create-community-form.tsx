@@ -25,7 +25,7 @@ export function CreateCommunityForm() {
     api.communityRouter.createCommunity.useMutation({
       onSuccess: (data) => {
         toast.success("Community created successfully");
-        router.push(`/community/${data.id}`);
+        router.push(`/communities/${data.id}`);
       },
       onError: () => {
         toast.error("Failed to create community");
@@ -109,12 +109,39 @@ export function CreateCommunityForm() {
                   />
                 )}
               />
-              {errors.name && (
+              {errors.tags && (
                 <p className="flex items-center gap-1 text-sm text-red-500">
                   <InfoIcon size={14} />
-                  {errors.name.message}
+                  {errors.tags.message}
                 </p>
               )}
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">
+                Community Guidelines (optional)
+              </Label>
+              <p className="text-muted-foreground text-sm">
+                Set up to 5 guidelines for your community members to follow.
+              </p>
+              <div className="space-y-3">
+                {[0, 1, 2, 3, 4].map((index) => (
+                  <div key={index} className="space-y-2">
+                    <Controller
+                      control={control}
+                      name={`guidlines.${index}`}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          placeholder={`Guideline ${index + 1} (optional)`}
+                          className="border-muted-foreground h-10 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
+                          {...field}
+                        />
+                      )}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-3">

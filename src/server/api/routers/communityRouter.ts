@@ -1,9 +1,7 @@
 import { createCommunitySchema } from "@/lib/schemas";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import * as communityDal from "@/dal/community";
+import * as v from "valibot";
 
 export const communityRouter = createTRPCRouter({
   createCommunity: protectedProcedure
@@ -15,4 +13,13 @@ export const communityRouter = createTRPCRouter({
   getAllCommunities: protectedProcedure.query(async () => {
     return await communityDal.getAllCommunities();
   }),
+  getCommunity: protectedProcedure
+    .input(
+      v.object({
+        id: v.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await communityDal.getCommunity(input.id);
+    }),
 });

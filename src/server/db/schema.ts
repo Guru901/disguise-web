@@ -96,6 +96,9 @@ export const communitySchema = pgTable("communities", {
     .references(() => userSchema.id),
   memberCount: integer("member_count").notNull().default(0),
   tags: text("tags").array().default([]),
-  createdBy: uuid("created_by").references(() => userSchema.id),
+  guidlines: text("guidlines").array().default([]),
+  createdBy: uuid("created_by")
+    .references(() => userSchema.id)
+    .notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
