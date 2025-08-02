@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 type InputProps = React.ComponentProps<"input"> & {
   showPasswordToggle?: boolean;
+  divClassName?: string;
 };
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -13,7 +14,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const [show, setShow] = React.useState(false);
     const isPassword = type === "password" && showPasswordToggle;
     return (
-      <div className="relative">
+      <div className={cn("relative", className)}>
         <input
           ref={ref}
           type={isPassword ? (show ? "text" : "password") : type}

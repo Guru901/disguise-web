@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { InfoIcon, Loader2, Upload, X, Users } from "lucide-react";
-import { useForm, Controller } from "react-hook-form";
+import { InfoIcon, Loader2, Upload, X, Users, Plus, Minus } from "lucide-react";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import {
   createCommunitySchema,
@@ -40,6 +40,15 @@ export function CreateCommunityForm() {
     watch,
   } = useForm<TCreateCommunitySchema>({
     resolver: valibotResolver(createCommunitySchema),
+    defaultValues: {
+      guidlines: [""],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    // @ts-expect-error - name is not typed
+    name: "guidlines",
   });
 
   async function submitForm(data: TCreateCommunitySchema) {
@@ -50,11 +59,20 @@ export function CreateCommunityForm() {
     }
   }
 
+  // Remove image functions
+  const removeIcon = () => {
+    setValue("icon", "");
+  };
+
+  const removeBanner = () => {
+    setValue("banner", "");
+  };
+
   const imageUrl = watch("icon");
   const bannerUrl = watch("banner");
 
   return (
-    <div className="mx-auto p-6 md:min-w-2xl">
+    <div className="mx-auto max-w-2xl p-6 md:min-w-2xl">
       <Card className="py-6">
         <CardHeader className="space-y-2 pb-6">
           <CardTitle className="text-2xl font-bold">
@@ -122,25 +140,50 @@ export function CreateCommunityForm() {
                 Community Guidelines (optional)
               </Label>
               <p className="text-muted-foreground text-sm">
-                Set up to 5 guidelines for your community members to follow.
+                Set guidelines for your community members to follow.
               </p>
-              <div className="space-y-3">
-                {[0, 1, 2, 3, 4].map((index) => (
-                  <div key={index} className="space-y-2">
+              <div className="w-full space-y-3">
+                {fields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className="flex w-full items-center gap-2"
+                  >
                     <Controller
                       control={control}
                       name={`guidlines.${index}`}
                       render={({ field }) => (
                         <Input
+                          divClassName="w-full"
                           type="text"
-                          placeholder={`Guideline ${index + 1} (optional)`}
-                          className="border-muted-foreground h-10 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
+                          placeholder={`Guideline ${index + 1}`}
+                          className="w-full"
                           {...field}
                         />
                       )}
                     />
+                    {fields.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => remove(index)}
+                      >
+                        <Minus size={16} />
+                      </Button>
+                    )}
                   </div>
                 ))}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-10 gap-2"
+                  onClick={() => append("")}
+                >
+                  <Plus size={16} />
+                  Add Guideline
+                </Button>
               </div>
             </div>
 
@@ -195,8 +238,8 @@ export function CreateCommunityForm() {
                   <div className="relative">
                     <div className="border-muted-foreground relative overflow-hidden rounded-lg border bg-gray-50">
                       <Image
-                        src={imageUrl || "/placeholder.svg"}
-                        alt={`Preview`}
+                        src={imageUrl}
+                        alt="Community icon preview"
                         width={400}
                         height={300}
                         className="h-64 w-full object-cover"
@@ -209,7 +252,7 @@ export function CreateCommunityForm() {
                         variant="destructive"
                         size="sm"
                         className="absolute top-2 right-2 h-8 w-8 p-0"
-                        // onClick={() => removeImage(idx)}
+                        onClick={removeIcon}
                       >
                         <X size={14} />
                       </Button>
@@ -224,9 +267,10 @@ export function CreateCommunityForm() {
                 </p>
               )}
             </div>
+
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="image" className="text-base font-semibold">
+                <Label htmlFor="banner" className="text-base font-semibold">
                   Banner (optional)
                 </Label>
               </div>
@@ -250,8 +294,8 @@ export function CreateCommunityForm() {
                   <div className="relative">
                     <div className="border-muted-foreground relative overflow-hidden rounded-lg border bg-gray-50">
                       <Image
-                        src={bannerUrl || "/placeholder.svg"}
-                        alt={`Preview`}
+                        src={bannerUrl}
+                        alt="Community banner preview"
                         width={400}
                         height={300}
                         className="h-64 w-full object-cover"
@@ -264,7 +308,7 @@ export function CreateCommunityForm() {
                         variant="destructive"
                         size="sm"
                         className="absolute top-2 right-2 h-8 w-8 p-0"
-                        // onClick={() => removeImage(idx)}
+                        onClick={removeBanner}
                       >
                         <X size={14} />
                       </Button>
@@ -272,10 +316,10 @@ export function CreateCommunityForm() {
                   </div>
                 )}
               </div>
-              {errors.icon && (
+              {errors.banner && (
                 <p className="text-destructive flex items-center gap-1">
                   <InfoIcon size={14} />
-                  {errors.icon.message}
+                  {errors.banner.message}
                 </p>
               )}
             </div>
