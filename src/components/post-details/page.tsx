@@ -586,7 +586,6 @@ export function PostDetails({ postId }: { postId: string }) {
                   <Skeleton className="h-[300px] w-full rounded-md" />
                 </div>
               ) : post.image &&
-                post.image.length > 0 &&
                 post.image[0] !== "" &&
                 post.image.length > 1 ? (
                 <div className="mt-4">
@@ -627,7 +626,8 @@ export function PostDetails({ postId }: { postId: string }) {
                 </div>
               ) : (
                 post.image &&
-                post.image[0] !== "" && (
+                post.image[0] !== "" &&
+                post.image.length !== 0 && (
                   <div className="mt-4">
                     <div className="relative w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                       {/* Dynamic aspect ratio container for single images */}
