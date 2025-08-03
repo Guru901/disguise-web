@@ -1,18 +1,7 @@
 import type { TCreateCommunitySchema } from "@/lib/schemas";
 import { db } from "@/server/db";
 import { communitySchema, postSchema, userSchema } from "@/server/db/schema";
-import {
-  and,
-  eq,
-  or,
-  not,
-  sql,
-  desc,
-  inArray,
-  gte,
-  isNotNull,
-  asc,
-} from "drizzle-orm";
+import { and, eq, sql, desc, inArray, gte, isNotNull } from "drizzle-orm";
 
 async function createCommunity(data: TCreateCommunitySchema, userId: string) {
   try {
@@ -199,7 +188,7 @@ async function getUserJoinedCommunities(userId: string) {
     return {
       success: false,
       message: error,
-      data: new Set<String>(),
+      data: new Set<string>(),
     };
   }
 }
@@ -260,7 +249,7 @@ async function getTrendingCommunities() {
     const communityCountMap = new Map<string, number>();
     for (const post of posts) {
       const id = post.communityId!;
-      communityCountMap.set(id, (communityCountMap.get(id) || 0) + 1);
+      communityCountMap.set(id, (communityCountMap.get(id) ?? 0) + 1);
     }
 
     // If no trending communities found
