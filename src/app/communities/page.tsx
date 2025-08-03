@@ -293,7 +293,7 @@ export default function CommunitiesPage() {
 
                 <TabsContent value="joined" className="mt-0">
                   <div className="divide-y">
-                    {isCommunitiesLoading ? (
+                    {isJoinedCommunitiesDataLoading ? (
                       <div className="space-y-4 p-6">
                         <Skeleton className="h-24 w-full" />
                         <Skeleton className="h-24 w-full" />
@@ -371,7 +371,7 @@ export default function CommunitiesPage() {
                   Top Growing Communities
                 </h3>
                 <p className="text-muted-foreground text-sm">
-                  Today's fastest growing communities
+                  {"Today's"} fastest growing communities
                 </p>
               </div>
               <div className="p-6">

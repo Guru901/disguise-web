@@ -195,8 +195,8 @@ const RegularNotification = ({
     };
     post: string | null;
   };
-  markAsReadMutation: { mutate: (id: string) => Promise<void> };
-  deleteNotificationMutation: { mutate: (id: string) => Promise<void> };
+  markAsReadMutation: { mutateAsync: (id: string) => Promise<void> };
+  deleteNotificationMutation: { mutateAsync: (id: string) => Promise<void> };
 }) => {
   return (
     <Link href={`/p?post=${notification.post ?? ""}`}>
@@ -254,10 +254,12 @@ const RegularNotification = ({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
                             e.preventDefault?.();
-                            markAsReadMutation.mutate(notification.id);
+                            void (await markAsReadMutation.mutateAsync(
+                              notification.id,
+                            ));
                           }}
                           className="h-6 w-6 p-0"
                         >
@@ -268,10 +270,12 @@ const RegularNotification = ({
                         variant="ghost"
                         size="sm"
                         className="text-muted-foreground hover:text-destructive h-6 w-6 p-0"
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation();
                           e.preventDefault?.();
-                          deleteNotificationMutation.mutate(notification.id);
+                          void (await deleteNotificationMutation.mutateAsync(
+                            notification.id,
+                          ));
                         }}
                       >
                         <Trash2 className="h-3 w-3" />
