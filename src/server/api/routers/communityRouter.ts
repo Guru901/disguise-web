@@ -13,8 +13,11 @@ export const communityRouter = createTRPCRouter({
   getAllCommunities: protectedProcedure.query(async () => {
     return await communityDal.getAllCommunities();
   }),
-  getUserJoinedCommunities: protectedProcedure.query(async () => {
-    return await communityDal.getAllCommunities();
+  getUserJoinedCommunitiesData: protectedProcedure.query(async ({ ctx }) => {
+    return await communityDal.getUserJoinedCommunitiesData(ctx.userId);
+  }),
+  getUserJoinedCommunities: protectedProcedure.query(async ({ ctx }) => {
+    return await communityDal.getUserJoinedCommunities(ctx.userId);
   }),
   getCommunity: protectedProcedure
     .input(
@@ -35,4 +38,8 @@ export const communityRouter = createTRPCRouter({
     .query(async ({ input }) => {
       return await communityDal.getPostsByCommunity(input.communityId);
     }),
+
+  getTrendingCommunities: protectedProcedure.query(async () => {
+    return await communityDal.getTrendingCommunities();
+  }),
 });

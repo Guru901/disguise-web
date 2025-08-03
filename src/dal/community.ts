@@ -1,7 +1,18 @@
 import type { TCreateCommunitySchema } from "@/lib/schemas";
 import { db } from "@/server/db";
 import { communitySchema, postSchema, userSchema } from "@/server/db/schema";
-import { and, eq, or, not, sql, desc, inArray } from "drizzle-orm";
+import {
+  and,
+  eq,
+  or,
+  not,
+  sql,
+  desc,
+  inArray,
+  gte,
+  isNotNull,
+  asc,
+} from "drizzle-orm";
 
 async function createCommunity(data: TCreateCommunitySchema, userId: string) {
   try {
@@ -52,7 +63,10 @@ async function createCommunity(data: TCreateCommunitySchema, userId: string) {
 
 async function getAllCommunities() {
   try {
-    const data = await db.select().from(communitySchema);
+    const data = await db
+      .select()
+      .from(communitySchema)
+      .orderBy(desc(communitySchema.createdAt));
 
     if (data) {
       return {
@@ -141,7 +155,7 @@ async function getCommunity(id: string) {
   }
 }
 
-async function getUserJoinedCommunities(userId: string) {
+async function getUserJoinedCommunitiesData(userId: string) {
   try {
     const results = await db
       .select()
@@ -149,12 +163,43 @@ async function getUserJoinedCommunities(userId: string) {
       .where(sql`${userId} = ANY(${communitySchema.members})`)
       .orderBy(communitySchema.name);
 
-    return results;
+    return {
+      success: true,
+      message: "User joined communities retrieved",
+      data: results,
+    };
   } catch (error) {
     console.error("Error retrieving community data:", error);
     return {
       success: false,
       message: error,
+      data: [],
+    };
+  }
+}
+
+async function getUserJoinedCommunities(userId: string) {
+  try {
+    const results = await db
+      .select({
+        id: communitySchema.id,
+      })
+      .from(communitySchema)
+      .where(sql`${userId} = ANY(${communitySchema.members})`);
+
+    const joinedCommunityIds = new Set(results.map((result) => result.id));
+
+    return {
+      success: true,
+      message: "User joined communities retrieved",
+      data: joinedCommunityIds,
+    };
+  } catch (error) {
+    console.error("Error retrieving community data:", error);
+    return {
+      success: false,
+      message: error,
+      data: new Set<String>(),
     };
   }
 }
@@ -193,9 +238,92 @@ async function getPostsByCommunity(communityId: string) {
   }
 }
 
+async function getTrendingCommunities() {
+  try {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    // Get posts from the last 7 days with community data
+    const posts = await db
+      .select({
+        communityId: postSchema.community,
+      })
+      .from(postSchema)
+      .where(
+        and(
+          eq(postSchema.isPublic, true),
+          gte(postSchema.createdAt, sevenDaysAgo),
+          isNotNull(postSchema.community),
+        ),
+      );
+
+    // Count posts per community
+    const communityCountMap = new Map<string, number>();
+    for (const post of posts) {
+      const id = post.communityId!;
+      communityCountMap.set(id, (communityCountMap.get(id) || 0) + 1);
+    }
+
+    // If no trending communities found
+    if (communityCountMap.size === 0) {
+      return {
+        success: true,
+        message: "No trending communities found in the last 7 days",
+        data: [],
+      };
+    }
+
+    // Get community details
+    const communityIds = Array.from(communityCountMap.keys());
+    const communities = await db
+      .select()
+      .from(communitySchema)
+      .where(inArray(communitySchema.id, communityIds));
+
+    // Create a map for quick community lookup
+    const communityMap = new Map(
+      communities.map((community) => [community.id, community]),
+    );
+
+    // Combine community data with post counts and sort by count descending
+    const trendingCommunities = Array.from(communityCountMap.entries())
+      .map(([communityId, postCount]) => {
+        const community = communityMap.get(communityId);
+        if (!community) {
+          console.warn(`Community with ID ${communityId} not found`);
+          return null;
+        }
+        return {
+          ...community,
+          postsInLast7Days: postCount,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .sort((a, b) => b.postsInLast7Days - a.postsInLast7Days);
+
+    console.log(`Found ${trendingCommunities.length} trending communities`);
+
+    return {
+      success: true,
+      message: "Trending communities retrieved successfully",
+      data: trendingCommunities,
+    };
+  } catch (error) {
+    console.error("Error retrieving trending communities:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
+      data: [],
+    };
+  }
+}
+
 export {
   createCommunity,
   getAllCommunities,
   getCommunity,
   getPostsByCommunity,
+  getTrendingCommunities,
+  getUserJoinedCommunitiesData,
+  getUserJoinedCommunities,
 };

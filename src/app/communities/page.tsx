@@ -17,20 +17,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CommunitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { user } = useGetUser();
 
-  const { data: communities, isLoading: isCommunitiesLoading } =
+  const { data: allCommunities, isLoading: isCommunitiesLoading } =
     api.communityRouter.getAllCommunities.useQuery();
 
-  const [joinedCommunities, setJoinedCommunities] = useState(
-    user.joinedCommunities ?? [],
-  );
+  const { data: trendingCommunities, isLoading: isTrendingCommunitiesLoading } =
+    api.communityRouter.getTrendingCommunities.useQuery();
 
-  useEffect(() => {
-    if (user.joinedCommunities) {
-      setJoinedCommunities(user.joinedCommunities);
-    }
-  }, [user.joinedCommunities]);
+  const {
+    data: joinedCommunitiesData,
+    isLoading: isJoinedCommunitiesDataLoading,
+  } = api.communityRouter.getUserJoinedCommunitiesData.useQuery();
+
+  const { data: joinedCommunities, isLoading: isJoinedCommunitiesLoading } =
+    api.communityRouter.getUserJoinedCommunities.useQuery();
 
   return (
     <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
@@ -120,9 +120,91 @@ export default function CommunitiesPage() {
                 </div>
 
                 <TabsContent value="trending" className="mt-0">
-                  <div className="text-muted-foreground p-6 text-center">
-                    <TrendingUp className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                    <p>Trending communities will appear here</p>
+                  <div className="divide-y">
+                    {isTrendingCommunitiesLoading ? (
+                      <div className="space-y-4 p-6">
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-24 w-full" />
+                      </div>
+                    ) : (
+                      trendingCommunities?.data?.map((community, index) => (
+                        <div
+                          className="group hover:bg-muted/50 transition-colors duration-200"
+                          key={community.id}
+                        >
+                          <div className="flex items-center p-6">
+                            <Link
+                              href={`/communities/${community.id}`}
+                              className="flex-1"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-muted-foreground w-8 text-sm font-medium">
+                                    #{index + 1}
+                                  </span>
+                                  <Avatar className="ring-border group-hover:ring-primary/20 h-12 w-12 ring-2 transition-all duration-200">
+                                    <AvatarImage
+                                      src={community.icon ?? "/placeholder.svg"}
+                                    />
+                                    <AvatarFallback className="text-sm font-semibold">
+                                      {community.name.charAt(0).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="mb-1 flex items-center gap-2">
+                                    <h3 className="truncate text-lg font-semibold">
+                                      {community.name}
+                                    </h3>
+                                    {index < 3 && (
+                                      <Badge
+                                        variant="secondary"
+                                        className="px-2 py-0.5 text-xs"
+                                      >
+                                        <TrendingUp className="mr-1 h-3 w-3" />
+                                        Hot
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-muted-foreground mb-2 line-clamp-2 text-sm">
+                                    {community.description}
+                                  </p>
+                                  <div className="text-muted-foreground flex items-center gap-4 text-xs">
+                                    <span className="flex items-center gap-1">
+                                      <Users className="h-3 w-3" />
+                                      {community.memberCount} members
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                      0 online
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <div className="h-2 w-2 rounded-full text-green-500"></div>
+                                      {community.postsInLast7Days} posts in the
+                                      last 7 days
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
+                            <Button
+                              variant={
+                                joinedCommunities?.data?.has(community.id)
+                                  ? "outline"
+                                  : "default"
+                              }
+                              size="sm"
+                              className="ml-4"
+                            >
+                              {joinedCommunities?.data?.has(community.id)
+                                ? "Joined"
+                                : "Join"}
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </TabsContent>
 
@@ -135,7 +217,7 @@ export default function CommunitiesPage() {
                         <Skeleton className="h-24 w-full" />
                       </div>
                     ) : (
-                      communities?.data?.map((community, index) => (
+                      allCommunities?.data?.map((community, index) => (
                         <div
                           className="group hover:bg-muted/50 transition-colors duration-200"
                           key={community.id}
@@ -192,14 +274,14 @@ export default function CommunitiesPage() {
                             </Link>
                             <Button
                               variant={
-                                joinedCommunities.includes(community.id)
+                                joinedCommunities?.data?.has(community.id)
                                   ? "outline"
                                   : "default"
                               }
                               size="sm"
                               className="ml-4"
                             >
-                              {joinedCommunities.includes(community.id)
+                              {joinedCommunities?.data?.has(community.id)
                                 ? "Joined"
                                 : "Join"}
                             </Button>
@@ -211,12 +293,71 @@ export default function CommunitiesPage() {
                 </TabsContent>
 
                 <TabsContent value="joined" className="mt-0">
-                  <div className="text-muted-foreground p-6 text-center">
-                    <Users className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                    <p>You haven't joined any communities yet.</p>
-                    <p className="mt-1 text-sm">
-                      Explore and join communities that interest you!
-                    </p>
+                  <div className="divide-y">
+                    {isCommunitiesLoading ? (
+                      <div className="space-y-4 p-6">
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-24 w-full" />
+                      </div>
+                    ) : (
+                      joinedCommunitiesData?.data?.map((community, index) => (
+                        <div
+                          className="group hover:bg-muted/50 transition-colors duration-200"
+                          key={community.id}
+                        >
+                          <Link
+                            className="flex items-center p-6"
+                            href={`/communities/${community.id}`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-3">
+                                <span className="text-muted-foreground w-8 text-sm font-medium">
+                                  #{index + 1}
+                                </span>
+                                <Avatar className="ring-border group-hover:ring-primary/20 h-12 w-12 ring-2 transition-all duration-200">
+                                  <AvatarImage
+                                    src={community.icon ?? "/placeholder.svg"}
+                                  />
+                                  <AvatarFallback className="text-sm font-semibold">
+                                    {community.name.charAt(0).toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="mb-1 flex items-center gap-2">
+                                  <h3 className="truncate text-lg font-semibold">
+                                    {community.name}
+                                  </h3>
+                                  {index < 3 && (
+                                    <Badge
+                                      variant="secondary"
+                                      className="px-2 py-0.5 text-xs"
+                                    >
+                                      <TrendingUp className="mr-1 h-3 w-3" />
+                                      Hot
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-muted-foreground mb-2 line-clamp-2 text-sm">
+                                  {community.description}
+                                </p>
+                                <div className="text-muted-foreground flex items-center gap-4 text-xs">
+                                  <span className="flex items-center gap-1">
+                                    <Users className="h-3 w-3" />
+                                    {community.memberCount} members
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                    0 online
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </TabsContent>
               </Tabs>
