@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Search, Plus, TrendingUp, Users, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { Plus, TrendingUp, Users, Sparkles } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/navbar";
 import Link from "next/link";
 import { api } from "@/trpc/react";
-import useGetUser from "@/lib/use-get-user";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CommunitiesPage() {
