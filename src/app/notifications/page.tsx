@@ -238,14 +238,27 @@ const RegularNotification = ({
                     <span className="text-muted-foreground text-xs">
                       {formatTimeAgo(notification.createdAt)}
                     </span>
-                    <div className="flex items-center gap-1">
+                    <div
+                      className="flex items-center gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (
+                          e.nativeEvent instanceof MouseEvent &&
+                          e.currentTarget.closest("a")
+                        ) {
+                          e.preventDefault?.();
+                        }
+                      }}
+                    >
                       {!notification.read && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() =>
-                            markAsReadMutation.mutate(notification.id)
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault?.();
+                            markAsReadMutation.mutate(notification.id);
+                          }}
                           className="h-6 w-6 p-0"
                         >
                           <Check className="h-3 w-3" />
@@ -255,9 +268,11 @@ const RegularNotification = ({
                         variant="ghost"
                         size="sm"
                         className="text-muted-foreground hover:text-destructive h-6 w-6 p-0"
-                        onClick={() =>
-                          deleteNotificationMutation.mutate(notification.id)
-                        }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault?.();
+                          deleteNotificationMutation.mutate(notification.id);
+                        }}
                       >
                         <Trash2 className="h-3 w-3" />
                       </Button>
@@ -310,9 +325,9 @@ export default function NotificationsPage() {
 
       <div className="flex items-center justify-between px-2">
         <div className="flex items-center gap-3">
-          <h1 className="mb-2 text-3xl font-normal">Notifications</h1>
+          <h1 className="mb-2 text-2xl font-normal">Notifications</h1>
           {Number(unreadCount) > 0 && (
-            <Badge variant="default" className="h-6 px-2">
+            <Badge variant="default" className="mb-2 h-6 py-3.5">
               {unreadCount}
             </Badge>
           )}
