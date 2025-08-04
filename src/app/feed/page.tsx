@@ -1,7 +1,7 @@
 "use client";
 
 import { PostCard } from "@/components/post-card";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Navbar from "@/components/navbar";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
@@ -22,8 +22,14 @@ type Post = NonNullable<
   inferRouterOutputs<AppRouter>["postRouter"]["getFeed"][number]
 >;
 
-export default function Feed() {
-  const { user } = useGetUser();
+export default function FeedPage() {
+  <Suspense>
+    <Feed />
+  </Suspense>
+}
+
+function Feed() {
+ const { user } = useGetUser();
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver>(null);
   const [page, setPage] = useState(1);
@@ -34,7 +40,6 @@ export default function Feed() {
   const {
     data: posts,
     isLoading: isPostsLoading,
-    refetch: refetchPosts,
   } = api.postRouter.getFeed.useQuery({
     page,
     limit: 10,
@@ -69,7 +74,7 @@ export default function Feed() {
 
   useEffect(() => {
     if (refetch) {
-      refetchPosts();
+      location.href = "/feed";
     }
   }, [refetch]);
 

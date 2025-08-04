@@ -25,6 +25,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import CommunityLoader from "./community-loader";
+import { toast } from "sonner";
 
 export default function CommunityPage() {
   const { user } = useGetUser();
@@ -133,7 +134,14 @@ export default function CommunityPage() {
                     </p> */}
                   </div>
                   <div className="flex items-center gap-3">
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(window.location.href);
+                        toast("Copied to clipboard");
+                      }}
+                    >
                       <Share className="mr-2 h-4 w-4" />
                       Share
                     </Button>
@@ -311,7 +319,7 @@ export default function CommunityPage() {
                     <Skeleton className="h-4 w-[304px]" />
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <p className="text-muted-foreground text-sm leading-relaxed break-words whitespace-normal">
                     {communityData?.data?.description}
                   </p>
                 )}

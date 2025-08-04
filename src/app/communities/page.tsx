@@ -14,6 +14,7 @@ import Link from "next/link";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingCommunity } from "./trending-community";
+import { toast } from "sonner";
 
 export default function CommunitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,8 +38,13 @@ export default function CommunitiesPage() {
 
   const joinCommunityToggleMutation =
     api.communityRouter.joinCommunityToggle.useMutation({
-      onSuccess: async () => {
+      onSuccess: async (data) => {
         await refetchJoinedCommunities();
+        if (data.joined) {
+          toast.success("Community joined successfully");
+        } else {
+          toast.success("Community left successfully");
+        }
       },
     });
 
@@ -323,27 +329,6 @@ export default function CommunitiesPage() {
           {/* Enhanced Sidebar */}
           <div className="space-y-6">
             <Card className="overflow-hidden border-2">
-              <div className="from-primary/5 to-primary/10 bg-gradient-to-r p-6">
-                <h3 className="mb-1 text-lg font-semibold">
-                  Top Growing Communities
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  {"Today's"} fastest growing communities
-                </p>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  <div className="text-muted-foreground py-8 text-center">
-                    <TrendingUp className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                    <p className="text-sm">
-                      Growing communities will appear here
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="overflow-hidden border-2">
               <div className="from-secondary/5 to-secondary/10 bg-gradient-to-r p-6">
                 <h3 className="mb-1 text-lg font-semibold">
                   Community Guidelines
@@ -352,7 +337,7 @@ export default function CommunitiesPage() {
                   Help keep our communities great
                 </p>
               </div>
-              <div className="p-6">
+              <div className="p-6 pt-0">
                 <div className="space-y-3 text-sm">
                   <div className="flex items-start gap-3">
                     <div className="bg-primary mt-2 h-2 w-2 flex-shrink-0 rounded-full"></div>

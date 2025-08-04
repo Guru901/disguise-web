@@ -132,8 +132,6 @@ export function PostDetails({ postId }: { postId: string }) {
     handleKeyDown,
   } = useMentionInput(allUsers);
 
-  const qc = new QueryClient();
-
   useEffect(() => {
     setNewComment((prev) => ({ ...prev, content: inputValue }));
   }, [inputValue]);

@@ -46,6 +46,7 @@ export function PostUploadForm() {
   const uploadPostMutation = api.postRouter.createPost.useMutation();
   const { data: communities, isLoading: isLoadingCommunities } =
     api.communityRouter.getAllCommunities.useQuery();
+  const communityId = useSearchParams().get("community");
 
   const {
     handleSubmit,
@@ -62,12 +63,9 @@ export function PostUploadForm() {
       image: [],
       isPublic: true,
       author: "",
-      community: "",
+      community: communityId ?? "",
     },
   });
-
-  const communityId = useSearchParams().get("community");
-  console.log(communityId);
 
   const imageUrl = watch("image");
 
