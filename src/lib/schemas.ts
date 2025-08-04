@@ -2,8 +2,18 @@ import * as v from "valibot";
 
 export const signUpSchema = v.pipe(
   v.object({
-    username: v.pipe(v.string(), v.minLength(3), v.maxLength(20), v.trim()),
-    password: v.pipe(v.string(), v.minLength(3), v.maxLength(20), v.trim()),
+    username: v.pipe(
+      v.string(),
+      v.minLength(3, "Username must be at least 3 characters long."),
+      v.maxLength(20, "Username must be at most 20 characters long."),
+      v.trim(),
+    ),
+    password: v.pipe(
+      v.string(),
+      v.minLength(3, "Password must be at least 3 characters long."),
+      v.maxLength(20, "Password must be at most 20 characters long."),
+      v.trim(),
+    ),
     passwordConfirmation: v.pipe(
       v.string(),
       v.minLength(3),
@@ -21,8 +31,8 @@ export const signUpSchema = v.pipe(
 export type TSignUpSchema = v.InferOutput<typeof signUpSchema>;
 
 export const signInSchema = v.object({
-  username: v.string(),
-  password: v.pipe(v.string(), v.minLength(8), v.maxLength(20), v.trim()),
+  username: v.string("Username is required."),
+  password: v.string("Password is required."),
 });
 
 export type TSignInSchema = v.InferOutput<typeof signInSchema>;
@@ -43,7 +53,7 @@ export const uploadPostSchema = v.object({
 export type TUploadPostSchema = v.InferOutput<typeof uploadPostSchema>;
 
 export const commentAddSchema = v.object({
-  content: v.string(),
+  content: v.string("Content is required."),
   image: v.optional(v.string()),
   postId: v.string(),
   replyTo: v.string(),
@@ -54,9 +64,9 @@ export type TCommentAddSchema = v.InferOutput<typeof commentAddSchema>;
 
 export const changePasswordSchema = v.pipe(
   v.object({
-    currentPassword: v.string(),
-    newPassword: v.string(),
-    newPasswordConfirm: v.string(),
+    currentPassword: v.string("Current password is required."),
+    newPassword: v.string("New password is required."),
+    newPasswordConfirm: v.string("New password confirmation is required."),
   }),
   v.check(
     (data) => data.newPassword == data.newPasswordConfirm,
