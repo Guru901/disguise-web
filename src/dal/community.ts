@@ -307,6 +307,62 @@ async function getTrendingCommunities() {
   }
 }
 
+async function joinCommunityToggle(
+  communityId: string,
+  isJoined: boolean,
+  userId: string,
+) {
+  try {
+    if (isJoined) {
+      await db.transaction(async (tx) => {
+        await tx
+          .update(communitySchema)
+          .set({
+            members: sql`array_remove(${communitySchema.members}, ${userId})`,
+            memberCount: sql`${communitySchema.memberCount} - 1`,
+          })
+          .where(eq(communitySchema.id, communityId));
+
+        await tx.update(userSchema).set({
+          joinedCommunities: sql`array_remove(${userSchema.joinedCommunities}, ${communityId})`,
+        });
+      });
+
+      return {
+        success: true,
+        message: "Community left successfully",
+        joined: false,
+      };
+    } else {
+      await db.transaction(async (tx) => {
+        await tx
+          .update(communitySchema)
+          .set({
+            members: sql`array_append(${communitySchema.members}, ${userId})`,
+            memberCount: sql`${communitySchema.memberCount} + 1`,
+          })
+          .where(eq(communitySchema.id, communityId));
+
+        await tx.update(userSchema).set({
+          joinedCommunities: sql`array_append(${userSchema.joinedCommunities}, ${communityId})`,
+        });
+      });
+
+      return {
+        success: true,
+        message: "Community joined successfully",
+        joined: true,
+      };
+    }
+  } catch (error) {
+    console.error("Error joining/leaving community:", error);
+    return {
+      success: false,
+      message: error,
+    };
+  }
+}
+
 export {
   createCommunity,
   getAllCommunities,
@@ -315,4 +371,5 @@ export {
   getTrendingCommunities,
   getUserJoinedCommunitiesData,
   getUserJoinedCommunities,
+  joinCommunityToggle,
 };

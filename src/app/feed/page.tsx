@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/api/root";
 import FeedLoader from "@/components/loaders/feed-loading";
+import { useSearchParams } from "next/navigation";
 
 const breakpointColumnsObj = {
   default: 2,
@@ -28,11 +29,16 @@ export default function Feed() {
   const [page, setPage] = useState(1);
   const [allPosts, setAllPosts] = useState<Post[]>([]);
 
-  const { data: posts, isLoading: isPostsLoading } =
-    api.postRouter.getFeed.useQuery({
-      page,
-      limit: 10,
-    });
+  const refetch = useSearchParams().get("refetch") === "true";
+
+  const {
+    data: posts,
+    isLoading: isPostsLoading,
+    refetch: refetchPosts,
+  } = api.postRouter.getFeed.useQuery({
+    page,
+    limit: 10,
+  });
 
   const lastPostRef = useCallback(
     (node: HTMLDivElement) => {
@@ -60,6 +66,12 @@ export default function Feed() {
       setAllPosts((prevPosts) => [...prevPosts, ...posts]);
     }
   }, [posts]);
+
+  useEffect(() => {
+    if (refetch) {
+      refetchPosts();
+    }
+  }, [refetch]);
 
   return (
     <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">

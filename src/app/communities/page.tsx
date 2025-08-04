@@ -13,6 +13,7 @@ import Navbar from "@/components/navbar";
 import Link from "next/link";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TrendingCommunity } from "./trending-community";
 
 export default function CommunitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,8 +29,18 @@ export default function CommunitiesPage() {
     isLoading: isJoinedCommunitiesDataLoading,
   } = api.communityRouter.getUserJoinedCommunitiesData.useQuery();
 
-  const { data: joinedCommunities, isLoading: isJoinedCommunitiesLoading } =
-    api.communityRouter.getUserJoinedCommunities.useQuery();
+  const {
+    data: joinedCommunities,
+    isLoading: isJoinedCommunitiesLoading,
+    refetch: refetchJoinedCommunities,
+  } = api.communityRouter.getUserJoinedCommunities.useQuery();
+
+  const joinCommunityToggleMutation =
+    api.communityRouter.joinCommunityToggle.useMutation({
+      onSuccess: async () => {
+        await refetchJoinedCommunities();
+      },
+    });
 
   return (
     <div className="relative flex h-screen w-full flex-col gap-3 overflow-x-hidden px-2 py-2">
@@ -128,80 +139,26 @@ export default function CommunitiesPage() {
                       </div>
                     ) : (
                       trendingCommunities?.data?.map((community, index) => (
-                        <div
-                          className="group hover:bg-muted/50 transition-colors duration-200"
-                          key={community.id}
-                        >
-                          <div className="flex items-center p-6">
-                            <Link
-                              href={`/communities/${community.id}`}
-                              className="flex-1"
-                            >
-                              <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-3">
-                                  <span className="text-muted-foreground w-8 text-sm font-medium">
-                                    #{index + 1}
-                                  </span>
-                                  <Avatar className="ring-border group-hover:ring-primary/20 h-12 w-12 ring-2 transition-all duration-200">
-                                    <AvatarImage
-                                      src={community.icon ?? "/placeholder.svg"}
-                                    />
-                                    <AvatarFallback className="text-sm font-semibold">
-                                      {community.name.charAt(0).toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="mb-1 flex items-center gap-2">
-                                    <h3 className="truncate text-lg font-semibold">
-                                      {community.name}
-                                    </h3>
-                                    {index < 3 && (
-                                      <Badge
-                                        variant="secondary"
-                                        className="px-2 py-0.5 text-xs"
-                                      >
-                                        <TrendingUp className="mr-1 h-3 w-3" />
-                                        Hot
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <p className="text-muted-foreground mb-2 line-clamp-2 text-sm">
-                                    {community.description}
-                                  </p>
-                                  <div className="text-muted-foreground flex items-center gap-4 text-xs">
-                                    <span className="flex items-center gap-1">
-                                      <Users className="h-3 w-3" />
-                                      {community.memberCount} members
-                                    </span>
-                                    <span className="flex items-center gap-1">
-                                      <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                                      0 online
-                                    </span>
-                                    <span className="flex items-center gap-1">
-                                      <div className="h-2 w-2 rounded-full text-green-500"></div>
-                                      {community.postsInLast7Days} posts in the
-                                      last 7 days
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </Link>
-                            <Button
-                              variant={
-                                joinedCommunities?.data?.has(community.id)
-                                  ? "outline"
-                                  : "default"
-                              }
-                              size="sm"
-                              className="ml-4"
-                            >
-                              {joinedCommunities?.data?.has(community.id)
-                                ? "Joined"
-                                : "Join"}
-                            </Button>
-                          </div>
-                        </div>
+                        <TrendingCommunity
+                          community={{
+                            banner: community.banner,
+                            description: community.description,
+                            icon: community.icon,
+                            id: community.id,
+                            name: community.name,
+                            memberCount: community.memberCount,
+                            tags: community.tags,
+                            postsInLast7Days: community.postsInLast7Days,
+                          }}
+                          key={index}
+                          index={index}
+                          joinCommunityToggleMutation={
+                            joinCommunityToggleMutation
+                          }
+                          joinedCommunities={
+                            joinedCommunities?.data ?? new Set()
+                          }
+                        />
                       ))
                     )}
                   </div>

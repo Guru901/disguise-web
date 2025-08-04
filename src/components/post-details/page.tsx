@@ -57,6 +57,7 @@ import {
   CarouselNext,
 } from "../ui/carousel";
 import { Badge } from "../ui/badge";
+import { QueryClient } from "@tanstack/react-query";
 
 export function PostDetails({ postId }: { postId: string }) {
   const { user, refetchUser } = useGetUser();
@@ -130,6 +131,8 @@ export function PostDetails({ postId }: { postId: string }) {
     selectUser,
     handleKeyDown,
   } = useMentionInput(allUsers);
+
+  const qc = new QueryClient();
 
   useEffect(() => {
     setNewComment((prev) => ({ ...prev, content: inputValue }));
@@ -219,8 +222,8 @@ export function PostDetails({ postId }: { postId: string }) {
 
   const deletePostByIdMutation = api.postRouter.deletePostById.useMutation({
     onSuccess: async () => {
+      router.push("/feed?refetch=true");
       toast("Post deleted");
-      router.back();
     },
   });
 
@@ -818,7 +821,6 @@ export function PostDetails({ postId }: { postId: string }) {
                             await deletePostByIdMutation.mutateAsync({
                               postId: postId,
                             });
-                            router.push("/feed");
                           }}
                           size={"default"}
                           disabled={deletePostByIdMutation.isPending}

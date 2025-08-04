@@ -28,12 +28,16 @@ export const signInSchema = v.object({
 export type TSignInSchema = v.InferOutput<typeof signInSchema>;
 
 export const uploadPostSchema = v.object({
-  title: v.pipe(v.string(), v.minLength(3), v.maxLength(30)),
+  title: v.pipe(
+    v.string(),
+    v.minLength(3, "Title should be at least 3 characters long"),
+    v.maxLength(100, "Title can't be more than 100 characters long"),
+  ),
   content: v.optional(v.string()),
   image: v.optional(v.array(v.string())),
   isPublic: v.fallback(v.boolean(), false),
   author: v.string(),
-  community: v.optional(v.string()),
+  community: v.pipe(v.string(), v.minLength(3, "Community should be selected")),
 });
 
 export type TUploadPostSchema = v.InferOutput<typeof uploadPostSchema>;

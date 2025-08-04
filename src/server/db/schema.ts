@@ -88,7 +88,7 @@ export const notificationSchema = pgTable("notifications", {
 export const communitySchema = pgTable("communities", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   name: text("name").notNull(),
-  description: text("description"),
+  description: text("description").notNull(),
   banner: text("banner"),
   icon: text("icon"),
   members: uuid("members_id")

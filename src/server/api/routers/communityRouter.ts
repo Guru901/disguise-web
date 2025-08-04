@@ -42,4 +42,19 @@ export const communityRouter = createTRPCRouter({
   getTrendingCommunities: protectedProcedure.query(async () => {
     return await communityDal.getTrendingCommunities();
   }),
+
+  joinCommunityToggle: protectedProcedure
+    .input(
+      v.object({
+        isJoined: v.boolean(),
+        communityId: v.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await communityDal.joinCommunityToggle(
+        input.communityId,
+        input.isJoined,
+        ctx.userId,
+      );
+    }),
 });
