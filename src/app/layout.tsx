@@ -21,7 +21,6 @@ const inter = Inter({
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // Use a client component to get the font from the store
   return (
     <html lang="en">
       <body className={inter.className}>

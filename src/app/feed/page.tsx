@@ -23,13 +23,15 @@ type Post = NonNullable<
 >;
 
 export default function FeedPage() {
-  <Suspense>
-    <Feed />
-  </Suspense>
+  return (
+    <Suspense>
+      <Feed />
+    </Suspense>
+  );
 }
 
 function Feed() {
- const { user } = useGetUser();
+  const { user } = useGetUser();
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver>(null);
   const [page, setPage] = useState(1);
@@ -37,13 +39,11 @@ function Feed() {
 
   const refetch = useSearchParams().get("refetch") === "true";
 
-  const {
-    data: posts,
-    isLoading: isPostsLoading,
-  } = api.postRouter.getFeed.useQuery({
-    page,
-    limit: 10,
-  });
+  const { data: posts, isLoading: isPostsLoading } =
+    api.postRouter.getFeed.useQuery({
+      page,
+      limit: 10,
+    });
 
   const lastPostRef = useCallback(
     (node: HTMLDivElement) => {
