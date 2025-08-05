@@ -15,6 +15,7 @@ import {
   X,
   Eye,
   EyeOff,
+  InfoIcon,
 } from "lucide-react";
 import * as icons from "./icons";
 import { useState, useEffect, useCallback } from "react";
@@ -119,6 +120,8 @@ export function PostDetails({ postId }: { postId: string }) {
     searchTerm: searchTerm,
   });
 
+  const { data: communities, isLoading: isLoadingCommunities } =
+    api.communityRouter.getAllCommunities.useQuery();
   const {
     inputValue,
     setInputValue,
@@ -245,6 +248,14 @@ export function PostDetails({ postId }: { postId: string }) {
     reset,
   } = useForm<TUploadPostSchema>({
     resolver: valibotResolver(uploadPostSchema),
+    defaultValues: {
+      title: "",
+      content: "",
+      image: [],
+      isPublic: true,
+      author: "",
+      community: "",
+    },
   });
 
   // Reset form when post data loads or dialog opens
@@ -256,6 +267,7 @@ export function PostDetails({ postId }: { postId: string }) {
         image: post.image ?? [],
         isPublic: post.isPublic,
         author: user.id,
+        community: post.community ?? "",
       });
       // Initialize edit images
       setEditImages(post.image ?? []);
@@ -1085,7 +1097,7 @@ export function PostDetails({ postId }: { postId: string }) {
                                 <SelectTrigger className="w-full">
                                   <SelectValue placeholder="Select visibility" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="z-[10001]">
                                   <SelectItem value="true">
                                     <div className="flex items-center gap-2">
                                       <Eye size={16} />
@@ -1108,6 +1120,47 @@ export function PostDetails({ postId }: { postId: string }) {
                             </p>
                           )}
                         </div>
+                        <div className="space-y-3">
+                          <Label
+                            htmlFor="community"
+                            className="text-base font-semibold"
+                          >
+                            Community
+                          </Label>
+                          <Controller
+                            name="community"
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                }}
+                                value={field.value || ""}
+                              >
+                                <SelectTrigger className="h-12 w-full">
+                                  <SelectValue placeholder="Choose a community" />
+                                </SelectTrigger>
+                                <SelectContent className="z-[10001]">
+                                  {communities?.data?.map((community) => (
+                                    <SelectItem
+                                      key={community.id}
+                                      value={community.id}
+                                      className="flex w-full items-center gap-2"
+                                    >
+                                      {community.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
+                          {errors.community && (
+                            <p className="flex items-center gap-1 text-sm text-red-500">
+                              <InfoIcon size={14} />
+                              {errors.community.message}
+                            </p>
+                          )}
+                        </div>
 
                         <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
                           <DialogClose asChild>
@@ -1125,6 +1178,9 @@ export function PostDetails({ postId }: { postId: string }) {
                             type="submit"
                             className="w-full sm:w-auto"
                             disabled={editPostMutation.isPending}
+                            onClick={() => {
+                              console.log(errors);
+                            }}
                           >
                             {editPostMutation.isPending ? (
                               <>
