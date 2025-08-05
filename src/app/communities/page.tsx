@@ -32,7 +32,6 @@ export default function CommunitiesPage() {
 
   const {
     data: joinedCommunities,
-    isLoading: isJoinedCommunitiesLoading,
     refetch: refetchJoinedCommunities,
   } = api.communityRouter.getUserJoinedCommunities.useQuery();
 

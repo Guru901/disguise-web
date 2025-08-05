@@ -58,7 +58,6 @@ import {
   CarouselNext,
 } from "../ui/carousel";
 import { Badge } from "../ui/badge";
-import { QueryClient } from "@tanstack/react-query";
 
 export function PostDetails({ postId }: { postId: string }) {
   const { user, refetchUser } = useGetUser();
@@ -120,7 +119,7 @@ export function PostDetails({ postId }: { postId: string }) {
     searchTerm: searchTerm,
   });
 
-  const { data: communities, isLoading: isLoadingCommunities } =
+  const { data: communities } =
     api.communityRouter.getAllCommunities.useQuery();
   const {
     inputValue,
