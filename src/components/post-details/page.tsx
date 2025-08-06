@@ -1220,7 +1220,7 @@ export function PostDetails({ postId }: { postId: string }) {
                   <div className="relative flex-1">
                     <Input
                       type="text"
-                      className="w-full rounded-md py-5"
+                      className="w-full rounded-md"
                       placeholder={
                         replyTo
                           ? "Write your reply..."
@@ -1267,7 +1267,6 @@ export function PostDetails({ postId }: { postId: string }) {
                       </Button>
                     </CldUploadButton>
                     <Button
-                      className="py-5"
                       onClick={addComment}
                       disabled={
                         commentLoading ??
