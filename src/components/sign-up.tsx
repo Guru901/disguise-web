@@ -69,7 +69,7 @@ export default function SignUp() {
       <CardContent>
         <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-2">
-            <Label htmlFor="username">First name</Label>
+            <Label htmlFor="username">Username</Label>
             <Controller
               name="username"
               render={({ field }) => (
