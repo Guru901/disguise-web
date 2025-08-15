@@ -9,6 +9,7 @@ import { useState, useEffect, Suspense } from "react";
 import UserCard from "@/components/user-card";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader } from "@/components/loader";
+import InputWithStartIcon from "@/components/ui/input-wth-icon";
 
 export default function SaerchPage() {
   return (
@@ -72,12 +73,13 @@ function Search() {
   return (
     <>
       <div className="relative mb-6">
-        <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-        <Input
-          placeholder="Search for users..."
+        <InputWithStartIcon
+          Icon={SearchIcon}
+          id="search-input"
           value={query}
+          placeholder="Search for users..."
           onChange={(e) => router.push(`?q=${e.target.value}`)}
-          className="py-6 pl-10 text-xl"
+          className="py-6 text-xl"
         />
       </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, TrendingUp, Users, Sparkles } from "lucide-react";
+import { Plus, TrendingUp, Users, Sparkles, SearchIcon } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingCommunity } from "./trending-community";
 import { toast } from "sonner";
+import InputWithStartIcon from "@/components/ui/input-wth-icon";
 
 export default function CommunitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,10 +31,8 @@ export default function CommunitiesPage() {
     isLoading: isJoinedCommunitiesDataLoading,
   } = api.communityRouter.getUserJoinedCommunitiesData.useQuery();
 
-  const {
-    data: joinedCommunities,
-    refetch: refetchJoinedCommunities,
-  } = api.communityRouter.getUserJoinedCommunities.useQuery();
+  const { data: joinedCommunities, refetch: refetchJoinedCommunities } =
+    api.communityRouter.getUserJoinedCommunities.useQuery();
 
   const joinCommunityToggleMutation =
     api.communityRouter.joinCommunityToggle.useMutation({
@@ -75,11 +74,13 @@ export default function CommunitiesPage() {
       <div className="space-y-8 px-4 pb-6">
         {/* Enhanced Search Bar */}
         <div className="relative mb-6">
-          <Input
-            placeholder="Search communities"
+          <InputWithStartIcon
+            Icon={SearchIcon}
+            id="search-input"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="py-6"
+            placeholder="Search communities"
           />
         </div>
 

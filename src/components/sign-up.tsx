@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { CldUploadButton } from "next-cloudinary";
 import { useState } from "react";
 import Image from "next/image";
+import { SignUpPasswordInput } from "./ui/sign-up-password-input";
 
 export default function SignUp() {
   const router = useRouter();
@@ -86,14 +87,7 @@ export default function SignUp() {
             <Controller
               name="password"
               render={({ field }) => (
-                <Input
-                  {...field}
-                  id="password"
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="Password"
-                  showPasswordToggle
-                />
+                <SignUpPasswordInput id="password" {...field} />
               )}
               control={control}
             />
