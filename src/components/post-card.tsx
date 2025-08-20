@@ -240,7 +240,7 @@ const PostCard = React.forwardRef<
                 <Carousel>
                   <CarouselContent>
                     {image.map((img, idx) => (
-                      <CarouselItem key={img + idx}>
+                      <CarouselItem key={img + idx} className="relative">
                         <MediaPlayer
                           url={img}
                           imageProps={{
@@ -254,11 +254,19 @@ const PostCard = React.forwardRef<
                               "h-52 w-full rounded-md bg-black object-cover",
                           }}
                         />
+                        <div className="absolute top-2 left-6 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                          {idx + 1} of {image?.length ?? 0}
+                          {img.endsWith(".mp4") ||
+                          img.endsWith(".mkv") ||
+                          img.endsWith(".mov")
+                            ? " (video)"
+                            : " (image)"}
+                        </div>
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
+                  <CarouselPrevious className="absolute left-[8px] z-50" />
+                  <CarouselNext className="absolute right-[8px] z-50" />
                 </Carousel>
               </div>
             ) : (

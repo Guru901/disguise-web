@@ -110,7 +110,7 @@ export function SignUpPasswordInput({
         id={`${id}-description`}
         className="text-foreground mb-2 text-sm font-medium"
       >
-        {getStrengthText(strengthScore)}. Must contain:
+        {getStrengthText(strengthScore)}
       </p>
 
       {/* Password requirements list */}

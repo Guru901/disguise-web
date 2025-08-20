@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Plus, TrendingUp, Users, Sparkles, SearchIcon } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
