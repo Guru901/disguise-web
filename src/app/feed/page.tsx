@@ -102,6 +102,7 @@ function Feed() {
               likes={post.likes ?? []}
               disLikes={post.disLikes ?? []}
               loggedInUserId={user.id}
+              commentCount={post.commentsCount}
               loggedInUserUsername={user.username}
               key={post.id}
               savedCount={post.savedCount}

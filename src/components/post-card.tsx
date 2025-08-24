@@ -5,11 +5,11 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { formatTimeAgo } from "@/lib/format-time-ago";
-import { Bookmark, Share2 } from "lucide-react";
+import { Bookmark, MessageCircleIcon, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { api } from "@/trpc/react";
@@ -39,6 +39,7 @@ const PostCard = React.forwardRef<
     savedCount: number;
     loggedInUserId: string;
     loggedInUserUsername: string;
+    commentCount: number;
   }
 >(
   (
@@ -56,6 +57,7 @@ const PostCard = React.forwardRef<
       savedCount,
       loggedInUserId,
       loggedInUserUsername,
+      commentCount,
     },
     ref,
   ) => {
@@ -348,6 +350,22 @@ const PostCard = React.forwardRef<
                   {hasSaved ? "Unsave" : "Save"}
                 </span>
               </Button>
+            </div>
+            <div className="flex items-center gap-1">
+              <Link
+                className={buttonVariants({
+                  variant: "ghost",
+                  className: "group relative flex gap-1",
+                  size: "icon",
+                })}
+                href={`/p?post=${id}&image=${image!.length > 0}&author=${username === loggedInUserUsername}&comment=true`}
+              >
+                <MessageCircleIcon />
+                <span>{commentCount}</span>
+                <span className="pointer-events-none absolute top-full left-1/2 z-10 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+                  Comments
+                </span>
+              </Link>
             </div>
           </div>
           <Link

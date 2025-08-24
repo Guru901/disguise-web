@@ -78,6 +78,7 @@ export function PostDetails({ postId }: { postId: string }) {
 
   const isImageParam = searchParams.get("image");
   const isAuthorParam = searchParams.get("author");
+  const isCommentParam = searchParams.get("comment");
 
   // Use post fields for all logic below
   const [newComment, setNewComment] = useState({
@@ -350,6 +351,18 @@ export function PostDetails({ postId }: { postId: string }) {
       }, 100);
     }
   }, [replyTo, inputRef]);
+
+  useEffect(() => {
+    if (isCommentParam === "true") {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }, [isCommentParam]);
 
   useEffect(() => {
     if (isAuthorParam === "true") {
