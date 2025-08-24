@@ -68,6 +68,7 @@ export function PostDetails({ postId }: { postId: string }) {
     data: post,
     isLoading: isPostLoading,
     refetch: refetchPost,
+    isFetched,
   } = api.postRouter.getPostById.useQuery({ postId });
 
   const searchParams = useSearchParams();
@@ -353,7 +354,7 @@ export function PostDetails({ postId }: { postId: string }) {
   }, [replyTo, inputRef]);
 
   useEffect(() => {
-    if (isCommentParam === "true") {
+    if (isCommentParam === "true" && isFetched) {
       if (inputRef.current) {
         inputRef.current.focus();
         inputRef.current.scrollIntoView({
@@ -362,7 +363,7 @@ export function PostDetails({ postId }: { postId: string }) {
         });
       }
     }
-  }, [isCommentParam]);
+  }, [isCommentParam, isFetched]);
 
   useEffect(() => {
     if (isAuthorParam === "true") {
