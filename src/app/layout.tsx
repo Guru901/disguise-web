@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 
-import { type Metadata } from "next";
+import { type Metadata, type Viewport } from "next";
 import { Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
@@ -12,6 +12,10 @@ import { BottomNavbar, DesktopSidebar } from "@/components/navigation";
 export const metadata: Metadata = {
   title: "Social Media again",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+};
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
 };
 
 const inter = Inter({

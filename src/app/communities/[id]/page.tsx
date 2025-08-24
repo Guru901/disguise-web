@@ -138,7 +138,9 @@ export default function CommunityPage() {
                       variant="outline"
                       size="sm"
                       onClick={async () => {
-                        await navigator.clipboard.writeText(window.location.href);
+                        await navigator.clipboard.writeText(
+                          window.location.href,
+                        );
                         toast("Copied to clipboard");
                       }}
                     >
@@ -233,6 +235,7 @@ export default function CommunityPage() {
                       avatar={post.createdBy?.avatar ?? ""}
                       username={post.createdBy?.username ?? "User"}
                       authorId={post.createdBy?.id ?? ""}
+                      commentCount={post.commentsCount}
                       title={post.title}
                       image={post.image}
                       createdAt={new Date(post.createdAt)}
@@ -258,6 +261,7 @@ export default function CommunityPage() {
                       avatar={post.createdBy?.avatar ?? ""}
                       username={post.createdBy?.username ?? "User"}
                       authorId={post.createdBy?.id ?? ""}
+                      commentCount={post.commentsCount}
                       title={post.title}
                       image={post.image}
                       createdAt={new Date(post.createdAt)}
@@ -294,6 +298,7 @@ export default function CommunityPage() {
                       loggedInUserId={user.id}
                       loggedInUserUsername={user.username}
                       key={post.id}
+                      commentCount={post.commentsCount}
                       savedCount={post.savedCount}
                     />
                   ))}
