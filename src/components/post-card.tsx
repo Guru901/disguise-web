@@ -329,19 +329,6 @@ const PostCard = React.forwardRef<
                 className="group relative flex gap-1"
                 variant={"ghost"}
                 size={"icon"}
-                onClick={copyUrlToClipboard}
-              >
-                <Share2 />
-                <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                  Share
-                </span>
-              </Button>
-            </div>
-            <div className="flex items-center gap-1">
-              <Button
-                className="group relative flex gap-1"
-                variant={"ghost"}
-                size={"icon"}
                 onClick={savePost}
               >
                 <Bookmark fill={hasSaved ? "currentColor" : "transparent"} />
@@ -366,6 +353,19 @@ const PostCard = React.forwardRef<
                   Comments
                 </span>
               </Link>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                className="group relative flex gap-1"
+                variant={"ghost"}
+                size={"icon"}
+                onClick={copyUrlToClipboard}
+              >
+                <Share2 />
+                <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+                  Share
+                </span>
+              </Button>
             </div>
           </div>
           <Link

@@ -556,7 +556,7 @@ export function PostDetails({ postId }: { postId: string }) {
   const visibility = watch("isPublic");
 
   return (
-    <Card className="flex h-[calc(100vh+15rem)] w-full items-start py-0 pb-12 md:h-fit md:w-fit md:pb-0">
+    <Card className="flex min-h-[calc(100vh+15rem)] w-full items-start py-0 pb-12 md:h-fit md:w-fit md:pb-0">
       <div className="h-auto w-full px-2 py-3 sm:px-6 md:w-auto lg:p-2">
         <div className="flex flex-col px-[6px] pb-[6px] md:min-w-[60vw] md:flex-row md:py-[6px]">
           <div className="w-full py-6 sm:w-3/4 sm:p-6">
@@ -595,6 +595,13 @@ export function PostDetails({ postId }: { postId: string }) {
                   </div>
                   <div className="text-muted-foreground text-xs font-semibold">
                     {formatTimeAgo(post.createdAt)}
+                  </div>
+                  <div className="text-muted-foreground text-xs font-semibold">
+                    {
+                      communities?.data?.find(
+                        (community) => community.id === post.community,
+                      )?.name
+                    }
                   </div>
                 </div>
               </div>
