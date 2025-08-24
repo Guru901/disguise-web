@@ -213,9 +213,9 @@ export default function Comment({
       return (
         <form
           onSubmit={handleSubmit(handleEditSubmit)}
-          className="mt-2 space-y-2"
+          className="mt-3 space-y-3"
         >
-          <div className="text-muted-foreground mb-1 text-sm">
+          <div className="text-muted-foreground text-sm font-medium">
             Editing {isReplyComment ? "reply" : "comment"}
           </div>
           <Controller
@@ -232,31 +232,31 @@ export default function Comment({
               <Input
                 {...field}
                 placeholder={`Edit your ${isReplyComment ? "reply" : "comment"}...`}
-                className="w-full"
+                className="min-h-[44px] w-full text-base" // Better touch target
                 autoFocus
                 disabled={editCommentMutation.isPending}
               />
             )}
           />
           {errors.content && (
-            <p className="text-destructive text-xs">{errors.content.message}</p>
+            <p className="text-destructive text-sm">{errors.content.message}</p>
           )}
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Button
               type="submit"
               size="sm"
               disabled={editCommentMutation.isPending}
-              className="h-8"
+              className="min-h-[44px] flex-1 sm:flex-none"
             >
               {editCommentMutation.isPending ? (
                 <>
-                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
               ) : (
                 <>
-                  <Check className="mr-1 h-3 w-3" />
-                  Save
+                  <Check className="mr-2 h-4 w-4" />
+                  Save Changes
                 </>
               )}
             </Button>
@@ -266,9 +266,9 @@ export default function Comment({
               size="sm"
               onClick={handleCancelEdit}
               disabled={editCommentMutation.isPending}
-              className="h-8"
+              className="min-h-[44px] flex-1 sm:flex-none"
             >
-              <X className="mr-1 h-3 w-3" />
+              <X className="mr-2 h-4 w-4" />
               Cancel
             </Button>
           </div>
@@ -278,14 +278,18 @@ export default function Comment({
 
     return (
       <div
-        className={`text-accent-foreground ${isDeleted ? "text-muted-foreground italic" : ""}`}
+        className={`mt-2 leading-relaxed ${
+          isDeleted ? "text-muted-foreground italic" : "text-foreground"
+        }`}
       >
         {isDeleted ? (
           <p className="text-sm">This comment has been deleted</p>
         ) : !targetComment.content.includes("@") ? (
-          <p>{targetComment.content}</p>
+          <p className="text-sm break-words sm:text-base">
+            {targetComment.content}
+          </p>
         ) : (
-          <p>
+          <p className="text-sm break-words sm:text-base">
             {targetComment.content
               .split(" ")
               .map((word: string, index: number) =>
@@ -316,13 +320,13 @@ export default function Comment({
         <Button
           variant="ghost"
           size="icon"
-          className={isReplyComment ? "h-8 w-8" : ""}
+          className="h-min shrink-0 py-0"
           disabled={deleteState.isDeleting || editCommentMutation.isPending}
         >
-          <EllipsisVerticalIcon className={isReplyComment ? "h-4 w-4" : ""} />
+          <EllipsisVerticalIcon className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
+      <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem
           onClick={() => {
             handleReply(
@@ -331,8 +335,9 @@ export default function Comment({
             );
           }}
           disabled={deleteState.isDeleting || editCommentMutation.isPending}
+          className="cursor-pointer"
         >
-          <Reply className="mr-2 h-4 w-4" />
+          <Reply className="mr-3 h-4 w-4" />
           Reply
         </DropdownMenuItem>
         {user.id === targetComment.authorId && (
@@ -344,8 +349,9 @@ export default function Comment({
                 editCommentMutation.isPending ??
                 editState.commentId !== null
               }
+              className="cursor-pointer"
             >
-              <Edit className="mr-2 h-4 w-4" />
+              <Edit className="mr-3 h-4 w-4" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -353,9 +359,9 @@ export default function Comment({
                 handleDeleteClick(targetComment.id, isReplyComment)
               }
               disabled={deleteState.isDeleting || editCommentMutation.isPending}
-              className="text-destructive focus:text-destructive hover:bg-destructive/10"
+              className="text-destructive focus:text-destructive hover:bg-destructive/10 cursor-pointer"
             >
-              <Trash className="mr-2 h-4 w-4" />
+              <Trash className="mr-3 h-4 w-4" />
               Delete
             </DropdownMenuItem>
           </>
@@ -365,39 +371,35 @@ export default function Comment({
   );
 
   return (
-    <div>
+    <div className="w-full">
       {/* Main comment */}
-      <div className="flex items-start">
-        <div className="mr-4">
-          <Avatar className="h-14 w-14">
+      <div className="flex flex-col gap-3 p-3 sm:p-4 md:flex-row">
+        {/* Avatar */}
+        <div className="flex shrink-0 gap-3">
+          <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
             <AvatarImage
               src={comment.authorAvatar ?? ""}
-              alt="Avatar"
-              width={56}
-              height={56}
+              alt={`${comment.authorUsername ?? "User"}'s avatar`}
               className="rounded-full"
             />
             <AvatarFallback>
-              <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-1">
-                <span className="text-foreground">
-                  {comment.authorUsername?.slice(0, 1)}
+              <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-2">
+                <span className="text-foreground text-sm font-medium sm:text-base">
+                  {comment.authorUsername?.slice(0, 1).toUpperCase() ?? "U"}
                 </span>
               </div>
             </AvatarFallback>
           </Avatar>
-        </div>
-        <div className="flex w-full justify-between">
-          <div className="flex-1">
-            <div className="text-md font-semibold text-[#949BA8]">
+          <div className="static flex w-full items-start justify-between gap-2 md:hidden">
+            <div className="min-w-0 flex-1">
               <Link
                 href={`/u/${comment.authorId}`}
-                className="transition-all hover:underline"
+                className="group inline-flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2"
               >
-                <span className="underline">
+                <span className="text-foreground truncate text-sm font-semibold group-hover:underline sm:text-base">
                   {comment.authorUsername ?? "User"}
                 </span>
-                {" • "}
-                <span className="text-xs font-light">
+                <span className="text-muted-foreground shrink-0 text-xs sm:text-sm">
                   {formatTimeAgo(
                     typeof comment.createdAt === "string"
                       ? new Date(comment.createdAt)
@@ -406,156 +408,322 @@ export default function Comment({
                 </span>
               </Link>
             </div>
-            {renderCommentContent(comment, comment.isDeleted ?? false)}
-            {comment.image && !comment.isDeleted && (
-              <div className="mt-2">
-                <MediaPlayer
-                  imageProps={{
-                    alt: "Comment attachment",
-                    width: 250,
-                    height: 150,
-                    className: "w-full rounded-md object-cover",
-                  }}
-                  videoProps={{
-                    className: "md:max-w-[28rem] w-full",
-                  }}
-                  url={comment.image}
-                />
-              </div>
+            {!comment.isDeleted && (
+              <div className="shrink-0">{renderDropdownMenu(comment)}</div>
             )}
           </div>
-          {!comment.isDeleted && renderDropdownMenu(comment)}
+        </div>
+
+        {/* Content */}
+        <div className="min-w-0 flex-1">
+          {/* Header */}
+          <div className="hidden w-full items-center justify-between gap-2 md:flex">
+            <div className="min-w-0 flex-1">
+              <Link
+                href={`/u/${comment.authorId}`}
+                className="flex items-center gap-2"
+              >
+                <span className="text-foreground truncate text-sm font-semibold group-hover:underline sm:text-base">
+                  {comment.authorUsername ?? "User"}
+                </span>
+                <div className="bg-muted-foreground h-1 w-1 rounded-full"></div>
+                <span className="text-muted-foreground shrink-0 text-xs sm:text-sm">
+                  {formatTimeAgo(
+                    typeof comment.createdAt === "string"
+                      ? new Date(comment.createdAt)
+                      : comment.createdAt,
+                  )}
+                </span>
+              </Link>
+            </div>
+            {!comment.isDeleted && (
+              <div className="shrink-0 p-0">{renderDropdownMenu(comment)}</div>
+            )}
+          </div>
+
+          {/* Comment content */}
+          {renderCommentContent(comment, comment.isDeleted ?? false)}
+
+          {/* Image/Media */}
+          {comment.image && !comment.isDeleted && (
+            <div className="mt-3">
+              <MediaPlayer
+                imageProps={{
+                  alt: "Comment attachment",
+                  width: 300,
+                  height: 100,
+                  className: "w-full max-w-sm rounded-lg object-cover border",
+                }}
+                videoProps={{
+                  className: "w-full max-w-sm rounded-lg border",
+                }}
+                url={comment.image}
+              />
+            </div>
+          )}
         </div>
       </div>
 
       {/* Replies section */}
       {replies.length > 0 && (
-        <div className="border-muted mt-4 ml-18 space-y-3 border-l-2 pl-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => toggleReplies(comment.id)}
-            className="text-muted-foreground hover:text-foreground text-xs transition-colors"
-            disabled={deleteState.isDeleting || editCommentMutation.isPending}
-          >
-            {expandedReplies.has(comment.id)
-              ? `Hide ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`
-              : `Show ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`}
-          </Button>
-          {expandedReplies.has(comment.id) && (
-            <div className="flex flex-col gap-4">
-              {replies.reverse().map((reply) => (
-                <div key={reply.id} className="flex items-start">
-                  <div className="mr-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage
-                        src={reply.authorAvatar ?? ""}
-                        alt="Avatar"
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                      />
-                      <AvatarFallback>
-                        <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-1">
-                          <span className="text-foreground text-sm">
-                            {reply.authorUsername?.slice(0, 1)}
-                          </span>
+        <>
+          <div className="border-muted border-l-2 pl-4 sm:ml-12 sm:pl-6 md:ml-8 md:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleReplies(comment.id)}
+              className="text-muted-foreground mb-3 text-[12px] transition-colors"
+              disabled={deleteState.isDeleting || editCommentMutation.isPending}
+            >
+              {expandedReplies.has(comment.id)
+                ? `Hide ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`
+                : `Show ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`}
+            </Button>
+
+            {expandedReplies.has(comment.id) && (
+              <div className="space-y-4">
+                {replies.map((reply) => (
+                  <div className="flex justify-between gap-3 p-3 sm:p-4 md:flex-row" key={reply.id}>
+                    {/* Avatar */}
+                    <div className="flex flex-col">
+                      <div className="flex shrink-0 items-center gap-3">
+                        <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
+                          <AvatarImage
+                            src={reply.authorAvatar ?? ""}
+                            alt={`${reply.authorUsername ?? "User"}'s avatar`}
+                            className="rounded-full"
+                          />
+                          <AvatarFallback>
+                            <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-2">
+                              <span className="text-foreground text-sm font-medium sm:text-base">
+                                {reply.authorUsername
+                                  ?.slice(0, 1)
+                                  .toUpperCase() ?? "U"}
+                              </span>
+                            </div>
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex w-full items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <Link
+                              href={`/u/${reply.authorId}`}
+                              className="group inline-flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2"
+                            >
+                              <span className="text-foreground truncate text-sm font-semibold group-hover:underline sm:text-base">
+                                {reply.authorUsername ?? "User"}
+                              </span>
+                              <span className="text-muted-foreground shrink-0 text-xs sm:text-sm">
+                                {formatTimeAgo(
+                                  typeof reply.createdAt === "string"
+                                    ? new Date(reply.createdAt)
+                                    : reply.createdAt,
+                                )}
+                              </span>
+                            </Link>
+                          </div>
+                          {/* {!reply.isDeleted && (
+                        <div className="shrink-0">
+                          {renderDropdownMenu(comment)}
                         </div>
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                  <div className="flex w-full justify-between">
-                    <div className="flex-1">
-                      <div className="text-sm text-[#949BA8]">
-                        <Link
-                          href={`/u/${reply.authorId}`}
-                          className="transition-all hover:underline"
-                        >
-                          <span className="underline">
-                            {reply.authorUsername ?? "User"}
-                          </span>
-                          {" • "}
-                          <span className="text-sm font-light">
-                            {formatTimeAgo(
-                              typeof reply.createdAt === "string"
-                                ? new Date(reply.createdAt)
-                                : reply.createdAt,
-                            )}
-                          </span>
-                        </Link>
+                      )} */}
+                        </div>
                       </div>
-                      <div className="text-accent-foreground text-sm font-medium">
-                        {renderCommentContent(
-                          reply,
-                          reply.isDeleted ?? false,
-                          true,
+
+                      {/* Content */}
+                      <div className="min-w-0 flex-1">
+                        {/* Comment content */}
+                        {renderCommentContent(reply, reply.isDeleted ?? false)}
+
+                        {/* Image/Media */}
+                        {reply.image && !reply.isDeleted && (
+                          <div className="mt-3">
+                            <MediaPlayer
+                              imageProps={{
+                                alt: "Comment attachment",
+                                width: 300,
+                                height: 100,
+                                className:
+                                  "w-full max-w-sm rounded-lg object-cover border",
+                              }}
+                              videoProps={{
+                                className: "w-full max-w-sm rounded-lg border",
+                              }}
+                              url={reply.image}
+                            />
+                          </div>
                         )}
                       </div>
+                    </div>
+                    {!reply.isDeleted && (
+                      <div className="shrink-0">
+                        {renderDropdownMenu(comment)}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="border-muted hidden border-l-2 pl-4 sm:ml-12 sm:pl-6 md:ml-8 md:block">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleReplies(comment.id)}
+              className="text-muted-foreground mb-3 text-[12px] transition-colors"
+              disabled={deleteState.isDeleting || editCommentMutation.isPending}
+            >
+              {expandedReplies.has(comment.id)
+                ? `Hide ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`
+                : `Show ${replies.length} repl${replies.length === 1 ? "y" : "ies"}`}
+            </Button>
+
+            {expandedReplies.has(comment.id) && (
+              <div className="space-y-4">
+                {replies.map((reply) => (
+                  <div className="hidden flex-col gap-3 p-3 sm:p-4 md:flex md:flex-row" key={reply.id}>
+                    {/* Avatar */}
+                    <div className="flex shrink-0 gap-3">
+                      <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
+                        <AvatarImage
+                          src={reply.authorAvatar ?? ""}
+                          alt={`${reply.authorUsername ?? "User"}'s avatar`}
+                          className="rounded-full"
+                        />
+                        <AvatarFallback>
+                          <div className="bg-background border-primary flex h-full w-full items-center justify-center rounded-full border-2">
+                            <span className="text-foreground text-sm font-medium sm:text-base">
+                              {reply.authorUsername
+                                ?.slice(0, 1)
+                                .toUpperCase() ?? "U"}
+                            </span>
+                          </div>
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="static flex w-full items-start justify-between gap-2 md:hidden">
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/u/${reply.authorId}`}
+                            className="group inline-flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2"
+                          >
+                            <span className="text-foreground truncate text-sm font-semibold group-hover:underline sm:text-base">
+                              {reply.authorUsername ?? "User"}
+                            </span>
+                            <span className="text-muted-foreground shrink-0 text-xs sm:text-sm">
+                              {formatTimeAgo(
+                                typeof reply.createdAt === "string"
+                                  ? new Date(reply.createdAt)
+                                  : reply.createdAt,
+                              )}
+                            </span>
+                          </Link>
+                        </div>
+                        {!reply.isDeleted && (
+                          <div className="shrink-0">
+                            {renderDropdownMenu(reply)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="min-w-0 flex-1">
+                      {/* Header */}
+                      <div className="hidden w-full items-center justify-between gap-2 md:flex">
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/u/${reply.authorId}`}
+                            className="flex items-center gap-2"
+                          >
+                            <span className="text-foreground truncate text-sm font-semibold group-hover:underline sm:text-base">
+                              {reply.authorUsername ?? "User"}
+                            </span>
+                            <div className="bg-muted-foreground h-1 w-1 rounded-full"></div>
+                            <span className="text-muted-foreground shrink-0 text-xs sm:text-sm">
+                              {formatTimeAgo(
+                                typeof reply.createdAt === "string"
+                                  ? new Date(reply.createdAt)
+                                  : reply.createdAt,
+                              )}
+                            </span>
+                          </Link>
+                        </div>
+                        {!reply.isDeleted && (
+                          <div className="shrink-0 p-0">
+                            {renderDropdownMenu(reply)}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Comment content */}
+                      {renderCommentContent(reply, reply.isDeleted ?? false)}
+
+                      {/* Image/Media */}
                       {reply.image && !reply.isDeleted && (
-                        <div className="mt-2">
+                        <div className="mt-3">
                           <MediaPlayer
-                            url={reply.image}
                             imageProps={{
-                              alt: "Reply attachment",
-                              width: 250,
-                              height: 150,
+                              alt: "Comment attachment",
+                              width: 300,
+                              height: 100,
+                              className:
+                                "w-full max-w-sm rounded-lg object-cover border",
                             }}
                             videoProps={{
-                              className: "md:max-w-[28rem] w-full",
+                              className: "w-full max-w-sm rounded-lg border",
                             }}
+                            url={reply.image}
                           />
                         </div>
                       )}
                     </div>
-                    {!reply.isDeleted && renderDropdownMenu(reply, true)}
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* Enhanced Delete Confirmation Dialog */}
       <Dialog open={deleteState.isOpen} onOpenChange={closeDeleteDialog}>
-        <DialogContent className="sm:max-w-md">
-          <div className="mb-4 flex items-center gap-4">
+        <DialogContent className="mx-4 sm:max-w-md">
+          <div className="mb-6 flex items-start gap-4">
             <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-50">
               <Trash className="h-6 w-6 text-red-600" />
             </div>
-            <div>
-              <DialogTitle className="text-foreground text-lg font-semibold">
+            <div className="flex-1">
+              <DialogTitle className="text-foreground mb-1 text-lg font-semibold">
                 Delete {deleteState.isReply ? "Reply" : "Comment"}
               </DialogTitle>
-              <p className="text-muted-foreground mt-1 text-sm">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 This action cannot be undone. The comment will be permanently
-                removed.
+                removed from the discussion.
               </p>
             </div>
           </div>
-          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
+          <DialogFooter className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-2">
             <Button
               variant="outline"
               onClick={closeDeleteDialog}
               disabled={deleteState.isDeleting}
-              className="w-full sm:w-auto"
+              className="min-h-[44px] w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               onClick={confirmDelete}
               disabled={deleteState.isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 min-h-[44px] w-full sm:w-auto"
             >
               {deleteState.isDeleting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Deleting...
                 </>
               ) : (
                 <>
-                  <Trash className="h-4 w-4" />
-                  Delete
+                  <Trash className="mr-2 h-4 w-4" />
+                  Delete Forever
                 </>
               )}
             </Button>
