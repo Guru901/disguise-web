@@ -285,7 +285,7 @@ export default function Comment({
         {isDeleted ? (
           <p className="text-sm">This comment has been deleted</p>
         ) : !targetComment.content.includes("@") ? (
-          <p className="text-sm break-words sm:text-base">
+          <p className="text-[15px] break-words sm:text-base">
             {targetComment.content}
           </p>
         ) : (
@@ -483,7 +483,10 @@ export default function Comment({
             {expandedReplies.has(comment.id) && (
               <div className="space-y-4">
                 {replies.map((reply) => (
-                  <div className="flex justify-between gap-3 p-3 sm:p-4 md:flex-row" key={reply.id}>
+                  <div
+                    className="flex justify-between gap-3 p-3 sm:p-4 md:flex-row"
+                    key={reply.id}
+                  >
                     {/* Avatar */}
                     <div className="flex flex-col">
                       <div className="flex shrink-0 items-center gap-3">
@@ -580,7 +583,10 @@ export default function Comment({
             {expandedReplies.has(comment.id) && (
               <div className="space-y-4">
                 {replies.map((reply) => (
-                  <div className="hidden flex-col gap-3 p-3 sm:p-4 md:flex md:flex-row" key={reply.id}>
+                  <div
+                    className="hidden flex-col gap-3 p-3 sm:p-4 md:flex md:flex-row"
+                    key={reply.id}
+                  >
                     {/* Avatar */}
                     <div className="flex shrink-0 gap-3">
                       <Avatar className="h-10 w-10 sm:h-12 sm:w-12">

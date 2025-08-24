@@ -236,7 +236,7 @@ const PostCard = React.forwardRef<
         </CardHeader>
         <CardContent className="px-4 py-0">
           <div className="space-y-3">
-            <p>{title}</p>
+            <p className="text-md font-semibold md:text-lg">{title}</p>
             {image && image.length > 1 && image[0] !== "" ? (
               <div className="mt-2">
                 <Carousel>
@@ -291,7 +291,11 @@ const PostCard = React.forwardRef<
                 </div>
               )
             )}
-            {content && <p className="truncate overflow-hidden">{content}</p>}
+            {content && (
+              <p className="md:text-md truncate overflow-hidden text-sm">
+                {content}
+              </p>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex items-center justify-between px-4 py-3">

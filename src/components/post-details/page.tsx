@@ -610,7 +610,7 @@ export function PostDetails({ postId }: { postId: string }) {
               {isPostLoading || !post ? (
                 <Skeleton className="h-7 w-3/4 max-w-md" />
               ) : (
-                <p className="text-xl font-semibold">{post.title}</p>
+                <p className="text-lg font-semibold md:text-xl">{post.title}</p>
               )}
             </div>
             {isImage &&
@@ -710,7 +710,7 @@ export function PostDetails({ postId }: { postId: string }) {
                       emptyLineCount = 0;
                       const parts = line.split(/(#\w+)/g);
                       elements.push(
-                        <p className="text-lg" key={`p-${idx}`}>
+                        <p className="text-md md:text-lg" key={`p-${idx}`}>
                           {parts.map((part, i) =>
                             /^#\w+/.test(part) ? (
                               <Link
