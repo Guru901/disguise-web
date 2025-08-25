@@ -18,6 +18,13 @@ export default function Profile() {
 
   const { data, isLoading } = api.userRouter.getUserData.useQuery();
 
+  // for caching the feed
+
+  api.postRouter.getFeed.useQuery({
+    page: 1,
+    limit: 10,
+  });
+
   const { data: userPosts, isLoading: isPostsLoading } =
     api.postRouter.getLoggedInUserPublicPosts.useQuery();
 
