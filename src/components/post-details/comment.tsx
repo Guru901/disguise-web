@@ -373,10 +373,10 @@ export default function Comment({
   return (
     <div className="w-full">
       {/* Main comment */}
-      <div className="flex flex-col gap-3 p-3 sm:p-4 md:flex-row">
+      <div className="flex flex-col p-3 sm:p-4 md:flex-row">
         {/* Avatar */}
-        <div className="flex shrink-0 gap-3">
-          <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
+        <div className="flex shrink-0 items-center gap-3">
+          <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
             <AvatarImage
               src={comment.authorAvatar ?? ""}
               alt={`${comment.authorUsername ?? "User"}'s avatar`}
@@ -394,11 +394,12 @@ export default function Comment({
             <div className="min-w-0 flex-1">
               <Link
                 href={`/u/${comment.authorId}`}
-                className="group inline-flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2"
+                className="group inline-flex flex-row items-center gap-1"
               >
                 <span className="text-foreground truncate text-sm font-semibold group-hover:underline sm:text-base">
                   {comment.authorUsername ?? "User"}
                 </span>
+                <span>•</span>
                 <span className="text-muted-foreground shrink-0 text-xs sm:text-sm">
                   {formatTimeAgo(
                     typeof comment.createdAt === "string"
@@ -484,11 +485,11 @@ export default function Comment({
               <div className="space-y-4">
                 {replies.map((reply) => (
                   <div
-                    className="flex justify-between gap-3 p-3 sm:p-4 md:flex-row"
+                    className="flex w-full justify-between gap-3 p-3 sm:p-4 md:flex-row"
                     key={reply.id}
                   >
                     {/* Avatar */}
-                    <div className="flex flex-col">
+                    <div className="w-full">
                       <div className="flex shrink-0 items-center gap-3">
                         <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
                           <AvatarImage
@@ -507,14 +508,15 @@ export default function Comment({
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex w-full items-start justify-between gap-2">
-                          <div className="min-w-0 flex-1">
+                          <div className="min-w-0">
                             <Link
                               href={`/u/${reply.authorId}`}
-                              className="group inline-flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2"
+                              className="group inline-flex flex-row items-center gap-1 sm:gap-2"
                             >
                               <span className="text-foreground truncate text-sm font-semibold group-hover:underline sm:text-base">
                                 {reply.authorUsername ?? "User"}
                               </span>
+                              <span>•</span>
                               <span className="text-muted-foreground shrink-0 text-xs sm:text-sm">
                                 {formatTimeAgo(
                                   typeof reply.createdAt === "string"
@@ -524,11 +526,11 @@ export default function Comment({
                               </span>
                             </Link>
                           </div>
-                          {/* {!reply.isDeleted && (
-                        <div className="shrink-0">
-                          {renderDropdownMenu(comment)}
-                        </div>
-                      )} */}
+                          {!reply.isDeleted && (
+                            <div className="shrink-0">
+                              {renderDropdownMenu(comment)}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -557,11 +559,6 @@ export default function Comment({
                         )}
                       </div>
                     </div>
-                    {!reply.isDeleted && (
-                      <div className="shrink-0">
-                        {renderDropdownMenu(comment)}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
