@@ -399,7 +399,7 @@ export default function Comment({
                 <span className="text-foreground truncate text-sm font-semibold group-hover:underline sm:text-base">
                   {comment.authorUsername ?? "User"}
                 </span>
-                <span>•</span>
+                <span className="font-thin">•</span>
                 <span className="text-muted-foreground shrink-0 text-xs sm:text-sm">
                   {formatTimeAgo(
                     typeof comment.createdAt === "string"
@@ -516,7 +516,7 @@ export default function Comment({
                               <span className="text-foreground truncate text-sm font-semibold group-hover:underline sm:text-base">
                                 {reply.authorUsername ?? "User"}
                               </span>
-                              <span>•</span>
+                              <span className="font-thin">•</span>
                               <span className="text-muted-foreground shrink-0 text-xs sm:text-sm">
                                 {formatTimeAgo(
                                   typeof reply.createdAt === "string"
