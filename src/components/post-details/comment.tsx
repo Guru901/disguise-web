@@ -491,7 +491,7 @@ export default function Comment({
                     {/* Avatar */}
                     <div className="w-full">
                       <div className="flex shrink-0 items-center gap-3">
-                        <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
+                        <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
                           <AvatarImage
                             src={reply.authorAvatar ?? ""}
                             alt={`${reply.authorUsername ?? "User"}'s avatar`}
@@ -586,7 +586,7 @@ export default function Comment({
                   >
                     {/* Avatar */}
                     <div className="flex shrink-0 gap-3">
-                      <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
+                      <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
                         <AvatarImage
                           src={reply.authorAvatar ?? ""}
                           alt={`${reply.authorUsername ?? "User"}'s avatar`}
