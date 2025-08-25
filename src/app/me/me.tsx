@@ -80,31 +80,39 @@ export default function Profile() {
             </div>
           ) : (
             <>
-              <Avatar className="h-44 w-44">
+              <Avatar className="h-36 w-36 md:h-44 md:w-44">
                 <AvatarImage src={avatar} alt={username} />
                 <AvatarFallback className="text-xl font-bold">
                   {username.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="space-y-1 text-center">
-                <h2 className="text-xl font-semibold">{username}</h2>
+                <h2 className="text-lg font-semibold md:text-xl">{username}</h2>
                 <div className="flex flex-col items-center text-sm">
-                  <p className="text-primary text-sm">
+                  <p className="text-primary text-xs md:text-sm">
                     Joined {formatTimeAgo(createdAt!)}
                   </p>
-                  <p className="text-primary text-sm">
+                  <p className="text-primary text-xs md:text-sm">
                     Last Online {formatTimeAgo(lastOnline!)}
                   </p>
                 </div>
               </div>
-              <div className="bg-background flex w-full items-center justify-around rounded-lg p-4 text-sm font-medium">
+              <div className="bg-background flex w-full items-center justify-around rounded-lg py-2 text-sm font-medium md:p-4">
                 <div className="flex flex-col items-center">
-                  <span className="text-xl font-bold">{posts.length}</span>
-                  <span className="text-muted-foreground">Posts</span>
+                  <span className="text-lg font-bold md:text-xl">
+                    {posts.length}
+                  </span>
+                  <span className="text-md text-muted-foreground md:text-lg">
+                    Posts
+                  </span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="text-xl font-bold">{friends.length}</span>
-                  <span className="text-muted-foreground">Friends</span>
+                  <span className="text-lg font-bold md:text-xl">
+                    {friends.length}
+                  </span>
+                  <span className="text-md text-muted-foreground md:text-lg">
+                    Friends
+                  </span>
                 </div>
               </div>
             </>
@@ -182,7 +190,7 @@ export default function Profile() {
           </div>
         </div>
       </div>
-      <div className="p-6 lg:p-8">
+      <div className="px-2 py-6 lg:p-8">
         {selectedOption === "comments" ? (
           <CommentGrid comments={userComments} isLoading={isCommentsLoading} />
         ) : selectedOption === "public" ? (
