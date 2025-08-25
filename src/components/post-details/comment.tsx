@@ -81,7 +81,6 @@ type DeleteState = {
 
 type EditState = {
   commentId: string | null;
-  isReply: boolean;
 };
 
 type EditFormData = {
@@ -107,7 +106,6 @@ export default function Comment({
 
   const [editState, setEditState] = useState<EditState>({
     commentId: null,
-    isReply: false,
   });
 
   const {
@@ -126,10 +124,9 @@ export default function Comment({
     });
   };
 
-  const handleEditClick = (targetComment: typeof comment, isReply = false) => {
+  const handleEditClick = (targetComment: typeof comment) => {
     setEditState({
       commentId: targetComment.id,
-      isReply,
     });
     reset({ content: targetComment.content });
   };
@@ -137,7 +134,6 @@ export default function Comment({
   const handleCancelEdit = () => {
     setEditState({
       commentId: null,
-      isReply: false,
     });
     reset();
   };
@@ -151,20 +147,15 @@ export default function Comment({
         content: data.content.trim(),
       });
 
-      toast.success(
-        `${editState.isReply ? "Reply" : "Comment"} updated successfully`,
-      );
+      toast.success(`Updated successfully`);
 
       setEditState({
         commentId: null,
-        isReply: false,
       });
       reset();
     } catch (error) {
       console.error("Failed to edit comment:", error);
-      toast.error(
-        `Failed to update ${editState.isReply ? "reply" : "comment"}. Please try again.`,
-      );
+      toast.error(`Failed to update. Please try again.`);
     }
   };
 
@@ -313,62 +304,80 @@ export default function Comment({
 
   const renderDropdownMenu = (
     targetComment: typeof comment,
-    isReplyComment = false,
-  ) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-min shrink-0 py-0"
-          disabled={deleteState.isDeleting || editCommentMutation.isPending}
-        >
-          <EllipsisVerticalIcon className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem
-          onClick={() => {
-            handleReply(
-              isReplyComment ? comment.id : targetComment.id,
-              targetComment.authorUsername ?? "User",
-            );
-          }}
-          disabled={deleteState.isDeleting || editCommentMutation.isPending}
-          className="cursor-pointer"
-        >
-          <Reply className="mr-3 h-4 w-4" />
-          Reply
-        </DropdownMenuItem>
-        {user.id === targetComment.authorId && (
-          <>
-            <DropdownMenuItem
-              onClick={() => handleEditClick(targetComment, isReplyComment)}
-              disabled={
-                deleteState.isDeleting ??
-                editCommentMutation.isPending ??
-                editState.commentId !== null
-              }
-              className="cursor-pointer"
-            >
-              <Edit className="mr-3 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() =>
-                handleDeleteClick(targetComment.id, isReplyComment)
-              }
-              disabled={deleteState.isDeleting || editCommentMutation.isPending}
-              className="text-destructive focus:text-destructive hover:bg-destructive/10 cursor-pointer"
-            >
-              <Trash className="mr-3 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+    reply: CommentProps["comment"] = {
+      id: "",
+      content: "",
+      post: null,
+      image: null,
+      isAReply: false,
+      replyTo: null,
+      replies: null,
+      authorUsername: null,
+      authorAvatar: null,
+      authorId: null,
+      isDeleted: null,
+      createdAt: new Date(),
+    },
+  ) => {
+    let idToCheck = reply.authorId ? reply.authorId : targetComment.authorId;
+    let idToDelete = reply.id ? reply.id : targetComment.id;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-min shrink-0 py-0"
+            disabled={deleteState.isDeleting || editCommentMutation.isPending}
+          >
+            <EllipsisVerticalIcon className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem
+            onClick={() => {
+              handleReply(
+                targetComment.id,
+                targetComment.authorUsername ?? "User",
+              );
+            }}
+            disabled={deleteState.isDeleting || editCommentMutation.isPending}
+            className="cursor-pointer"
+          >
+            <Reply className="mr-3 h-4 w-4" />
+            Reply
+          </DropdownMenuItem>
+          {user.id === idToCheck && (
+            <>
+              <DropdownMenuItem
+                onClick={() => handleEditClick(reply ? reply : comment)}
+                disabled={
+                  deleteState.isDeleting ??
+                  editCommentMutation.isPending ??
+                  editState.commentId !== null
+                }
+                className="cursor-pointer"
+              >
+                <Edit className="mr-3 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleDeleteClick(idToDelete)}
+                disabled={
+                  deleteState.isDeleting || editCommentMutation.isPending
+                }
+                className="text-destructive focus:text-destructive hover:bg-destructive/10 cursor-pointer"
+              >
+                <Trash className="mr-3 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
 
   return (
     <div className="w-full">
@@ -528,7 +537,7 @@ export default function Comment({
                           </div>
                           {!reply.isDeleted && (
                             <div className="shrink-0">
-                              {renderDropdownMenu(comment)}
+                              {renderDropdownMenu(comment, reply)}
                             </div>
                           )}
                         </div>
@@ -622,7 +631,7 @@ export default function Comment({
                         </div>
                         {!reply.isDeleted && (
                           <div className="shrink-0">
-                            {renderDropdownMenu(reply)}
+                            {renderDropdownMenu(comment, reply)}
                           </div>
                         )}
                       </div>
@@ -652,7 +661,7 @@ export default function Comment({
                         </div>
                         {!reply.isDeleted && (
                           <div className="shrink-0 p-0">
-                            {renderDropdownMenu(reply)}
+                            {renderDropdownMenu(comment, reply)}
                           </div>
                         )}
                       </div>
