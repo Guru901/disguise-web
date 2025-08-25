@@ -1214,7 +1214,7 @@ export function PostDetails({ postId }: { postId: string }) {
                 {isPostLoading || !post ? (
                   <Skeleton className="h-[20px] w-[213px]" />
                 ) : (
-                  <span className="md:text-md text-sm">
+                  <span className="md:text-md text-sm font-medium">
                     {optimisticLikes} Likes • {optimisticDislikes} Dislikes •{" "}
                     {optimisticCommentsCount} Comments • {optimisticSavedCount}{" "}
                     Saves
