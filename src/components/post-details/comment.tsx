@@ -319,8 +319,8 @@ export default function Comment({
       createdAt: new Date(),
     },
   ) => {
-    let idToCheck = reply.authorId ? reply.authorId : targetComment.authorId;
-    let idToDelete = reply.id ? reply.id : targetComment.id;
+    const idToCheck = reply.authorId ?? targetComment.authorId;
+    const idToDelete = reply.id ? reply.id : targetComment.id;
 
     return (
       <DropdownMenu>
