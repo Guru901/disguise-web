@@ -44,7 +44,7 @@ export default function RootLayout({
             <TRPCReactProvider>
               <div className="flex">
                 <DesktopSidebar />
-                <div className="mt-20 mb-20 w-full md:mt-0 lg:ml-64 lg:w-[calc(100vw-16rem)]">
+                <div className="mt-14 mb-20 w-full md:mt-0 lg:ml-64 lg:w-[calc(100vw-16rem)]">
                   {children}
                 </div>
               </div>

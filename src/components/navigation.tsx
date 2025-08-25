@@ -54,7 +54,7 @@ function BottomNavigation() {
       </DrawerTrigger>
       <DrawerContent className="bg-background p-4 sm:p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Navigation</h2>
+          <h2 className="text-md font-semibold">Navigation</h2>
           <DrawerClose asChild>
             <Button variant="ghost" size="icon">
               <XIcon />
@@ -70,7 +70,7 @@ function BottomNavigation() {
                 className="hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
                 prefetch={false}
               >
-                <Icon />
+                <Icon size={20} />
                 {label}
               </Link>
             </DrawerClose>
@@ -109,11 +109,11 @@ function BottomNavigation() {
 function XIcon() {
   return (
     <svg
-      className="h-5 w-5"
+      className="h-4 w-4"
       xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
-      viewBox="0 0 24 24"
+      viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -150,7 +150,7 @@ export function BottomNavbar() {
   if (pathname === "/" || pathname === "/login") return null;
 
   return !isDesktop ? (
-    <Card className="bottom-nav fixed bottom-2 z-10 mx-2 flex w-[98%] flex-row items-center justify-between p-4">
+    <Card className="bottom-nav fixed bottom-2 z-10 mx-2 flex w-[96%] flex-row items-center justify-between p-2 md:w-[98%] md:p-4">
       <BackBtn />
       <BottomNavigation />
     </Card>

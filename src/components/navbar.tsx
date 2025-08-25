@@ -23,10 +23,10 @@ export default function Navbar() {
   });
 
   return (
-    <nav className="bg-card fixed top-2 left-2 z-50 mx-auto w-[97%] rounded-xl border md:static md:w-full">
-      <div className="flex h-16 items-center px-4">
+    <nav className="bg-card fixed top-2 left-2 z-50 mx-auto w-[97%] rounded-xl border max-md:w-[96%] md:static md:w-full">
+      <div className="flex items-center p-2 px-4 md:h-16">
         <div className="flex flex-1 items-center justify-between">
-          <span className="text-xl font-medium">
+          <span className="text-lg font-medium md:text-xl">
             {user?.username ? (
               `Hi, ${user.username}`
             ) : loading ? (

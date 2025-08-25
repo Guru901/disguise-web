@@ -216,8 +216,8 @@ const PostCard = React.forwardRef<
 
     return (
       <Card className="h-max overflow-hidden py-3" ref={ref}>
-        <CardHeader className="flex items-center gap-4 px-4 py-3">
-          <Avatar className="h-14 w-14">
+        <CardHeader className="flex items-center gap-4 px-4 pt-3 md:py-3">
+          <Avatar className="h-10 w-10 md:h-14 md:w-14">
             <AvatarImage
               src={avatar}
               alt="@shadcn"
@@ -226,10 +226,13 @@ const PostCard = React.forwardRef<
             <AvatarFallback>{username.slice(0, 2)}</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <Link href={`/u/${authorId}`} className="font-medium underline">
+            <Link
+              href={`/u/${authorId}`}
+              className="font-medium underline max-md:text-sm"
+            >
               {username}
             </Link>
-            <div className="text-muted-foreground text-sm">
+            <div className="text-muted-foreground text-sm max-md:text-xs">
               {formatTimeAgo(createdAt)}
             </div>
           </div>

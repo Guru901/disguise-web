@@ -574,7 +574,7 @@ export function PostDetails({ postId }: { postId: string }) {
             ) : (
               <div className="flex items-start">
                 <div className="mr-4">
-                  <Avatar className="h-14 w-14">
+                  <Avatar className="h-11 w-11 md:h-14 md:w-14">
                     <AvatarImage
                       src={post.createdBy?.avatar ?? "/placeholder.svg"}
                       alt="@user"
@@ -585,7 +585,7 @@ export function PostDetails({ postId }: { postId: string }) {
                   </Avatar>
                 </div>
                 <div>
-                  <div className="text-lg font-semibold">
+                  <div className="text-md font-semibold md:text-lg">
                     <Link
                       href={`/u/${post.createdBy?.id}`}
                       className="underline"
@@ -595,13 +595,6 @@ export function PostDetails({ postId }: { postId: string }) {
                   </div>
                   <div className="text-muted-foreground text-xs font-semibold">
                     {formatTimeAgo(post.createdAt)}
-                  </div>
-                  <div className="text-muted-foreground text-xs font-semibold">
-                    {
-                      communities?.data?.find(
-                        (community) => community.id === post.community,
-                      )?.name
-                    }
                   </div>
                 </div>
               </div>
@@ -1217,15 +1210,15 @@ export function PostDetails({ postId }: { postId: string }) {
                   </Dialog>
                 )}
               </div>
-              <div className="text-muted-foreground text-sm">
+              <div className="text-muted-foreground pl-[6px] text-sm">
                 {isPostLoading || !post ? (
                   <Skeleton className="h-[20px] w-[213px]" />
                 ) : (
-                  <>
+                  <span className="md:text-md text-sm">
                     {optimisticLikes} Likes • {optimisticDislikes} Dislikes •{" "}
                     {optimisticCommentsCount} Comments • {optimisticSavedCount}{" "}
                     Saves
-                  </>
+                  </span>
                 )}
               </div>
             </div>
