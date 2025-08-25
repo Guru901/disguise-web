@@ -373,9 +373,9 @@ export default function Comment({
   return (
     <div className="w-full">
       {/* Main comment */}
-      <div className="flex flex-col p-3 sm:p-4 md:flex-row">
+      <div className="flex flex-col gap-2 p-3 sm:p-4 md:flex-row">
         {/* Avatar */}
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 gap-3">
           <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
             <AvatarImage
               src={comment.authorAvatar ?? ""}
