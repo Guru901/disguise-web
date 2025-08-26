@@ -165,7 +165,7 @@ export function PostUploadForm() {
                     id="title"
                     type="text"
                     placeholder="Enter a compelling title for your post..."
-                    className="border-muted-foreground h-12 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20 md:text-base"
+                    className="border-muted-foreground h-10 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20 md:h-12 md:text-base"
                     {...field}
                   />
                 )}

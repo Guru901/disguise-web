@@ -75,7 +75,7 @@ export function CreateCommunityForm() {
   console.log("Banner URL:", bannerUrl);
 
   return (
-    <div className="mx-auto max-w-2xl p-6 md:min-w-2xl">
+    <div className="mx-auto py-6 md:max-w-2xl md:min-w-2xl md:p-6">
       <Card className="py-6">
         <CardHeader className="space-y-2 pb-6">
           <CardTitle className="text-2xl font-bold">
@@ -87,9 +87,15 @@ export function CreateCommunityForm() {
         </CardHeader>
 
         <CardContent>
-          <form className="space-y-8" onSubmit={handleSubmit(submitForm)}>
-            <div className="space-y-3">
-              <Label htmlFor="title" className="text-base font-semibold">
+          <form
+            className="space-y-4 md:space-y-8"
+            onSubmit={handleSubmit(submitForm)}
+          >
+            <div className="space-y-1 md:space-y-3">
+              <Label
+                htmlFor="title"
+                className="text-sm font-semibold md:text-base"
+              >
                 Name
               </Label>
               <Controller
@@ -100,7 +106,7 @@ export function CreateCommunityForm() {
                     id="title"
                     type="text"
                     placeholder="Enter a compelling title for your post..."
-                    className="border-muted-foreground h-12 text-base transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
+                    className="border-muted-foreground h-10 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20 md:h-12 md:text-base"
                     {...field}
                   />
                 )}
@@ -113,8 +119,11 @@ export function CreateCommunityForm() {
               )}
             </div>
 
-            <div className="space-y-3">
-              <Label htmlFor="tags" className="text-base font-semibold">
+            <div className="space-y-1 md:space-y-3">
+              <Label
+                htmlFor="tags"
+                className="text-sm font-semibold md:text-base"
+              >
                 Tags (use spaces to separate)
               </Label>
               <Controller
@@ -125,7 +134,7 @@ export function CreateCommunityForm() {
                     id="tags"
                     type="text"
                     placeholder="Enter tags for your community..."
-                    className="border-muted-foreground h-12 text-base transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
+                    className="border-muted-foreground h-10 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20 md:h-12 md:text-base"
                     {...field}
                   />
                 )}
@@ -138,8 +147,8 @@ export function CreateCommunityForm() {
               )}
             </div>
 
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">
+            <div className="space-y-1 md:space-y-3">
+              <Label className="text-sm font-semibold md:text-base">
                 Community Guidelines (optional)
               </Label>
               <p className="text-muted-foreground text-sm">
@@ -187,8 +196,11 @@ export function CreateCommunityForm() {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <Label htmlFor="body" className="text-base font-semibold">
+            <div className="space-y-1 md:space-y-3">
+              <Label
+                htmlFor="body"
+                className="text-sm font-semibold md:text-base"
+              >
                 Description
               </Label>
               <Controller
@@ -199,7 +211,7 @@ export function CreateCommunityForm() {
                     id="body"
                     placeholder="Write your post content here... Share your thoughts, experiences, or insights."
                     rows={6}
-                    className="border-muted-foreground resize-none text-base transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
+                    className="border-muted-foreground resize-none text-sm transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20 md:text-base"
                     {...field}
                   />
                 )}
@@ -212,9 +224,12 @@ export function CreateCommunityForm() {
               )}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-1 md:space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="image" className="text-base font-semibold">
+                <Label
+                  htmlFor="image"
+                  className="text-sm font-semibold md:text-base"
+                >
                   Icon (optional)
                 </Label>
               </div>
@@ -272,9 +287,12 @@ export function CreateCommunityForm() {
               )}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-1 md:space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="banner" className="text-base font-semibold">
+                <Label
+                  htmlFor="banner"
+                  className="text-sm font-semibold md:text-base"
+                >
                   Banner (optional)
                 </Label>
               </div>
@@ -343,7 +361,7 @@ export function CreateCommunityForm() {
 
             <Button
               type="submit"
-              className="h-12 w-full text-base font-semibold shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
+              className="h-12 w-full text-sm font-semibold shadow-lg hover:shadow-xl disabled:cursor-not-allowed md:text-base"
               disabled={isLoading || isSubmitting}
             >
               {isSubmitting || isLoading ? (
