@@ -134,19 +134,27 @@ export function PostUploadForm() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
+    <div className="mx-auto py-4 md:max-w-2xl md:p-6">
       <Card className="py-6">
-        <CardHeader className="space-y-2 pb-6">
-          <CardTitle className="text-2xl font-bold">Create New Post</CardTitle>
+        <CardHeader className="pb-6 md:space-y-2">
+          <CardTitle className="text-xl font-bold md:text-2xl">
+            Create New Post
+          </CardTitle>
           <p className="text-muted-foreground text-sm">
             Share your thoughts with the community
           </p>
         </CardHeader>
 
         <CardContent>
-          <form className="space-y-8" onSubmit={handleSubmit(submitForm)}>
-            <div className="space-y-3">
-              <Label htmlFor="title" className="text-base font-semibold">
+          <form
+            className="space-y-4 md:space-y-8"
+            onSubmit={handleSubmit(submitForm)}
+          >
+            <div className="space-y-1 md:space-y-3">
+              <Label
+                htmlFor="title"
+                className="text-sm font-semibold md:text-base"
+              >
                 Title
               </Label>
               <Controller
@@ -157,7 +165,7 @@ export function PostUploadForm() {
                     id="title"
                     type="text"
                     placeholder="Enter a compelling title for your post..."
-                    className="border-muted-foreground h-12 text-base transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
+                    className="border-muted-foreground h-12 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20 md:text-base"
                     {...field}
                   />
                 )}
@@ -171,8 +179,11 @@ export function PostUploadForm() {
             </div>
 
             {/* Content Field */}
-            <div className="space-y-3">
-              <Label htmlFor="body" className="text-base font-semibold">
+            <div className="space-y-1 md:space-y-3">
+              <Label
+                htmlFor="body"
+                className="text-sm font-semibold md:text-base"
+              >
                 Content
               </Label>
               <Controller
@@ -183,7 +194,7 @@ export function PostUploadForm() {
                     id="body"
                     placeholder="Write your post content here... Share your thoughts, experiences, or insights."
                     rows={6}
-                    className="border-muted-foreground resize-none text-base transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20"
+                    className="border-muted-foreground resize-none text-sm transition-all duration-200 focus:border-blue-500 focus:ring-blue-500/20 md:text-base"
                     {...field}
                   />
                 )}
@@ -196,9 +207,12 @@ export function PostUploadForm() {
               )}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-1 md:space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="image" className="text-base font-semibold">
+                <Label
+                  htmlFor="image"
+                  className="text-sm font-semibold md:text-base"
+                >
                   Images
                 </Label>
                 {imageUrl && imageUrl.length > 0 && (
@@ -286,8 +300,11 @@ export function PostUploadForm() {
             </div>
 
             {/* Visibility Field */}
-            <div className="space-y-3">
-              <Label htmlFor="visibility" className="text-base font-semibold">
+            <div className="space-y-1 md:space-y-3">
+              <Label
+                htmlFor="visibility"
+                className="text-sm font-semibold md:text-base"
+              >
                 Visibility
               </Label>
               <div className="border-secondary flex items-center gap-2 rounded-lg border p-3">
@@ -348,8 +365,11 @@ export function PostUploadForm() {
                 </p>
               )}
             </div>
-            <div className="space-y-3">
-              <Label htmlFor="community" className="text-base font-semibold">
+            <div className="space-y-1 md:space-y-3">
+              <Label
+                htmlFor="community"
+                className="text-sm font-semibold md:text-base"
+              >
                 Community
               </Label>
               <Controller
@@ -408,7 +428,7 @@ export function PostUploadForm() {
 
             <Button
               type="submit"
-              className="h-12 w-full text-base font-semibold shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
+              className="h-12 w-full text-sm font-semibold shadow-lg hover:shadow-xl disabled:cursor-not-allowed md:text-base"
               disabled={isLoading || isSubmitting}
             >
               {isSubmitting || isLoading ? (
