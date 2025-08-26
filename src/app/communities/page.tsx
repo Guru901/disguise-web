@@ -51,18 +51,21 @@ export default function CommunitiesPage() {
 
       {/* Enhanced Header Section */}
       <div className="px-4 py-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between max-md:flex-col max-md:gap-3">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-xl font-semibold tracking-tight md:text-3xl md:font-bold">
               Explore Communities
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground max-md:text-sm">
               Discover and join amazing communities
             </p>
           </div>
           <Link
             href={"/communities/create"}
-            className={buttonVariants({ size: "lg" })}
+            className={buttonVariants({
+              size: "lg",
+              className: "max-md:w-full",
+            })}
           >
             <Plus className="mr-2 h-4 w-4" />
             Create Community
@@ -70,7 +73,7 @@ export default function CommunitiesPage() {
         </div>
       </div>
 
-      <div className="space-y-8 px-4 pb-6">
+      <div className="px-4 pb-6 md:space-y-8">
         {/* Enhanced Search Bar */}
         <div className="relative mb-6">
           <InputWithStartIcon
@@ -78,19 +81,19 @@ export default function CommunitiesPage() {
             id="search-input"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="py-6"
+            className="py-6 max-md:text-sm"
             placeholder="Search communities"
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-0 md:gap-8 lg:grid-cols-3">
           {/* Main Content */}
           <div className="space-y-6 lg:col-span-2">
             {/* Enhanced Trending Posts Section */}
             <Card className="overflow-hidden border-2">
               <div className="from-primary/5 to-primary/10 border-b bg-gradient-to-r p-6">
-                <h2 className="flex items-center gap-3 text-xl font-semibold">
-                  <TrendingUp className="text-primary h-5 w-5" />
+                <h2 className="flex items-center gap-3 text-lg font-semibold md:text-xl">
+                  <TrendingUp className="text-primary h-4 w-4 md:h-5 md:w-5" />
                   Trending Today
                 </h2>
                 <p className="text-muted-foreground mt-1 text-sm">
@@ -98,15 +101,17 @@ export default function CommunitiesPage() {
                 </p>
               </div>
               <div className="divide-y">
-                <div className="text-muted-foreground p-6 text-center">
-                  <Sparkles className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                  <p>Trending posts coming soon...</p>
+                <div className="text-muted-foreground flex flex-col items-center justify-center p-6">
+                  <Sparkles className="mx-auto mb-2 opacity-50 md:h-8 md:w-8" />
+                  <p className="max-md:text-sm">
+                    Trending posts coming soon...
+                  </p>
                 </div>
               </div>
             </Card>
 
             {/* Enhanced Communities List */}
-            <Card className="overflow-hidden border-2">
+            <Card className="overflow-hidden border-2 max-md:hidden">
               <Tabs defaultValue="trending" className="w-full">
                 <div className="from-secondary/5 to-secondary/10 border-b bg-gradient-to-r">
                   <TabsList className="h-14 w-full justify-start bg-transparent p-0">
