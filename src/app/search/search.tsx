@@ -1,0 +1,104 @@
+import { Loader2, Search as SearchIcon, Users } from "lucide-react";
+import { api } from "@/trpc/react";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import UserCard from "@/components/user-card";
+import { useRouter, useSearchParams } from "next/navigation";
+import InputWithStartIcon from "@/components/ui/input-wth-icon";
+
+export function Search() {
+  const query = useSearchParams().get("q") ?? "";
+  const router = useRouter();
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(query.trim());
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = api.userRouter.searchUsers.useQuery(debouncedSearch, {
+    enabled: debouncedSearch.length > 0,
+  });
+
+  const { data: firstTenUsers, isLoading: isFirstTenUsersLoading } =
+    api.userRouter.getFirstTenUsers.useQuery();
+
+  if (isError) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground text-lg font-medium">
+            Failed to load search results.
+          </p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => window.location.reload()}
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="relative mb-6">
+        <InputWithStartIcon
+          Icon={SearchIcon}
+          id="search-input"
+          value={query}
+          placeholder="Search for users..."
+          onChange={(e) => router.push(`?q=${e.target.value}`)}
+          className="text-md py-6 md:text-xl"
+        />
+      </div>
+
+      {isFirstTenUsersLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="text-muted-foreground mb-4 h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground">Please wait...</p>
+        </div>
+      ) : query.length === 0 ? (
+        <div className="flex flex-col gap-3">
+          {firstTenUsers?.users?.map((user) => (
+            <UserCard user={user} key={user.id} />
+          ))}
+        </div>
+      ) : isLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="text-muted-foreground mb-4 h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground">Searching...</p>
+        </div>
+      ) : users?.users && users.users.length > 0 ? (
+        <div className="space-y-3">
+          <p className="text-muted-foreground text-sm">
+            Found {users.users.length} user
+            {users.users.length !== 1 ? "s" : ""}
+          </p>
+          <div className="flex flex-col gap-3">
+            {users.users.map((user) => (
+              <UserCard user={user} key={user.id} />
+            ))}
+          </div>
+        </div>
+      ) : debouncedSearch.length > 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <Users className="text-muted-foreground mb-4 h-12 w-12" />
+          <h3 className="mb-2 text-lg font-medium">No users found</h3>
+          <p className="text-muted-foreground">
+            Try searching with a different username
+          </p>
+        </div>
+      ) : null}
+    </>
+  );
+}
