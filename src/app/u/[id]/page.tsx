@@ -191,7 +191,11 @@ export default function UserProfile() {
         <div className="bg-muted/40 border-r p-6 lg:p-8">
           <div className="flex flex-col items-center gap-4">
             <Avatar className="h-44 w-44">
-              <AvatarImage src={avatar} alt={username} />
+              <AvatarImage
+                src={avatar}
+                alt={username}
+                className="object-cover object-top"
+              />
               <AvatarFallback className="text-xl font-bold">
                 {username.slice(0, 2).toUpperCase()}
               </AvatarFallback>

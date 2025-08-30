@@ -81,7 +81,11 @@ export default function Profile() {
           ) : (
             <>
               <Avatar className="h-36 w-36 md:h-44 md:w-44">
-                <AvatarImage src={avatar} alt={username} />
+                <AvatarImage
+                  src={avatar}
+                  alt={username}
+                  className="object-cover object-top"
+                />
                 <AvatarFallback className="text-xl font-bold">
                   {username.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
