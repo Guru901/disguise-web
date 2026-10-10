@@ -22,6 +22,7 @@ import {
   CarouselItem,
   CarouselNext,
 } from "./ui/carousel";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 
 const PostCard = React.forwardRef<
   HTMLDivElement,
@@ -62,6 +63,7 @@ const PostCard = React.forwardRef<
     ref,
   ) => {
     const [optimisticLikes, setOptimisticLikes] = useState(likes.length);
+    const [signInOpen, setSignInOpen] = useState(false);
     const [optimisticDislikes, setOptimisticDislikes] = useState(
       disLikes.length,
     );
@@ -94,6 +96,10 @@ const PostCard = React.forwardRef<
       api.postRouter.dislikeAndUnlikePost.useMutation();
 
     async function copyUrlToClipboard() {
+      if (!user?.id) {
+        setSignInOpen(true);
+        return;
+      }
       try {
         await navigator.clipboard.writeText(window.location.href);
         toast("Copied to clipboard");
@@ -103,6 +109,10 @@ const PostCard = React.forwardRef<
     }
 
     async function likePost() {
+      if (!user?.id) {
+        setSignInOpen(true);
+        return;
+      }
       if (hasLiked) {
         // We are unliking the post
         setOptimisticLikes((prev) => prev - 1);
@@ -143,6 +153,10 @@ const PostCard = React.forwardRef<
     }
 
     async function dislikePost() {
+      if (!user?.id) {
+        setSignInOpen(true);
+        return;
+      }
       if (hasDisliked) {
         // We are undisliking the post
         setOptimisticDislikes((prev) => prev - 1);
@@ -183,6 +197,10 @@ const PostCard = React.forwardRef<
     }
 
     async function savePost() {
+      if (!user?.id) {
+        setSignInOpen(true);
+        return;
+      }
       const previousSaveState = hasSaved;
       // Optimistically update the save state and count
       setHasSaved(!hasSaved);
@@ -216,6 +234,7 @@ const PostCard = React.forwardRef<
 
     return (
       <Card className="h-max overflow-hidden py-3" ref={ref}>
+        <SignInPrompt open={signInOpen} onOpenChange={setSignInOpen} />
         <CardHeader className="flex items-center gap-4 px-4 pt-3 md:py-3">
           <Avatar className="h-10 w-10 md:h-14 md:w-14">
             <AvatarImage

@@ -1,19 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useUserStore } from "./userStore";
 import { api } from "@/trpc/react";
 
 export default function useGetUser() {
   const { user, setUser } = useUserStore();
-  const router = useRouter();
 
   const { data, isLoading, error, refetch } =
-    api.userRouter.getUserData.useQuery(undefined, {
-      enabled: !user?.id,
-      retry: false,
-    });
+    api.userRouter.getUserData.useQuery(undefined, { retry: false });
 
   useEffect(() => {
     if (data?.user) {
@@ -28,16 +23,20 @@ export default function useGetUser() {
         savedPosts: data.user.savedPosts ?? [],
         joinedCommunities: data.user.joinedCommunities ?? [],
       });
-    } else if (data && data.success === false) {
-      router.replace("/login");
+    } else if (data) {
+      setUser({
+        avatar: "",
+        username: "",
+        id: "",
+        posts: [],
+        friends: [],
+        createdAt: "",
+        blockedUsers: [],
+        savedPosts: [],
+        joinedCommunities: [],
+      });
     }
-  }, [data, setUser, router]);
-
-  useEffect(() => {
-    if (error) {
-      router.replace("/login");
-    }
-  }, [error, router]);
+  }, [data, setUser]);
 
   return {
     user,

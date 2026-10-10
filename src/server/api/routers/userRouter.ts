@@ -1,17 +1,24 @@
 import * as userDal from "@/dal/user";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  optionalAuthProcedure,
+  protectedProcedure,
+} from "@/server/api/trpc";
 import * as v from "valibot";
 
 export const userRouter = createTRPCRouter({
-  getUserData: protectedProcedure.query(async ({ ctx }) => {
+  getUserData: optionalAuthProcedure.query(async ({ ctx }) => {
+    if (!ctx.userId) return { user: null, success: false };
     return await userDal.getUserData(ctx.userId);
   }),
 
-  getNotifications: protectedProcedure.query(async ({ ctx }) => {
+  getNotifications: optionalAuthProcedure.query(async ({ ctx }) => {
+    if (!ctx.userId) return [];
     return await userDal.getNotifications(ctx.userId);
   }),
 
-  updateLastOnline: protectedProcedure.query(async ({ ctx }) => {
+  updateLastOnline: optionalAuthProcedure.query(async ({ ctx }) => {
+    if (!ctx.userId) return null;
     return await userDal.updateLastOnline(ctx.userId);
   }),
 
@@ -57,14 +64,14 @@ export const userRouter = createTRPCRouter({
       return await userDal.getAllUsers(input.searchTerm ?? "");
     }),
 
-  getUserDataById: protectedProcedure
+  getUserDataById: optionalAuthProcedure
     .input(
       v.object({
         id: v.string(),
       }),
     )
-    .query(async ({ input }) => {
-      return await userDal.getUserDataById(input.id);
+    .query(async ({ input, ctx }) => {
+      return await userDal.getPublicUserDataById(input.id, ctx.userId);
     }),
   removeFriendById: protectedProcedure
     .input(
@@ -86,13 +93,14 @@ export const userRouter = createTRPCRouter({
       return await userDal.sendFriendRequest(ctx.userId, input.id);
     }),
 
-  isFriendNotificationSent: protectedProcedure
+  isFriendNotificationSent: optionalAuthProcedure
     .input(
       v.object({
         id: v.string(),
       }),
     )
     .query(async ({ input, ctx }) => {
+      if (!ctx.userId) return { success: false };
       return await userDal.isFriendNotificationSent(ctx.userId, input.id);
     }),
 

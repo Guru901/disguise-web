@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import PostGrid from "@/components/grids/post-grid";
 import CommentGrid from "@/components/grids/comment-grid";
 import FriendsGrid from "@/components/grids/friends-grid";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 
 export default function UserProfile() {
   const [selectedOption, setSelectedOption] = useState("public");
@@ -32,6 +33,7 @@ export default function UserProfile() {
     useState(false);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
   const [isUnblockDialogOpen, setIsUnblockDialogOpen] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
 
   const { user: loggedInUser, refetchUser } = useGetUser();
 
@@ -131,8 +133,7 @@ export default function UserProfile() {
   const user = data?.user;
   const username = user?.username ?? "User";
   const avatar = user?.avatar ?? undefined;
-  const posts = data?.user?.posts ?? [];
-  const friends = user?.friends ?? [];
+  const friendCount = user?.friendCount ?? 0;
   const createdAt = user?.createdAt;
   const lastOnline = user?.lastOnline;
 
@@ -142,13 +143,17 @@ export default function UserProfile() {
         id: String(data?.user?.id),
       },
       {
-        enabled: !isBlocked && !isFriend && String(data?.user?.id).length > 0,
+        enabled:
+          Boolean(loggedInUser.id) &&
+          !isBlocked &&
+          !isFriend &&
+          String(data?.user?.id).length > 0,
       },
     );
 
   useEffect(() => {
-    setIsFriend(friends.includes(loggedInUser.id));
-  }, [friends, isNotificationSent, loggedInUser.id]);
+    setIsFriend(Boolean(user?.isFriend));
+  }, [user?.isFriend, isNotificationSent]);
 
   useEffect(() => {
     if (loggedInUser.id === id) {
@@ -184,6 +189,7 @@ export default function UserProfile() {
 
   return (
     <main className="flex flex-col gap-3 px-2 py-2">
+      <SignInPrompt open={signInOpen} onOpenChange={setSignInOpen} />
       <Navbar />
       <div
         className={`grid min-h-screen w-full grid-cols-1 ${isFriend ? "lg:grid-cols-[430px_1fr]" : "lg:grid-cols-[300px_1fr]"}`}
@@ -213,16 +219,30 @@ export default function UserProfile() {
             </div>
             <div className="bg-background flex w-full items-center justify-around rounded-lg p-4 text-sm font-medium">
               <div className="flex flex-col items-center">
-                <span className="text-xl font-bold">{posts.length}</span>
+                <span className="text-xl font-bold">
+                  {userPosts?.length ?? 0}
+                </span>
                 <span className="text-muted-foreground">Posts</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-xl font-bold">{friends.length}</span>
+                <span className="text-xl font-bold">{friendCount}</span>
                 <span className="text-muted-foreground">Friends</span>
               </div>
             </div>
             <div className="w-full">
-              <div className="flex w-full gap-2">
+              <div
+                className="flex w-full gap-2"
+                onClickCapture={(event) => {
+                  if (!loggedInUser.id) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setSignInOpen(true);
+                  }
+                }}
+                onFocusCapture={() => {
+                  if (!loggedInUser.id) setSignInOpen(true);
+                }}
+              >
                 {isFriend ? (
                   <Dialog
                     open={isRemoveFriendDialogOpen}
@@ -452,7 +472,7 @@ export default function UserProfile() {
                         Comments ({userComments?.length ?? 0})
                       </TabsTrigger>
                       <TabsTrigger value={"friends"} className={"w-1/3"}>
-                        Friends ({friends.length ?? 0})
+                        Friends ({friendCount})
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>

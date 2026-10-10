@@ -53,7 +53,16 @@ async function createCommunity(data: TCreateCommunitySchema, userId: string) {
 async function getAllCommunities() {
   try {
     const data = await db
-      .select()
+      .select({
+        id: communitySchema.id,
+        name: communitySchema.name,
+        description: communitySchema.description,
+        icon: communitySchema.icon,
+        banner: communitySchema.banner,
+        tags: communitySchema.tags,
+        memberCount: communitySchema.memberCount,
+        createdAt: communitySchema.createdAt,
+      })
       .from(communitySchema)
       .orderBy(desc(communitySchema.createdAt));
 
@@ -126,7 +135,14 @@ async function getCommunity(id: string) {
     }
 
     const data = {
-      ...communityData,
+      id: communityData.id,
+      name: communityData.name,
+      description: communityData.description,
+      icon: communityData.icon,
+      banner: communityData.banner,
+      memberCount: communityData.memberCount,
+      createdAt: communityData.createdAt,
+      guidlines: communityData.guidlines,
       moderatorsData,
     };
 
@@ -196,11 +212,19 @@ async function getUserJoinedCommunities(userId: string) {
 async function getPostsByCommunity(communityId: string) {
   try {
     const results = await db
-      .select()
+      .select({
+        posts: postSchema,
+        author: {
+          id: userSchema.id,
+          username: userSchema.username,
+          avatar: userSchema.avatar,
+        },
+      })
       .from(postSchema)
       .where(
         and(
           eq(postSchema.isPublic, true),
+          eq(userSchema.accountType, "public"),
           eq(postSchema.community, communityId),
         ),
       )
@@ -209,7 +233,7 @@ async function getPostsByCommunity(communityId: string) {
 
     const posts = results.map((row) => ({
       ...row.posts,
-      createdBy: row.users,
+      createdBy: row.author,
     }));
 
     return {
@@ -264,7 +288,16 @@ async function getTrendingCommunities() {
     // Get community details
     const communityIds = Array.from(communityCountMap.keys());
     const communities = await db
-      .select()
+      .select({
+        id: communitySchema.id,
+        name: communitySchema.name,
+        description: communitySchema.description,
+        icon: communitySchema.icon,
+        banner: communitySchema.banner,
+        tags: communitySchema.tags,
+        memberCount: communitySchema.memberCount,
+        createdAt: communitySchema.createdAt,
+      })
       .from(communitySchema)
       .where(inArray(communitySchema.id, communityIds));
 

@@ -9,28 +9,41 @@ import {
 import { and, desc, eq, sql, or, ilike, inArray, not } from "drizzle-orm";
 import { getUserDataById } from "./user";
 
-async function getFeed(page: number, limit: number, loggedInUserId: string) {
+async function getFeed(page: number, limit: number, loggedInUserId?: string) {
   try {
-    const results = await db
-      .select()
-      .from(postSchema)
-      .where(
-        and(
-          eq(postSchema.isPublic, true),
-          or(
-            eq(userSchema.accountType, "public"),
-            and(
-              eq(userSchema.accountType, "private"),
-              sql`${loggedInUserId} = ANY (${userSchema.friends})`,
-            ),
-            eq(postSchema.createdBy, loggedInUserId),
+    const visibility = loggedInUserId
+      ? or(
+          eq(userSchema.accountType, "public"),
+          and(
+            eq(userSchema.accountType, "private"),
+            sql`${loggedInUserId} = ANY (${userSchema.friends})`,
+          ),
+          eq(postSchema.createdBy, loggedInUserId),
+        )
+      : eq(userSchema.accountType, "public");
+
+    const blockedFilter = loggedInUserId
+      ? and(
+          not(
+            sql`${postSchema.createdBy}::text = ANY (COALESCE(${userSchema.blockedUsers}, ARRAY[]::text[]))`,
           ),
           not(
-            sql`${postSchema.createdBy}::text = ANY (${userSchema.blockedUsers})`,
+            sql`${loggedInUserId}::text = ANY (COALESCE(${userSchema.blockedUsers}, ARRAY[]::text[]))`,
           ),
-          not(sql`${loggedInUserId}::text = ANY (${userSchema.blockedUsers})`),
-        ),
-      )
+        )
+      : undefined;
+
+    const results = await db
+      .select({
+        posts: postSchema,
+        author: {
+          id: userSchema.id,
+          username: userSchema.username,
+          avatar: userSchema.avatar,
+        },
+      })
+      .from(postSchema)
+      .where(and(eq(postSchema.isPublic, true), visibility, blockedFilter))
       .leftJoin(userSchema, and(eq(userSchema.id, postSchema.createdBy)))
       .orderBy(desc(postSchema.createdAt))
       .limit(limit)
@@ -38,7 +51,7 @@ async function getFeed(page: number, limit: number, loggedInUserId: string) {
 
     return results.map((row) => ({
       ...row.posts,
-      createdBy: row.users,
+      createdBy: row.author,
     }));
   } catch (error) {
     console.error(error);
@@ -63,7 +76,7 @@ async function getLoggedInUserPublicPost(userId: string) {
   }
 }
 
-async function getPostById(postId: string) {
+async function getPostById(postId: string, viewerUserId?: string) {
   const results = await db
     .select()
     .from(postSchema)
@@ -78,11 +91,43 @@ async function getPostById(postId: string) {
     .where(eq(userSchema.id, post.createdBy!));
 
   const user = userResults[0] ?? null;
-  user!.password = "";
+  if (!user || !post.isPublic) return null;
+
+  const canViewAccount =
+    user.accountType === "public" ||
+    (user.accountType === "private" &&
+      Boolean(
+        viewerUserId &&
+          (viewerUserId === user.id ||
+            (user.friends ?? []).includes(viewerUserId)),
+      ));
+  if (!canViewAccount) {
+    return null;
+  }
+
+  if (viewerUserId) {
+    const viewerResults = await db
+      .select({ blockedUsers: userSchema.blockedUsers })
+      .from(userSchema)
+      .where(eq(userSchema.id, viewerUserId))
+      .limit(1);
+    const viewer = viewerResults[0];
+    if (
+      !viewer ||
+      (user.blockedUsers ?? []).includes(viewerUserId) ||
+      (viewer.blockedUsers ?? []).includes(user.id)
+    ) {
+      return null;
+    }
+  }
 
   return {
     ...post,
-    createdBy: user,
+    createdBy: {
+      id: user.id,
+      username: user.username,
+      avatar: user.avatar,
+    },
   };
 }
 
@@ -356,7 +401,10 @@ async function dislikeAndUnlikePost(userId: string, postId: string) {
   }
 }
 
-async function getCommentsByPostId(postId: string) {
+async function getCommentsByPostId(postId: string, viewerUserId?: string) {
+  const post = await getPostById(postId, viewerUserId);
+  if (!post) return [];
+
   try {
     const results = await db
       .select({
@@ -735,8 +783,43 @@ async function deleteComment(commentId: string, userId: string) {
   }
 }
 
-async function getUserPublicPostsByUserId(userId: string) {
+async function getUserPublicPostsByUserId(
+  userId: string,
+  viewerUserId?: string,
+) {
   try {
+    const [author] = await db
+      .select({
+        accountType: userSchema.accountType,
+        friends: userSchema.friends,
+        blockedUsers: userSchema.blockedUsers,
+      })
+      .from(userSchema)
+      .where(eq(userSchema.id, userId))
+      .limit(1);
+
+    if (!author) return [];
+
+    const isFriend = Boolean(
+      viewerUserId && author.friends?.includes(viewerUserId),
+    );
+    if (author.accountType !== "public" && !isFriend) return [];
+
+    if (viewerUserId) {
+      const [viewer] = await db
+        .select({ blockedUsers: userSchema.blockedUsers })
+        .from(userSchema)
+        .where(eq(userSchema.id, viewerUserId))
+        .limit(1);
+      if (
+        !viewer ||
+        (author.blockedUsers ?? []).includes(viewerUserId) ||
+        (viewer.blockedUsers ?? []).includes(userId)
+      ) {
+        return [];
+      }
+    }
+
     const results = await db
       .select()
       .from(postSchema)

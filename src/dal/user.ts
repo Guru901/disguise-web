@@ -287,12 +287,8 @@ async function getUserDataById(userId: string) {
 
     if (user) {
       user.password = "";
-    }
-
-    if (user) {
-      user.password = "";
       return {
-        user: user,
+        user,
         message: "User data retrieved",
         success: true,
         status: 200,
@@ -317,6 +313,28 @@ async function getUserDataById(userId: string) {
       error,
     };
   }
+}
+
+async function getPublicUserDataById(userId: string, viewerId?: string) {
+  const result = await getUserDataById(userId);
+  if (!result.user) return result;
+
+  const user = result.user;
+  const isFriend = Boolean(viewerId && user.friends?.includes(viewerId));
+  return {
+    ...result,
+    user: {
+      id: user.id,
+      username: user.username,
+      avatar: user.avatar,
+      createdAt: user.createdAt,
+      isDeleted: user.isDeleted,
+      accountType: user.accountType,
+      friendCount: user.friends?.length ?? 0,
+      isFriend,
+      lastOnline: isFriend ? user.lastOnline : null,
+    },
+  };
 }
 
 async function removeFriendById(userId: string, friendId: string) {
@@ -1039,6 +1057,7 @@ export {
   getUserData,
   searchusers,
   getUserDataById,
+  getPublicUserDataById,
   removeFriendById,
   getAllUsers,
   getNotifications,
