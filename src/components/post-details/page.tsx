@@ -18,7 +18,12 @@ import {
   InfoIcon,
 } from "lucide-react";
 import * as icons from "./icons";
-import { useState, useEffect, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 import useGetUser from "@/lib/use-get-user";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
@@ -58,6 +63,7 @@ import {
   CarouselNext,
 } from "../ui/carousel";
 import { Badge } from "../ui/badge";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 
 export function PostDetails({ postId }: { postId: string }) {
   const { user, refetchUser } = useGetUser();
@@ -116,13 +122,23 @@ export function PostDetails({ postId }: { postId: string }) {
     new Set(),
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [signInOpen, setSignInOpen] = useState(false);
 
-  const { data: allUsers } = api.userRouter.getAllUsers.useQuery({
-    searchTerm: searchTerm,
-  });
+  const { data: allUsers } = api.userRouter.getAllUsers.useQuery(
+    {
+      searchTerm: searchTerm,
+    },
+    {
+      enabled: Boolean(user?.id),
+    },
+  );
 
-  const { data: communities } =
-    api.communityRouter.getAllCommunities.useQuery();
+  const { data: communities } = api.communityRouter.getAllCommunities.useQuery(
+    undefined,
+    {
+      enabled: Boolean(user?.id),
+    },
+  );
   const {
     inputValue,
     setInputValue,
@@ -409,6 +425,10 @@ export function PostDetails({ postId }: { postId: string }) {
   }, [setShowDropdown, inputRef]);
 
   function handleReply(commentId: string, username: string) {
+    if (!user?.id) {
+      setSignInOpen(true);
+      return;
+    }
     setReplyTo(commentId);
     username = username.replace(" ", "_");
     const replyText = `@${username} `;
@@ -442,6 +462,10 @@ export function PostDetails({ postId }: { postId: string }) {
   }
 
   async function addComment() {
+    if (!user?.id) {
+      setSignInOpen(true);
+      return;
+    }
     if (newComment.content.trim() === "") return;
     try {
       setCommentLoading(true);
@@ -469,6 +493,10 @@ export function PostDetails({ postId }: { postId: string }) {
   }
 
   async function copyUrlToClipboard() {
+    if (!user?.id) {
+      setSignInOpen(true);
+      return;
+    }
     try {
       await navigator.clipboard.writeText(window.location.href);
       toast("Copied to clipboard");
@@ -478,6 +506,10 @@ export function PostDetails({ postId }: { postId: string }) {
   }
 
   async function likePost() {
+    if (!user?.id) {
+      setSignInOpen(true);
+      return;
+    }
     if (hasLiked) {
       setOptimisticLikes((prev) => prev - 1);
       setHasLiked(false);
@@ -515,6 +547,10 @@ export function PostDetails({ postId }: { postId: string }) {
   }
 
   async function dislikePost() {
+    if (!user?.id) {
+      setSignInOpen(true);
+      return;
+    }
     if (hasDisliked) {
       // We are undisliking the post
       setOptimisticDislikes((prev) => prev - 1);
@@ -557,6 +593,7 @@ export function PostDetails({ postId }: { postId: string }) {
 
   return (
     <Card className="flex min-h-[calc(100vh+15rem)] w-full items-start py-0 pb-12 md:h-fit md:w-fit md:pb-0">
+      <SignInPrompt open={signInOpen} onOpenChange={setSignInOpen} />
       <div className="h-auto w-full px-2 py-3 sm:px-6 md:w-auto lg:p-2">
         <div className="flex flex-col px-[6px] pb-[6px] md:min-w-[60vw] md:flex-row md:py-[6px]">
           <div className="w-full py-6 sm:w-3/4 sm:p-6">
@@ -774,12 +811,16 @@ export function PostDetails({ postId }: { postId: string }) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={async () =>
+                  onClick={async () => {
+                    if (!user?.id) {
+                      setSignInOpen(true);
+                      return;
+                    }
                     await savePostMutation.mutateAsync({
                       postId: postId,
                       saved: hasSaved,
-                    })
-                  }
+                    });
+                  }}
                   className="group relative"
                 >
                   <Bookmark fill={hasSaved ? "currentColor" : "transparent"} />
@@ -1245,6 +1286,12 @@ export function PostDetails({ postId }: { postId: string }) {
                         handleInputChange(e);
                       }}
                       value={inputValue}
+                      onFocus={() => {
+                        if (!user?.id) setSignInOpen(true);
+                      }}
+                      onClick={() => {
+                        if (!user?.id) setSignInOpen(true);
+                      }}
                       ref={inputRef}
                       onKeyDown={(e) =>
                         handleKeyDown(e, () => void addComment())
@@ -1264,6 +1311,12 @@ export function PostDetails({ postId }: { postId: string }) {
                       }}
                       className="w-full"
                       uploadPreset="social-media-again"
+                      onClick={(event: ReactMouseEvent<HTMLButtonElement>) => {
+                        if (!user?.id) {
+                          event.preventDefault();
+                          setSignInOpen(true);
+                        }
+                      }}
                       onSuccess={(results) => {
                         const uploadedImageUrl = String(
                           // @ts-expect-error - results.info is not typed

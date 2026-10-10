@@ -20,6 +20,7 @@ export default function Navbar() {
 
   const { data } = api.userRouter.getNotifications.useQuery(undefined, {
     refetchInterval: 5000,
+    enabled: Boolean(user?.id),
   });
 
   return (

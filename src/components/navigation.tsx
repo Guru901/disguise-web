@@ -38,10 +38,11 @@ const navItems = [
 ];
 
 function BottomNavigation() {
-  const { setUser } = useUserStore();
+  const { user, setUser } = useUserStore();
 
   api.userRouter.updateLastOnline.useQuery(undefined, {
     refetchInterval: 5000,
+    enabled: Boolean(user?.id),
   });
 
   return (

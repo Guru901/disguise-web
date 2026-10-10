@@ -68,5 +68,20 @@ const authMiddleware = t.middleware(async ({ ctx, next }) => {
   });
 });
 
+const optionalAuthMiddleware = t.middleware(async ({ ctx, next }) => {
+  const token = (await cookies()).get("token")?.value;
+  if (!token) return next({ ctx: { ...ctx, userId: undefined } });
+
+  try {
+    const decoded = jwt.verify(token, env.JWT_SECRET) as { id: string };
+    return next({ ctx: { ...ctx, userId: decoded.id } });
+  } catch {
+    return next({ ctx: { ...ctx, userId: undefined } });
+  }
+});
+
 export const publicProcedure = t.procedure.use(timingMiddleware);
+export const optionalAuthProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(optionalAuthMiddleware);
 export const protectedProcedure = t.procedure.use(authMiddleware);

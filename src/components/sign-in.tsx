@@ -55,7 +55,7 @@ export default function SignIn() {
           savedPosts: [],
           joinedCommunities: [],
         });
-        router.push("/me");
+        router.push("/feed");
       } else {
         setError("root", { message: result.message ?? "Login failed" });
       }
@@ -111,7 +111,7 @@ export default function SignIn() {
 
           <div className="flex items-center gap-2">
             <p className="text-xs">
-              <Link href="/">
+              <Link href="/signup">
                 {"Don't have an account? "}
                 Sign up
               </Link>

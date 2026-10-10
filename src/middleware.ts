@@ -5,32 +5,33 @@ export function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  if (!token) {
-    if (path !== "/login" && path !== "/") {
-      return NextResponse.redirect(new URL("/login", request.nextUrl));
-    }
-  } else {
-    if (path === "/login" || path === "/") {
-      return NextResponse.redirect(new URL("/me", request.nextUrl));
-    }
+  const requiresAccount =
+    path === "/post" ||
+    path === "/me" ||
+    path === "/settings" ||
+    path.startsWith("/settings/") ||
+    path === "/communities/create" ||
+    path.startsWith("/communities/create/");
+
+  if (!token && requiresAccount) {
+    return NextResponse.redirect(new URL("/login", request.nextUrl));
   }
+  if (token && (path === "/login" || path === "/signup")) {
+    return NextResponse.redirect(new URL("/feed", request.nextUrl));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    "/feed",
-    "/p",
-    "/post/",
+    "/post",
     "/me",
     "/login",
-    "/register",
-    "/chat",
-    "/search",
-    "/change__password",
-    "/notifications",
-    "/friends",
+    "/signup",
     "/settings",
-    "/admin/dashboard",
-    "/u/:id",
+    "/settings/:path*",
+    "/communities",
+    "/communities/:path*",
   ],
 };

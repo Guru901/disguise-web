@@ -2,13 +2,13 @@ import * as postDal from "@/dal/post";
 import { commentAddSchema, uploadPostSchema } from "@/lib/schemas";
 import {
   createTRPCRouter,
+  optionalAuthProcedure,
   protectedProcedure,
-  publicProcedure,
 } from "@/server/api/trpc";
 import * as v from "valibot";
 
 export const postRouter = createTRPCRouter({
-  getFeed: protectedProcedure
+  getFeed: optionalAuthProcedure
     .input(
       v.object({
         page: v.fallback(v.number(), 1),
@@ -65,14 +65,14 @@ export const postRouter = createTRPCRouter({
       return await postDal.getCommentsByUserId(input);
     }),
 
-  getPostById: publicProcedure
+  getPostById: optionalAuthProcedure
     .input(
       v.object({
         postId: v.string(),
       }),
     )
-    .query(async ({ input }) => {
-      return await postDal.getPostById(input.postId);
+    .query(async ({ input, ctx }) => {
+      return await postDal.getPostById(input.postId, ctx.userId);
     }),
 
   createPost: protectedProcedure
@@ -112,10 +112,10 @@ export const postRouter = createTRPCRouter({
       return await postDal.dislikeAndUnlikePost(ctx.userId, input.post);
     }),
 
-  getCommentsByPostId: protectedProcedure
+  getCommentsByPostId: optionalAuthProcedure
     .input(v.object({ postId: v.string() }))
-    .query(async ({ input }) => {
-      return await postDal.getCommentsByPostId(input.postId);
+    .query(async ({ input, ctx }) => {
+      return await postDal.getCommentsByPostId(input.postId, ctx.userId);
     }),
 
   addComments: protectedProcedure
@@ -129,14 +129,14 @@ export const postRouter = createTRPCRouter({
       return await postDal.deleteComment(input.commentId, ctx.userId);
     }),
 
-  getUserPublicPostsByUserId: protectedProcedure
+  getUserPublicPostsByUserId: optionalAuthProcedure
     .input(
       v.object({
         userId: v.string(),
       }),
     )
-    .query(async ({ input }) => {
-      return await postDal.getUserPublicPostsByUserId(input.userId);
+    .query(async ({ input, ctx }) => {
+      return await postDal.getUserPublicPostsByUserId(input.userId, ctx.userId);
     }),
   getUserlikedPostsByUserId: protectedProcedure
     .input(
